@@ -17,6 +17,24 @@ class UserController extends AppController
      *
      * @return \Cake\Http\Response|null
      */
+    public function initialize()
+    {
+        parent::initialize();
+
+        $this->Auth->allow(['register', 'login']);
+    }
+
+    /*
+    public function isAuthorized($user)
+    {
+        // Los usuarios no administradores solo pueden ver su perfil, editarlo
+        // y desconectarse
+        return in_array($this->getRequest()->getParam('action'), ['view', 'edit', 'logout']) ||
+               $user['rol'] === 'administrador';
+    }
+    */
+
+
     public function index()
     {
         $user = $this->User->find('all');
@@ -36,7 +54,7 @@ class UserController extends AppController
             'contain' => [],
         ]);
 
-        $this->set('user', $user);
+        $this->set(array('user' => $user, '_serialize' => array('user')));
     }
 
     /**
@@ -101,5 +119,75 @@ class UserController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+
+    
+    public function login()
+    {   
+
+        try {                                    
+
+            if(!isset($this->request->data['username'])){
+                throw new UnauthorizedException("Please enter your username");                
+            }
+
+             if(!isset($this->request->data['password'])){
+                throw new UnauthorizedException("Please enter your password");                
+            }
+
+            $username  = $this->request->data['username'];
+            $password  = $this->request->data['password'];
+            
+            // Check for user credentials 
+            $user = $this->User->find('login', ['username'=>$username, 'password'=>$password]);
+
+            if(!$user) {
+               throw new UnauthorizedException("Invalid login");     
+            }
+              
+              // if everything is OK set Auth session with user data
+              $this->Auth->setUser($user->toArray());
+                            
+                
+        } catch (UnauthorizedException $e) {            
+            throw new UnauthorizedException($e->getMessage(),401);   
+        }           
+
+        $this->set('user', $this->Auth->user());        
+        $this->set('_serialize', ['user']);
+    }
+
+    public function register()
+    {
+        $usuario = $this->Usuario->newEntity();
+
+        if ($this->getRequest()->is('post')) {
+            /** @var array */
+            $data = $this->getRequest()->getData();
+
+            $data['rol'] = 'deportista';
+            $data['esSocio'] = '0';
+            if (isset($data['password']) && is_string($data['password'])) {
+                if (empty($data['password'])) {
+                    unset($data['password']);
+                } else {
+                    $data['password'] = $this->hashPassword($data['password']);
+                }
+            }
+
+            $usuario = $this->Usuario->patchEntity($usuario, $data);
+            if ($this->Usuario->save($usuario)) {
+                $this->Flash->success(__("¡Bienvenido a PadeGest, {0}!", $usuario->nombre_completo));
+                $this->Auth->setUser($usuario);
+
+                return $this->redirect($this->Auth->redirectUrl());
+            } else {
+                $this->Flash->error(__('Ha ocurrido un error al crear el nuevo usuario. Por favor, inténtalo de nuevo.'));
+            }
+        } else {
+            $usuario = $this->Usuario->newEntity();
+        }
+
+        $this->set(compact('usuario'));
     }
 }
