@@ -16,6 +16,7 @@
 /*
  * Configure paths required to find CakePHP + general filepath constants
  */
+
 require __DIR__ . '/paths.php';
 
 /*
@@ -191,6 +192,7 @@ Type::build('datetime')
     ->useImmutable();
 Type::build('timestamp')
     ->useImmutable();
+    
 
 /*
  * Custom Inflector rules, can be set to correctly pluralize or singularize

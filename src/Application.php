@@ -34,8 +34,13 @@ class Application extends BaseApplication
      */
     public function bootstrap()
     {
+        
+
+
+
         // Call parent to load bootstrap from files.
         parent::bootstrap();
+        $this->addPlugin('Cors');
 
         if (PHP_SAPI === 'cli') {
             $this->bootstrapCli();

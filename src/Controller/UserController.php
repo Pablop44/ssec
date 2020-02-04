@@ -24,6 +24,7 @@ class UserController extends AppController
         $this->Auth->allow(['register', 'login']);
     }
 
+
     /*
     public function isAuthorized($user)
     {
@@ -121,41 +122,34 @@ class UserController extends AppController
         return $this->redirect(['action' => 'index']);
     }
 
-    
     public function login()
     {   
+        $username =  env('PHP_AUTH_USER');
+        $pass = env('PHP_AUTH_PW');
+        $userRaw = $this->User->find('all', array(
+            'conditions' => array('User.username' => $username),
+        ));
 
-        try {                                    
+        foreach($userRaw as $user){
+            $user = $user;
+        }
 
-            if(!isset($this->request->data['username'])){
-                throw new UnauthorizedException("Please enter your username");                
-            }
-
-             if(!isset($this->request->data['password'])){
-                throw new UnauthorizedException("Please enter your password");                
-            }
-
-            $username  = $this->request->data['username'];
-            $password  = $this->request->data['password'];
-            
-            // Check for user credentials 
-            $user = $this->User->find('login', ['username'=>$username, 'password'=>$password]);
-
-            if(!$user) {
-               throw new UnauthorizedException("Invalid login");     
-            }
-              
-              // if everything is OK set Auth session with user data
-              $this->Auth->setUser($user->toArray());
-                            
-                
-        } catch (UnauthorizedException $e) {            
-            throw new UnauthorizedException($e->getMessage(),401);   
-        }           
-
-        $this->set('user', $this->Auth->user());        
-        $this->set('_serialize', ['user']);
+        if($user['password'] !== $pass) {
+            header('Access-Control-Allow-Origin: *');
+            header($_SERVER['SERVER_PROTOCOL'].' 403 Forbidden');
+            $this->set('problema', 'No estas autorizado');    
+            $this->set('_serialize', ['problema']); 
+        }
+        else{
+            $this->Auth->setUser($user);
+            header('Access-Control-Allow-Origin: *');
+            header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
+            header('Content-Type: application/json');
+            $this->set('user', $user);    
+            $this->set('_serialize', ['user']); 
+        }    
     }
+
 
     public function register()
     {
