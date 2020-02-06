@@ -140,10 +140,10 @@ class UserController extends AppController
 
         foreach($userRaw as $user){
             $user = $user;
-            $cuenta = $user['cuenta'];
+            $idUser = $user['id'];
         }
         $cuentas = TableRegistry::getTableLocator()->get('Cuenta');
-        $iteradorCuentaUsuario = $cuentas->find()->where(['id' => $cuenta])->all();
+        $iteradorCuentaUsuario = $cuentas->find()->where(['user' => $idUser])->all();
         foreach($iteradorCuentaUsuario as $cuentaUsuario){
             $estadoCuenta = $cuentaUsuario['estado'];
         }
@@ -162,7 +162,7 @@ class UserController extends AppController
             if($user['password'] !== $pass) {
                 header('Access-Control-Allow-Origin: *');
                 header($_SERVER['SERVER_PROTOCOL'].' 403 Forbidden');
-                $this->set('problema', 'No estas autorizado por el administrador o las credenciales son incorrectas');    
+                $this->set('problema', 'Las credenciales son incorrectas');    
                 $this->set('_serialize', ['problema']); 
             }
             else{
@@ -179,28 +179,36 @@ class UserController extends AppController
 
     public function register()
     {
+
+        $datos = array();
+        debug(file_get_contents("php://input"));
+        array_push($datos, json_decode(file_get_contents("php://input")));
+
+        $user = $this->User->newEntity();
+        $user = $this->User->patchEntity($user, $this->request->getData());
+        if ($this->User->save($user)) {  
+            $this->set('usuarioCreado', $this->request->getData());   
+        }else{
+            $this->set('UsuarioCreado', 'Error al crear el usuario');   
+            $this->set('_serialize', ['error']); 
+        }     
+
         $datosCuenta = array();
         $datosCuenta['rol'] = "medico";
         $datosCuenta['estado'] = "desactivada";
 
+        $iterador = $this->User->find()->where(['username' => $datos['username']])->all();
+        foreach($iterador as $usuario){
+            $idUsuario = $usuario['id'];
+        }
+        $datosCuenta['user'] = $idUsuario;
+
         $cuenta = (new CuentaController());
         $cuenta->add($datosCuenta);
 
-        $user = $this->User->newEntity();
-        $user = $this->User->patchEntity($user, $this->request->getData());
-        if ($this->User->save($user)) {
-            header('Access-Control-Allow-Origin: *');
-            header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
-            header('Content-Type: application/json');
-            $this->set('usuarioCreado', $this->request->getData());   
-            $this->set('notificacion', "La cuenta se ha creado con exito");  
-            $this->set('_serialize', ['notificacion', 'usuarioCreado']); 
-        }else{
-            header('Access-Control-Allow-Origin: *');
-            header($_SERVER['SERVER_PROTOCOL'].' 500');
-            header('Content-Type: application/json');
-            $this->set('error', 'Error al crear el usuario');   
-            $this->set('_serialize', ['error']); 
-        }     
+        header('Access-Control-Allow-Origin: *');
+        header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
+        header('Content-Type: application/json');
+        $this->set('_serialize', ['notificacion', 'usuarioCreado']); 
     }
 }

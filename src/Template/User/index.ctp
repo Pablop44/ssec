@@ -25,7 +25,6 @@
                 <th scope="col"><?= $this->Paginator->sort('poblacion') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('cargo') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('especialidad') ?></th>
-                <th scope="col"><?= $this->Paginator->sort('cuenta') ?></th>
                 <th scope="col" class="actions"><?= __('Actions') ?></th>
             </tr>
         </thead>
@@ -42,7 +41,6 @@
                 <td><?= h($user->poblacion) ?></td>
                 <td><?= h($user->cargo) ?></td>
                 <td><?= h($user->especialidad) ?></td>
-                <td><?= $this->Number->format($user->cuenta) ?></td>
                 <td class="actions">
                     <?= $this->Html->link(__('View'), ['action' => 'view', $user->id]) ?>
                     <?= $this->Html->link(__('Edit'), ['action' => 'edit', $user->id]) ?>

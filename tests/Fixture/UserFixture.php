@@ -31,13 +31,8 @@ class UserFixture extends TestFixture
         'poblacion' => ['type' => 'string', 'length' => 45, 'null' => false, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
         'cargo' => ['type' => 'string', 'length' => 45, 'null' => true, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
         'especialidad' => ['type' => 'string', 'length' => 45, 'null' => true, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
-        'cuenta' => ['type' => 'integer', 'length' => 11, 'unsigned' => false, 'null' => false, 'default' => null, 'comment' => '', 'precision' => null, 'autoIncrement' => null],
-        '_indexes' => [
-            'fkCuenta_idx' => ['type' => 'index', 'columns' => ['cuenta'], 'length' => []],
-        ],
         '_constraints' => [
             'primary' => ['type' => 'primary', 'columns' => ['id'], 'length' => []],
-            'fkCuenta' => ['type' => 'foreign', 'columns' => ['cuenta'], 'references' => ['cuenta', 'id'], 'update' => 'cascade', 'delete' => 'cascade', 'length' => []],
         ],
         '_options' => [
             'engine' => 'InnoDB',
@@ -64,7 +59,6 @@ class UserFixture extends TestFixture
                 'poblacion' => 'Lorem ipsum dolor sit amet',
                 'cargo' => 'Lorem ipsum dolor sit amet',
                 'especialidad' => 'Lorem ipsum dolor sit amet',
-                'cuenta' => 1,
             ],
         ];
         parent::init();

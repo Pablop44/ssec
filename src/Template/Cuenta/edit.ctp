@@ -23,6 +23,7 @@
         <?php
             echo $this->Form->control('rol');
             echo $this->Form->control('estado');
+            echo $this->Form->control('user');
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>

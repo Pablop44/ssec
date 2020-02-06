@@ -45,11 +45,11 @@ class CuentaController extends AppController
      *
      * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
      */
-    public function add()
+    public function add($datos)
     {
         $cuentum = $this->Cuenta->newEntity();
-        $cuentum = $this->Cuenta->patchEntity($cuentum, $this->request->getData());
-        $this->Cuenta->save($cuentum);
+            $cuentum = $this->Cuenta->patchEntity($cuentum, $datos);
+           $this->Cuenta->save($cuentum);
     }
 
     /**

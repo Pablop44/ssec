@@ -98,11 +98,6 @@ class UserTable extends Table
             ->maxLength('especialidad', 45)
             ->allowEmptyString('especialidad');
 
-        $validator
-            ->integer('cuenta')
-            ->requirePresence('cuenta', 'create')
-            ->notEmptyString('cuenta');
-
         return $validator;
     }
 

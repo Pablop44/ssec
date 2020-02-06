@@ -16,7 +16,6 @@ use Cake\ORM\Entity;
  * @property string $poblacion
  * @property string|null $cargo
  * @property string|null $especialidad
- * @property int $cuenta
  */
 class User extends Entity
 {
@@ -39,7 +38,6 @@ class User extends Entity
         'poblacion' => true,
         'cargo' => true,
         'especialidad' => true,
-        'cuenta' => true,
     ];
 
     /**
@@ -47,4 +45,7 @@ class User extends Entity
      *
      * @var array
      */
+    protected $_hidden = [
+        'password',
+    ];
 }

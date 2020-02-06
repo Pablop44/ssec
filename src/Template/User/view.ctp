@@ -56,9 +56,5 @@
             <th scope="row"><?= __('Id') ?></th>
             <td><?= $this->Number->format($user->id) ?></td>
         </tr>
-        <tr>
-            <th scope="row"><?= __('Cuenta') ?></th>
-            <td><?= $this->Number->format($user->cuenta) ?></td>
-        </tr>
     </table>
 </div>

@@ -57,6 +57,11 @@ class CuentaTable extends Table
             ->requirePresence('estado', 'create')
             ->notEmptyString('estado');
 
+        $validator
+            ->integer('user')
+            ->requirePresence('user', 'create')
+            ->notEmptyString('user');
+
         return $validator;
     }
 }

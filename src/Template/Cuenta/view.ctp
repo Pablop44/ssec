@@ -28,5 +28,9 @@
             <th scope="row"><?= __('Id') ?></th>
             <td><?= $this->Number->format($cuentum->id) ?></td>
         </tr>
+        <tr>
+            <th scope="row"><?= __('User') ?></th>
+            <td><?= $this->Number->format($cuentum->user) ?></td>
+        </tr>
     </table>
 </div>

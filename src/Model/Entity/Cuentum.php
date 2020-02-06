@@ -9,6 +9,7 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property string $rol
  * @property string $estado
+ * @property int $user
  */
 class Cuentum extends Entity
 {
@@ -24,5 +25,6 @@ class Cuentum extends Entity
     protected $_accessible = [
         'rol' => true,
         'estado' => true,
+        'user' => true,
     ];
 }

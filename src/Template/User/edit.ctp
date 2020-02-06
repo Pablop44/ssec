@@ -30,7 +30,6 @@
             echo $this->Form->control('poblacion');
             echo $this->Form->control('cargo');
             echo $this->Form->control('especialidad');
-            echo $this->Form->control('cuenta');
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>
