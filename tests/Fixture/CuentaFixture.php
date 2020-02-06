@@ -23,6 +23,7 @@ class CuentaFixture extends TestFixture
     public $fields = [
         'id' => ['type' => 'integer', 'length' => 11, 'unsigned' => false, 'null' => false, 'default' => null, 'comment' => '', 'autoIncrement' => true, 'precision' => null],
         'rol' => ['type' => 'string', 'length' => null, 'null' => false, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
+        'estado' => ['type' => 'string', 'length' => null, 'null' => false, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
         '_constraints' => [
             'primary' => ['type' => 'primary', 'columns' => ['id'], 'length' => []],
         ],
@@ -43,6 +44,7 @@ class CuentaFixture extends TestFixture
             [
                 'id' => 1,
                 'rol' => 'Lorem ipsum dolor sit amet',
+                'estado' => 'Lorem ipsum dolor sit amet',
             ],
         ];
         parent::init();

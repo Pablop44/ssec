@@ -2,6 +2,8 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
+use Cake\Event\Event;
 
 /**
  * User Controller
@@ -20,8 +22,14 @@ class UserController extends AppController
     public function initialize()
     {
         parent::initialize();
-
         $this->Auth->allow(['register', 'login']);
+        $this->loadComponent('Csrf');
+    }
+
+    public function beforeFilter(Event $event) {
+        
+            $this->eventManager()->off($this->Csrf);
+        
     }
 
 
@@ -132,56 +140,67 @@ class UserController extends AppController
 
         foreach($userRaw as $user){
             $user = $user;
+            $cuenta = $user['cuenta'];
+        }
+        $cuentas = TableRegistry::getTableLocator()->get('Cuenta');
+        $iteradorCuentaUsuario = $cuentas->find()->where(['id' => $cuenta])->all();
+        foreach($iteradorCuentaUsuario as $cuentaUsuario){
+            $estadoCuenta = $cuentaUsuario['estado'];
         }
 
-        if($user['password'] !== $pass) {
+        if($estadoCuenta == "desactivada"){
             header('Access-Control-Allow-Origin: *');
             header($_SERVER['SERVER_PROTOCOL'].' 403 Forbidden');
-            $this->set('problema', 'No estas autorizado');    
+            $this->set('problema', 'Aun no has activado tu cuenta en el e-mail');    
             $this->set('_serialize', ['problema']); 
-        }
-        else{
-            $this->Auth->setUser($user);
+        }else if($estadoCuenta == "activada"){
             header('Access-Control-Allow-Origin: *');
-            header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
-            header('Content-Type: application/json');
-            $this->set('user', $user);    
-            $this->set('_serialize', ['user']); 
+            header($_SERVER['SERVER_PROTOCOL'].' 403 Forbidden');
+            $this->set('problema', 'El administrador aun no te ha autorizado');    
+            $this->set('_serialize', ['problema']); 
+        }else{
+            if($user['password'] !== $pass) {
+                header('Access-Control-Allow-Origin: *');
+                header($_SERVER['SERVER_PROTOCOL'].' 403 Forbidden');
+                $this->set('problema', 'No estas autorizado por el administrador o las credenciales son incorrectas');    
+                $this->set('_serialize', ['problema']); 
+            }
+            else{
+                $this->Auth->setUser($user);
+                header('Access-Control-Allow-Origin: *');
+                header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
+                header('Content-Type: application/json');
+                $this->set('user', $user);    
+                $this->set('_serialize', ['user']); 
+            } 
         }    
     }
 
 
     public function register()
     {
-        $usuario = $this->Usuario->newEntity();
+        $datosCuenta = array();
+        $datosCuenta['rol'] = "medico";
+        $datosCuenta['estado'] = "desactivada";
 
-        if ($this->getRequest()->is('post')) {
-            /** @var array */
-            $data = $this->getRequest()->getData();
+        $cuenta = (new CuentaController());
+        $cuenta->add($datosCuenta);
 
-            $data['rol'] = 'deportista';
-            $data['esSocio'] = '0';
-            if (isset($data['password']) && is_string($data['password'])) {
-                if (empty($data['password'])) {
-                    unset($data['password']);
-                } else {
-                    $data['password'] = $this->hashPassword($data['password']);
-                }
-            }
-
-            $usuario = $this->Usuario->patchEntity($usuario, $data);
-            if ($this->Usuario->save($usuario)) {
-                $this->Flash->success(__("¡Bienvenido a PadeGest, {0}!", $usuario->nombre_completo));
-                $this->Auth->setUser($usuario);
-
-                return $this->redirect($this->Auth->redirectUrl());
-            } else {
-                $this->Flash->error(__('Ha ocurrido un error al crear el nuevo usuario. Por favor, inténtalo de nuevo.'));
-            }
-        } else {
-            $usuario = $this->Usuario->newEntity();
-        }
-
-        $this->set(compact('usuario'));
+        $user = $this->User->newEntity();
+        $user = $this->User->patchEntity($user, $this->request->getData());
+        if ($this->User->save($user)) {
+            header('Access-Control-Allow-Origin: *');
+            header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
+            header('Content-Type: application/json');
+            $this->set('usuarioCreado', $this->request->getData());   
+            $this->set('notificacion', "La cuenta se ha creado con exito");  
+            $this->set('_serialize', ['notificacion', 'usuarioCreado']); 
+        }else{
+            header('Access-Control-Allow-Origin: *');
+            header($_SERVER['SERVER_PROTOCOL'].' 500');
+            header('Content-Type: application/json');
+            $this->set('error', 'Error al crear el usuario');   
+            $this->set('_serialize', ['error']); 
+        }     
     }
 }

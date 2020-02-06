@@ -48,16 +48,8 @@ class CuentaController extends AppController
     public function add()
     {
         $cuentum = $this->Cuenta->newEntity();
-        if ($this->request->is('post')) {
-            $cuentum = $this->Cuenta->patchEntity($cuentum, $this->request->getData());
-            if ($this->Cuenta->save($cuentum)) {
-                $this->Flash->success(__('The cuentum has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The cuentum could not be saved. Please, try again.'));
-        }
-        $this->set(compact('cuentum'));
+        $cuentum = $this->Cuenta->patchEntity($cuentum, $this->request->getData());
+        $this->Cuenta->save($cuentum);
     }
 
     /**

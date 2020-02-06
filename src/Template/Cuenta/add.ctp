@@ -16,6 +16,7 @@
         <legend><?= __('Add Cuentum') ?></legend>
         <?php
             echo $this->Form->control('rol');
+            echo $this->Form->control('estado');
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>

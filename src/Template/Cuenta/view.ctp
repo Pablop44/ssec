@@ -21,6 +21,10 @@
             <td><?= h($cuentum->rol) ?></td>
         </tr>
         <tr>
+            <th scope="row"><?= __('Estado') ?></th>
+            <td><?= h($cuentum->estado) ?></td>
+        </tr>
+        <tr>
             <th scope="row"><?= __('Id') ?></th>
             <td><?= $this->Number->format($cuentum->id) ?></td>
         </tr>
