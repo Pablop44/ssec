@@ -205,18 +205,11 @@ return [
      */
     'EmailTransport' => [
         'default' => [
-            'className' => MailTransport::class,
-            /*
-             * The following keys are used in SMTP transports:
-             */
-            'host' => 'localhost',
-            'port' => 25,
-            'timeout' => 30,
-            'username' => null,
-            'password' => null,
-            'client' => null,
-            'tls' => null,
-            'url' => env('EMAIL_TRANSPORT_DEFAULT_URL', null),
+                'host' => 'smtp.mailtrap.io',
+                'port' => 2525,
+                'username' => '8bf4341c41b90b',
+                'password' => '7ebfbfaa262629',
+                'className' => 'Smtp'
         ],
     ],
 
@@ -232,7 +225,7 @@ return [
     'Email' => [
         'default' => [
             'transport' => 'default',
-            'from' => 'you@localhost',
+            'from' => 'ssec@abpssec.esei.es',
             //'charset' => 'utf-8',
             //'headerCharset' => 'utf-8',
         ],

@@ -76,6 +76,16 @@ class CuentaController extends AppController
         $this->set(compact('cuentum'));
     }
 
+    public function edit2($id = null)
+    {
+        $cuentum = $this->Cuenta->get($id, [
+            'contain' => [],
+        ]);
+        $cuentum['estado'] = "activada";
+            $cuentum = $this->Cuenta->patchEntity($cuentum, $this->request->getData());
+            $this->Cuenta->save($cuentum);
+    }
+
     /**
      * Delete method
      *

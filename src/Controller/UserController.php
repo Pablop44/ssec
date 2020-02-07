@@ -4,6 +4,9 @@ namespace App\Controller;
 use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
 use Cake\Event\Event;
+use Cake\Mailer\Email;
+use Cake\Mailer\TransportFactory;
+
 
 /**
  * User Controller
@@ -22,7 +25,7 @@ class UserController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['register', 'login']);
+        $this->Auth->allow(['register', 'login', 'confirmar']);
         $this->loadComponent('Csrf');
     }
 
@@ -180,14 +183,37 @@ class UserController extends AppController
     public function register()
     {
         
-
         $user = $this->User->newEntity($this->request->data);
         
         $user['id'] = null;
         print_r($user);
         
         if ($this->User->save($user)) {  
-            $this->set('usuarioCreado', $this->request->data);   
+            $this->set('usuarioCreado', $this->request->data);
+
+            $iterador = $this->User->find()->where(['username' => $user['username']])->all();
+            foreach($iterador as $usuario){
+                $idUsuario = $usuario['id'];
+            }
+
+            TransportFactory::setConfig('mailtrap', [
+                'host' => 'smtp.mailtrap.io',
+                'port' => 2525,
+                'username' => '8bf4341c41b90b',
+                'password' => '7ebfbfaa262629',
+                'className' => 'Smtp'
+              ]);
+
+                $email = new Email();
+                $email->transport('mailtrap');
+                $email->emailFormat('html');
+                $email->from('ssec@ssec.esei.es', 'SSEC');
+                $email->subject('Nueva Ceuenta Asociada al usuario '. $this->request->data['username']);
+                $email->to('emailprueba@gmail.com');
+                $email->send('<h3> Hola, se ha creado una nueva cuenta asociada al usuario '.$this->request->data['username'].'</h3> <br>
+                 <a href="http://localhost:8765/user/confirmar/'.$idUsuario.'.json">Haz click aquí para activarla</a> <br>
+                 Para poder usarla el administrador tendrá que aprobar la solicitud después de haber activado la cuenta <br> <br>
+                 <h4> SSEC </h4>');   
         }else{
             $this->set('UsuarioCreado', 'Error al crear el usuario');   
         }     
@@ -209,6 +235,23 @@ class UserController extends AppController
         header('Access-Control-Allow-Origin: *');
         header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
         header('Content-Type: application/json; charset=utf-8');
+        $this->set('_serialize', ['UsuarioCreado']); 
+    }
+
+    public function confirmar($id = null)
+    {
+        $cuentas = TableRegistry::getTableLocator()->get('Cuenta');
+        $iteradorCuentaUsuario = $cuentas->find()->where(['user' => $id])->all();
+        foreach($iteradorCuentaUsuario as $cuentaUsuario){
+            $idCuenta = $cuentaUsuario['id'];
+        }
+        $cuentaController = (new CuentaController());
+        $cuentaController->edit2($idCuenta);
+
+        header('Access-Control-Allow-Origin: *');
+        header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
+        header('Content-Type: application/json; charset=utf-8');
+        $this->set('UsuarioCreado', $idCuenta);   
         $this->set('_serialize', ['UsuarioCreado']); 
     }
 }
