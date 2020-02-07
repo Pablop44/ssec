@@ -179,25 +179,24 @@ class UserController extends AppController
 
     public function register()
     {
+        
 
-        $datos = array();
-        debug(file_get_contents("php://input"));
-        array_push($datos, json_decode(file_get_contents("php://input")));
-
-        $user = $this->User->newEntity();
-        $user = $this->User->patchEntity($user, $this->request->getData());
+        $user = $this->User->newEntity($this->request->data);
+        
+        $user['id'] = null;
+        print_r($user);
+        
         if ($this->User->save($user)) {  
-            $this->set('usuarioCreado', $this->request->getData());   
+            $this->set('usuarioCreado', $this->request->data);   
         }else{
             $this->set('UsuarioCreado', 'Error al crear el usuario');   
-            $this->set('_serialize', ['error']); 
         }     
 
         $datosCuenta = array();
         $datosCuenta['rol'] = "medico";
         $datosCuenta['estado'] = "desactivada";
 
-        $iterador = $this->User->find()->where(['username' => $datos['username']])->all();
+        $iterador = $this->User->find()->where(['username' => $user['username']])->all();
         foreach($iterador as $usuario){
             $idUsuario = $usuario['id'];
         }
@@ -206,9 +205,10 @@ class UserController extends AppController
         $cuenta = (new CuentaController());
         $cuenta->add($datosCuenta);
 
+        
         header('Access-Control-Allow-Origin: *');
         header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
-        header('Content-Type: application/json');
-        $this->set('_serialize', ['notificacion', 'usuarioCreado']); 
+        header('Content-Type: application/json; charset=utf-8');
+        $this->set('_serialize', ['UsuarioCreado']); 
     }
 }
