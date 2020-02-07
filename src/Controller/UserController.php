@@ -145,38 +145,50 @@ class UserController extends AppController
             $user = $user;
             $idUser = $user['id'];
         }
-        $cuentas = TableRegistry::getTableLocator()->get('Cuenta');
-        $iteradorCuentaUsuario = $cuentas->find()->where(['user' => $idUser])->all();
-        foreach($iteradorCuentaUsuario as $cuentaUsuario){
-            $estadoCuenta = $cuentaUsuario['estado'];
-        }
 
-        if($estadoCuenta == "desactivada"){
+        if(!isset($idUser)){
             header('Access-Control-Allow-Origin: *');
             header($_SERVER['SERVER_PROTOCOL'].' 403 Forbidden');
-            $this->set('problema', 'Aun no has activado tu cuenta en el e-mail');    
-            $this->set('_serialize', ['problema']); 
-        }else if($estadoCuenta == "activada"){
-            header('Access-Control-Allow-Origin: *');
-            header($_SERVER['SERVER_PROTOCOL'].' 403 Forbidden');
-            $this->set('problema', 'El administrador aun no te ha autorizado');    
+            $this->set('problema', 'El usuario aun no esta registrado');    
             $this->set('_serialize', ['problema']); 
         }else{
-            if($user['password'] !== $pass) {
+            foreach($userRaw as $user){
+                $user = $user;
+                $idUser = $user['id'];
+            }
+            $cuentas = TableRegistry::getTableLocator()->get('Cuenta');
+            $iteradorCuentaUsuario = $cuentas->find()->where(['user' => $idUser])->all();
+            foreach($iteradorCuentaUsuario as $cuentaUsuario){
+                $estadoCuenta = $cuentaUsuario['estado'];
+            }
+    
+            if($estadoCuenta == "desactivada"){
                 header('Access-Control-Allow-Origin: *');
                 header($_SERVER['SERVER_PROTOCOL'].' 403 Forbidden');
-                $this->set('problema', 'Las credenciales son incorrectas');    
+                $this->set('problema', 'Aun no has activado tu cuenta en el e-mail');    
                 $this->set('_serialize', ['problema']); 
-            }
-            else{
-                $this->Auth->setUser($user);
+            }else if($estadoCuenta == "activada"){
                 header('Access-Control-Allow-Origin: *');
-                header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
-                header('Content-Type: application/json');
-                $this->set('user', $user);    
-                $this->set('_serialize', ['user']); 
-            } 
-        }    
+                header($_SERVER['SERVER_PROTOCOL'].' 403 Forbidden');
+                $this->set('problema', 'El administrador aun no te ha autorizado');    
+                $this->set('_serialize', ['problema']); 
+            }else{
+                if($user['password'] !== $pass) {
+                    header('Access-Control-Allow-Origin: *');
+                    header($_SERVER['SERVER_PROTOCOL'].' 403 Forbidden');
+                    $this->set('problema', 'Las credenciales son incorrectas');    
+                    $this->set('_serialize', ['problema']); 
+                }
+                else{
+                    $this->Auth->setUser($user);
+                    header('Access-Control-Allow-Origin: *');
+                    header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
+                    header('Content-Type: application/json');
+                    $this->set('user', $user);    
+                    $this->set('_serialize', ['user']); 
+                } 
+            }    
+        }
     }
 
 
@@ -184,16 +196,14 @@ class UserController extends AppController
     {
         
         $user = $this->User->newEntity($this->request->data);
-        
-        $user['id'] = null;
-        print_r($user);
-        
-        if ($this->User->save($user)) {  
-            $this->set('usuarioCreado', $this->request->data);
+
+        if ($this->User->save($user)){  
 
             $iterador = $this->User->find()->where(['username' => $user['username']])->all();
             foreach($iterador as $usuario){
                 $idUsuario = $usuario['id'];
+                $emailUsuario =  $usuario['email'];
+                
             }
 
             TransportFactory::setConfig('mailtrap', [
@@ -208,34 +218,35 @@ class UserController extends AppController
                 $email->transport('mailtrap');
                 $email->emailFormat('html');
                 $email->from('ssec@ssec.esei.es', 'SSEC');
-                $email->subject('Nueva Ceuenta Asociada al usuario '. $this->request->data['username']);
-                $email->to('emailprueba@gmail.com');
-                $email->send('<h3> Hola, se ha creado una nueva cuenta asociada al usuario '.$this->request->data['username'].'</h3> <br>
+                $email->subject('Nueva Cuenta Asociada al usuario '. $user['username']);
+                $email->to($emailUsuario);
+                $email->send('<h3> Hola, se ha creado una nueva cuenta asociada al usuario '.$user['username'].'</h3> <br>
                  <a href="http://localhost:8765/user/confirmar/'.$idUsuario.'.json">Haz click aquí para activarla</a> <br>
                  Para poder usarla el administrador tendrá que aprobar la solicitud después de haber activado la cuenta <br> <br>
-                 <h4> SSEC </h4>');   
+                 <h4> SSEC </h4>');  
+                 
+                $datosCuenta = array();
+                $datosCuenta['rol'] = "medico";
+                $datosCuenta['estado'] = "desactivada";
+                $datosCuenta['user'] = $idUsuario;
+
+                $cuenta = (new CuentaController());
+                $cuenta->add($datosCuenta);
+
+                header('Access-Control-Allow-Origin: *');
+                header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
+                header('Content-Type: application/json; charset=utf-8');
+                $this->set('UsuarioCreado', 'El usuario se creo correctamente'); 
+                $this->set('_serialize', ['UsuarioCreado']); 
+
         }else{
-            $this->set('UsuarioCreado', 'Error al crear el usuario');   
-        }     
+            header('Access-Control-Allow-Origin: *');
+            header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
+            header('Content-Type: application/json; charset=utf-8');
+            $this->set('UsuarioCreado', 'Error al crear el usuario'); 
+            $this->set('_serialize', ['UsuarioCreado']);  
+        }  
 
-        $datosCuenta = array();
-        $datosCuenta['rol'] = "medico";
-        $datosCuenta['estado'] = "desactivada";
-
-        $iterador = $this->User->find()->where(['username' => $user['username']])->all();
-        foreach($iterador as $usuario){
-            $idUsuario = $usuario['id'];
-        }
-        $datosCuenta['user'] = $idUsuario;
-
-        $cuenta = (new CuentaController());
-        $cuenta->add($datosCuenta);
-
-        
-        header('Access-Control-Allow-Origin: *');
-        header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
-        header('Content-Type: application/json; charset=utf-8');
-        $this->set('_serialize', ['UsuarioCreado']); 
     }
 
     public function confirmar($id = null)

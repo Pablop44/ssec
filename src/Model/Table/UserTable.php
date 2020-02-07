@@ -67,6 +67,11 @@ class UserTable extends Table
             ->notEmptyString('nombre');
 
         $validator
+            ->email('email')
+            ->requirePresence('email', 'create')
+            ->notEmptyString('email');
+
+        $validator
             ->scalar('apellidos')
             ->maxLength('apellidos', 45)
             ->requirePresence('apellidos', 'create')
