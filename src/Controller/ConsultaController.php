@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
 
 /**
  * Consulta Controller
@@ -27,12 +28,25 @@ class ConsultaController extends AppController
 
     public function consultas()
     {
+        $this->autoRender = false;
         $consultas = $this->Consulta->find()->all();
-        header('Access-Control-Allow-Origin: *');
+
+        foreach($consultas as $consulta){
+            $user = TableRegistry::getTableLocator()->get('User');
+            $iteradorUsuario = $user->find()->where(['id' => $consulta['medico']])->all();
+            $iteradorUsuario2 = $user->find()->where(['id' => $consulta['paciente']])->all();
+            foreach($iteradorUsuario as $usuario){
+                $consulta['medico'] = $usuario['nombre'].' '.$usuario['apellidos'];
+            }
+            foreach($iteradorUsuario2 as $usuario2){
+                $consulta['paciente'] = $usuario2['nombre'].' '.$usuario2['apellidos'];
+            }
+        }
+
         $this->response->statusCode(200);
-        header('Content-Type: application/json');
-        $this->set('consultas', $consultas);    
-        $this->set('_serialize', ['consultas']);
+        $this->response->type('json');
+        $json = json_encode($consultas);
+        $this->response->body($json);
     }
 
     /**
