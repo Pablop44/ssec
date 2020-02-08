@@ -25,7 +25,7 @@ class UserController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['register', 'login', 'confirmar']);
+        $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios']);
         $this->loadComponent('Csrf');
     }
 
@@ -47,10 +47,24 @@ class UserController extends AppController
     */
 
 
-    public function index()
+    public function usuarios()
     {
-        $user = $this->User->find('all');
-        $this->set(array('user' => $user, '_serialize' => array('user')));
+        $this->autoRender = false;
+        $usuarios = $this->User->find()->all();
+
+        foreach($usuarios as $usuario){
+            $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+            $iteradorCuentas = $cuenta->find()->where(['user' => $usuario['id']])->all();
+            foreach($iteradorCuentas as $cuenta){
+                $usuario['rol'] = $cuenta['rol'];
+                $usuario['estado'] = $cuenta['estado'];
+            }
+        }
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($usuarios);
+        $this->response->body($json);
     }
 
     /**
