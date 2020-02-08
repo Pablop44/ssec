@@ -17,11 +17,22 @@ class ConsultaController extends AppController
      *
      * @return \Cake\Http\Response|null
      */
-    public function index()
-    {
-        $consulta = $this->paginate($this->Consulta);
 
-        $this->set(compact('consulta'));
+    public function initialize()
+    {
+        parent::initialize();
+        $this->Auth->allow(['consultas']);
+        $this->loadComponent('Csrf');
+    }
+
+    public function consultas()
+    {
+        $consultas = $this->Consulta->find()->all();
+        header('Access-Control-Allow-Origin: *');
+        $this->response->statusCode(200);
+        header('Content-Type: application/json');
+        $this->set('consultas', $consultas);    
+        $this->set('_serialize', ['consultas']);
     }
 
     /**

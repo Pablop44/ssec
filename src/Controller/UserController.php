@@ -147,8 +147,9 @@ class UserController extends AppController
         }
 
         if(!isset($idUser)){
+            $this->response->statusCode(403);
             header('Access-Control-Allow-Origin: *');
-            header($_SERVER['SERVER_PROTOCOL'].' 403 Forbidden');
+            header('Content-Type: application/json');
             $this->set('problema', 'El usuario aun no esta registrado');    
             $this->set('_serialize', ['problema']); 
         }else{
@@ -164,25 +165,28 @@ class UserController extends AppController
     
             if($estadoCuenta == "desactivada"){
                 header('Access-Control-Allow-Origin: *');
-                header($_SERVER['SERVER_PROTOCOL'].' 403 Forbidden');
+                $this->response->statusCode(403);
+                header('Content-Type: application/json');
                 $this->set('problema', 'Aun no has activado tu cuenta en el e-mail');    
                 $this->set('_serialize', ['problema']); 
             }else if($estadoCuenta == "activada"){
                 header('Access-Control-Allow-Origin: *');
-                header($_SERVER['SERVER_PROTOCOL'].' 403 Forbidden');
+                $this->response->statusCode(403);
+                header('Content-Type: application/json');
                 $this->set('problema', 'El administrador aun no te ha autorizado');    
                 $this->set('_serialize', ['problema']); 
             }else{
                 if($user['password'] !== $pass) {
                     header('Access-Control-Allow-Origin: *');
-                    header($_SERVER['SERVER_PROTOCOL'].' 403 Forbidden');
+                    $this->response->statusCode(403);
+                    header('Content-Type: application/json');
                     $this->set('problema', 'Las credenciales son incorrectas');    
                     $this->set('_serialize', ['problema']); 
                 }
                 else{
                     $this->Auth->setUser($user);
                     header('Access-Control-Allow-Origin: *');
-                    header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
+                    $this->response->statusCode(200);
                     header('Content-Type: application/json');
                     $this->set('user', $user);    
                     $this->set('_serialize', ['user']); 
