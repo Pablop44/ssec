@@ -25,7 +25,7 @@ class UserController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios']);
+        $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios', 'logout']);
         $this->loadComponent('Csrf');
     }
 
@@ -65,6 +65,15 @@ class UserController extends AppController
         $this->response->type('json');
         $json = json_encode($usuarios);
         $this->response->body($json);
+    }
+
+    public function logout(){
+        $this->autoRender = false;
+        $this->Auth->logout();
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $this->set('respuesta', 'Has cerrado sesion correctamente');   
+        $this->set('_serialize', ['respuesta']); 
     }
 
     /**
