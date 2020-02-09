@@ -37,9 +37,11 @@ class ConsultaController extends AppController
             $iteradorUsuario2 = $user->find()->where(['id' => $consulta['paciente']])->all();
             foreach($iteradorUsuario as $usuario){
                 $consulta['medico'] = $usuario['nombre'].' '.$usuario['apellidos'];
+                $consulta['colegiado'] = $usuario['colegiado'];
             }
             foreach($iteradorUsuario2 as $usuario2){
                 $consulta['paciente'] = $usuario2['nombre'].' '.$usuario2['apellidos'];
+                $consulta['dniPaciente'] = $usuario2['dni'];
             }
         }
 
