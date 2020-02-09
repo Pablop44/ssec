@@ -21,6 +21,7 @@
     <fieldset>
         <legend><?= __('Edit User') ?></legend>
         <?php
+            echo $this->Form->control('dni');
             echo $this->Form->control('username');
             echo $this->Form->control('password');
             echo $this->Form->control('email');
@@ -28,6 +29,7 @@
             echo $this->Form->control('apellidos');
             echo $this->Form->control('telefono');
             echo $this->Form->control('poblacion');
+            echo $this->Form->control('colegiado');
             echo $this->Form->control('cargo');
             echo $this->Form->control('especialidad');
         ?>
