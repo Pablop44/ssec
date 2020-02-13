@@ -49,6 +49,11 @@ class FichaController extends AppController
                 $ficha['nombreMedico'] = $usuario2['nombre']." ".$usuario2['apellidos'];
                 $ficha['colegiado'] = $usuario2['colegiado'];
             }
+            $enfermedad = TableRegistry::getTableLocator()->get('FichaEnfermedad');
+            $iteradorEnfermedad = $enfermedad->find()->where(['ficha' => $ficha['id']])->all();
+            foreach($iteradorEnfermedad as $enfermedad){
+                $ficha['enfermedad'] = $enfermedad['enfermedad'];
+            }
         }
 
         $this->response->statusCode(200);
