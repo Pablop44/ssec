@@ -95,14 +95,7 @@ class CuentaController extends AppController
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
         $cuentum = $this->Cuenta->get($id);
-        if ($this->Cuenta->delete($cuentum)) {
-            $this->Flash->success(__('The cuentum has been deleted.'));
-        } else {
-            $this->Flash->error(__('The cuentum could not be deleted. Please, try again.'));
-        }
-
-        return $this->redirect(['action' => 'index']);
+        $this->Cuenta->delete($cuentum);
     }
 }

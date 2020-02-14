@@ -25,7 +25,7 @@ class UserController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios', 'logout']);
+        $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios', 'logout', 'delete', 'view']);
         $this->loadComponent('Csrf');
     }
 
@@ -145,15 +145,26 @@ class UserController extends AppController
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
-        $user = $this->User->get($id);
-        if ($this->User->delete($user)) {
-            $this->Flash->success(__('The user has been deleted.'));
-        } else {
-            $this->Flash->error(__('The user could not be deleted. Please, try again.'));
+        $this->request->allowMethod(['delete']);
+        $usuario = $this->User->get($id);
+
+        $cuentas = TableRegistry::getTableLocator()->get('Cuenta');
+        $iteradorCuentaUsuario = $cuentas->find()->where(['user' => $id])->all();
+        foreach($iteradorCuentaUsuario as $cuentaUsuario){
+            $idCuenta = $cuentaUsuario['id'];
         }
 
-        return $this->redirect(['action' => 'index']);
+        if ($this->User->delete($usuario)) {
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $this->set('respuesta', 'Se ha eliminado correctamente');   
+            $this->set('_serialize', ['respuesta']);
+        } else {
+            $this->response->statusCode(500);
+            $this->response->type('json');
+            $this->set('respuesta', 'No se ha eliminado el usuario');   
+            $this->set('_serialize', ['respuesta']);
+        }
     }
 
     public function login()
