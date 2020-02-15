@@ -25,7 +25,7 @@ class UserController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios', 'logout', 'delete', 'view']);
+        $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios', 'logout', 'delete', 'view', 'registerMedico']);
         $this->loadComponent('Csrf');
     }
 
@@ -271,10 +271,46 @@ class UserController extends AppController
                 $cuenta = (new CuentaController());
                 $cuenta->add($datosCuenta);
 
+                $this->response->statusCode(200);
+                $this->response->type('json');
+                $this->set('respuesta', $user);   
+                $this->set('_serialize', ['respuesta']);
+
+        }else{
+
+            $this->response->statusCode(500);
+            $this->response->type('json');
+            $this->set('respuesta', 'Error al crear el usuario');   
+            $this->set('_serialize', ['respuesta']);
+
+        }  
+
+    }
+
+    public function registerMedico()
+    {
+        
+        $user = $this->User->newEntity($this->request->data);
+
+        if ($this->User->save($user)){  
+
+            $iterador = $this->User->find()->where(['username' => $user['username']])->all();
+            foreach($iterador as $usuario){
+                $idUsuario = $usuario['id'];                
+            }
+                 
+                $datosCuenta = array();
+                $datosCuenta['rol'] = "medico";
+                $datosCuenta['estado'] = "autorizada";
+                $datosCuenta['user'] = $idUsuario;
+
+                $cuenta = (new CuentaController());
+                $cuenta->add($datosCuenta);
+
                 header('Access-Control-Allow-Origin: *');
                 header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
                 header('Content-Type: application/json; charset=utf-8');
-                $this->set('UsuarioCreado', 'El usuario se creo correctamente'); 
+                $this->set('UsuarioCreado', $user); 
                 $this->set('_serialize', ['UsuarioCreado']); 
 
         }else{
