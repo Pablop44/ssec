@@ -303,6 +303,7 @@ class UserController extends AppController
                 $datosCuenta['rol'] = "medico";
                 $datosCuenta['estado'] = "autorizada";
                 $datosCuenta['user'] = $idUsuario;
+                $user['estado'] = "autorizada";
 
                 $cuenta = (new CuentaController());
                 $cuenta->add($datosCuenta);
