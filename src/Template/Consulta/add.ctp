@@ -23,6 +23,7 @@
             echo $this->Form->control('medico');
             echo $this->Form->control('paciente');
             echo $this->Form->control('ficha');
+            echo $this->Form->control('estado');
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>

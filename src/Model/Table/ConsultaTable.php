@@ -60,21 +60,19 @@ class ConsultaTable extends Table
             ->notEmptyString('motivo');
 
         $validator
-            ->dateTime('fecha')
+            ->date('fecha')
             ->requirePresence('fecha', 'create')
-            ->notEmptyDateTime('fecha');
+            ->notEmptyDate('fecha');
 
         $validator
             ->scalar('diagnostico')
             ->maxLength('diagnostico', 511)
-            ->requirePresence('diagnostico', 'create')
-            ->notEmptyString('diagnostico');
+            ->allowEmptyString('diagnostico');
 
         $validator
             ->scalar('observaciones')
             ->maxLength('observaciones', 511)
-            ->requirePresence('observaciones', 'create')
-            ->notEmptyString('observaciones');
+            ->allowEmptyString('observaciones');
 
         $validator
             ->integer('medico')
@@ -90,6 +88,11 @@ class ConsultaTable extends Table
             ->integer('ficha')
             ->requirePresence('ficha', 'create')
             ->notEmptyString('ficha');
+
+        $validator
+            ->scalar('estado')
+            ->requirePresence('estado', 'create')
+            ->notEmptyString('estado');
 
         return $validator;
     }

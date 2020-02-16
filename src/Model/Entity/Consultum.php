@@ -9,12 +9,13 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property string $lugar
  * @property string $motivo
- * @property \Cake\I18n\FrozenTime $fecha
- * @property string $diagnostico
- * @property string $observaciones
+ * @property \Cake\I18n\FrozenDate $fecha
+ * @property string|null $diagnostico
+ * @property string|null $observaciones
  * @property int $medico
  * @property int $paciente
  * @property int $ficha
+ * @property string $estado
  */
 class Consultum extends Entity
 {
@@ -36,5 +37,6 @@ class Consultum extends Entity
         'medico' => true,
         'paciente' => true,
         'ficha' => true,
+        'estado' => true,
     ];
 }

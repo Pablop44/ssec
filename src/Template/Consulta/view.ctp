@@ -33,6 +33,10 @@
             <td><?= h($consultum->observaciones) ?></td>
         </tr>
         <tr>
+            <th scope="row"><?= __('Estado') ?></th>
+            <td><?= h($consultum->estado) ?></td>
+        </tr>
+        <tr>
             <th scope="row"><?= __('Id') ?></th>
             <td><?= $this->Number->format($consultum->id) ?></td>
         </tr>
