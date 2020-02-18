@@ -6,6 +6,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Event\Event;
 use Cake\Mailer\Email;
 use Cake\Mailer\TransportFactory;
+use Cake\I18n\FrozenTime;
 
 
 /**
@@ -89,6 +90,9 @@ class UserController extends AppController
         $user = $this->User->get($id, [
             'contain' => [],
         ]);
+        $fecha = FrozenTime::parse($user->nacimiento);
+        $user->nacimiento = $fecha;
+        $user->nacimiento = $user->nacimiento->i18nFormat('YYY-MM-dd');
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($user);

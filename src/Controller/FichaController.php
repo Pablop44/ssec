@@ -4,6 +4,7 @@ namespace App\Controller;
 use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
 use Cake\Event\Event;
+use Cake\I18n\FrozenTime;
 /**
  * Ficha Controller
  *
@@ -37,6 +38,7 @@ class FichaController extends AppController
         $fichas = $this->Ficha->find()->all();
 
         foreach($fichas as $ficha){
+            
             $usuarios = TableRegistry::getTableLocator()->get('User');
             $iteradorUsuarios = $usuarios->find()->where(['id' => $ficha['paciente']])->all();
             foreach($iteradorUsuarios as $usuario){
@@ -54,6 +56,9 @@ class FichaController extends AppController
             foreach($iteradorEnfermedad as $enfermedad){
                 $ficha['enfermedad'] = $enfermedad['enfermedad'];
             }
+            $fecha = FrozenTime::parse($ficha->fechaCreacion);
+            $ficha->fechaCreacion = $fecha;
+            $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('YYY-MM-dd');
         }
 
         $this->response->statusCode(200);
@@ -73,6 +78,7 @@ class FichaController extends AppController
     {
         $this->autoRender = false;
         $ficha = $this->Ficha->get($id);
+        
 
         $fichaEnfermedad = TableRegistry::getTableLocator()->get('FichaEnfermedad');
         $iteradorEnfermedades = $fichaEnfermedad->find()->where(['ficha' => $id])->all();
@@ -80,6 +86,10 @@ class FichaController extends AppController
         foreach($iteradorEnfermedades as $enfermdad){
             $ficha['enfermedad'.$i++] = $enfermdad['enfermedad'];
         }
+
+        $fecha = FrozenTime::parse($ficha->fechaCreacion);
+        $ficha->fechaCreacion = $fecha;
+        $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('YYY-MM-dd');
 
 
         $this->response->statusCode(200);
