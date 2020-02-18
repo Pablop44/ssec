@@ -109,6 +109,15 @@ class UserTable extends Table
             ->maxLength('especialidad', 45)
             ->allowEmptyString('especialidad');
 
+        $validator
+            ->scalar('genero')
+            ->maxLength('genero', 45)
+            ->allowEmptyString('genero');
+
+        $validator
+            ->dateTime('nacimiento')
+            ->allowEmptyDateTime('nacimiento');
+
         return $validator;
     }
 

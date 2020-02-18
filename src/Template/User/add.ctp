@@ -26,6 +26,8 @@
             echo $this->Form->control('colegiado');
             echo $this->Form->control('cargo');
             echo $this->Form->control('especialidad');
+            echo $this->Form->control('genero');
+            echo $this->Form->control('nacimiento', ['empty' => true]);
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>

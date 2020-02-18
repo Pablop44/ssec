@@ -18,6 +18,8 @@ use Cake\ORM\Entity;
  * @property int|null $colegiado
  * @property string|null $cargo
  * @property string|null $especialidad
+ * @property string|null $genero
+ * @property \Cake\I18n\FrozenTime|null $nacimiento
  */
 class User extends Entity
 {
@@ -42,6 +44,8 @@ class User extends Entity
         'colegiado' => true,
         'cargo' => true,
         'especialidad' => true,
+        'genero' => true,
+        'nacimiento' => true,
     ];
 
     /**

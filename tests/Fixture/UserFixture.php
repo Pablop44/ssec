@@ -33,6 +33,8 @@ class UserFixture extends TestFixture
         'colegiado' => ['type' => 'integer', 'length' => 9, 'unsigned' => false, 'null' => true, 'default' => null, 'comment' => '', 'precision' => null, 'autoIncrement' => null],
         'cargo' => ['type' => 'string', 'length' => 45, 'null' => true, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
         'especialidad' => ['type' => 'string', 'length' => 45, 'null' => true, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
+        'genero' => ['type' => 'string', 'length' => 45, 'null' => true, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
+        'nacimiento' => ['type' => 'datetime', 'length' => null, 'null' => true, 'default' => null, 'comment' => '', 'precision' => null],
         '_constraints' => [
             'primary' => ['type' => 'primary', 'columns' => ['id'], 'length' => []],
             'dni' => ['type' => 'unique', 'columns' => ['dni'], 'length' => []],
@@ -64,6 +66,8 @@ class UserFixture extends TestFixture
                 'colegiado' => 1,
                 'cargo' => 'Lorem ipsum dolor sit amet',
                 'especialidad' => 'Lorem ipsum dolor sit amet',
+                'genero' => 'Lorem ipsum dolor sit amet',
+                'nacimiento' => '2020-02-18 17:09:23',
             ],
         ];
         parent::init();

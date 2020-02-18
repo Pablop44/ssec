@@ -57,12 +57,20 @@
             <td><?= h($user->especialidad) ?></td>
         </tr>
         <tr>
+            <th scope="row"><?= __('Genero') ?></th>
+            <td><?= h($user->genero) ?></td>
+        </tr>
+        <tr>
             <th scope="row"><?= __('Id') ?></th>
             <td><?= $this->Number->format($user->id) ?></td>
         </tr>
         <tr>
             <th scope="row"><?= __('Colegiado') ?></th>
             <td><?= $this->Number->format($user->colegiado) ?></td>
+        </tr>
+        <tr>
+            <th scope="row"><?= __('Nacimiento') ?></th>
+            <td><?= h($user->nacimiento) ?></td>
         </tr>
     </table>
 </div>
