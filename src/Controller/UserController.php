@@ -85,11 +85,14 @@ class UserController extends AppController
      */
     public function view($id = null)
     {
+        $this->autoRender = false;
         $user = $this->User->get($id, [
             'contain' => [],
         ]);
-
-        $this->set(array('user' => $user, '_serialize' => array('user')));
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($user);
+        $this->response->body($json);
     }
 
     /**

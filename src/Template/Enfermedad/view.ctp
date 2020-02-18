@@ -29,6 +29,7 @@
         <table cellpadding="0" cellspacing="0">
             <tr>
                 <th scope="col"><?= __('Id') ?></th>
+                <th scope="col"><?= __('FechaCreacion') ?></th>
                 <th scope="col"><?= __('Paciente') ?></th>
                 <th scope="col"><?= __('Medico') ?></th>
                 <th scope="col" class="actions"><?= __('Actions') ?></th>
@@ -36,6 +37,7 @@
             <?php foreach ($enfermedad->ficha as $ficha): ?>
             <tr>
                 <td><?= h($ficha->id) ?></td>
+                <td><?= h($ficha->fechaCreacion) ?></td>
                 <td><?= h($ficha->paciente) ?></td>
                 <td><?= h($ficha->medico) ?></td>
                 <td class="actions">

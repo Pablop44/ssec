@@ -37,8 +37,8 @@ class FichaTable extends Table
         $this->setPrimaryKey('id');
 
         $this->belongsToMany('Enfermedad', [
-            'foreignKey' => 'ficha_id',
-            'targetForeignKey' => 'enfermedad_id',
+            'foreignKey' => 'ficha',
+            'targetForeignKey' => 'enfermedad',
             'joinTable' => 'ficha_enfermedad',
         ]);
     }

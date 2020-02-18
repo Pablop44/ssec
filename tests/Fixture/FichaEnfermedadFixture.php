@@ -47,7 +47,7 @@ class FichaEnfermedadFixture extends TestFixture
         $this->records = [
             [
                 'ficha' => 1,
-                'enfermedad' => 'e49527fe-d0bf-4456-85b4-86d2d38c33ce',
+                'enfermedad' => '932b0628-6884-459e-8197-74614e4e493b',
             ],
         ];
         parent::init();

@@ -22,7 +22,7 @@ class FichaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['fichas']);
+        $this->Auth->allow(['fichas', 'view']);
         $this->loadComponent('Csrf');
     }
 
@@ -71,11 +71,21 @@ class FichaController extends AppController
      */
     public function view($id = null)
     {
-        $ficha = $this->Ficha->get($id, [
-            'contain' => ['Enfermedad'],
-        ]);
+        $this->autoRender = false;
+        $ficha = $this->Ficha->get($id);
 
-        $this->set('ficha', $ficha);
+        $fichaEnfermedad = TableRegistry::getTableLocator()->get('FichaEnfermedad');
+        $iteradorEnfermedades = $fichaEnfermedad->find()->where(['ficha' => $id])->all();
+        $i = 0;
+        foreach($iteradorEnfermedades as $enfermdad){
+            $ficha['enfermedad'.$i++] = $enfermdad['enfermedad'];
+        }
+
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($ficha);
+        $this->response->body($json);
     }
 
     /**

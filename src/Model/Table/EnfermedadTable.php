@@ -38,7 +38,7 @@ class EnfermedadTable extends Table
 
         $this->belongsToMany('Ficha', [
             'foreignKey' => 'enfermedad_id',
-            'targetForeignKey' => 'ficha_id',
+            'targetForeignKey' => 'ficha',
             'joinTable' => 'ficha_enfermedad',
         ]);
     }
