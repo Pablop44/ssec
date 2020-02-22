@@ -92,7 +92,7 @@ class UserController extends AppController
         ]);
         $fecha = FrozenTime::parse($user->nacimiento);
         $user->nacimiento = $fecha;
-        $user->nacimiento = $user->nacimiento->i18nFormat('YYY-MM-dd');
+        $user->nacimiento = $user->nacimiento->i18nFormat('dd/MM/YYYY');
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($user);

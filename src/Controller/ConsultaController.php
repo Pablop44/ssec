@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
+use Cake\I18n\FrozenTime;
 
 /**
  * Consulta Controller
@@ -71,6 +72,15 @@ class ConsultaController extends AppController
     {
         $this->autoRender = false;
         $consultas = $this->Consulta->find()->where(['ficha' => $id])->all();
+
+        foreach($consultas as $consulta){
+            $fecha = FrozenTime::parse($consulta['fecha']);
+            $consulta->fecha = $fecha;
+            
+            $consulta->fecha =  $consulta->fecha->i18nFormat('dd/MM/YYYY HH:mm:ss');
+
+        }
+        
     
         $this->response->statusCode(200);
         $this->response->type('json');

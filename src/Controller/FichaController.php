@@ -58,7 +58,7 @@ class FichaController extends AppController
             }
             $fecha = FrozenTime::parse($ficha->fechaCreacion);
             $ficha->fechaCreacion = $fecha;
-            $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('YYY-MM-dd');
+            $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('dd/MM/YYYY');
         }
 
         $this->response->statusCode(200);
@@ -89,7 +89,7 @@ class FichaController extends AppController
 
         $fecha = FrozenTime::parse($ficha->fechaCreacion);
         $ficha->fechaCreacion = $fecha;
-        $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('YYY-MM-dd');
+        $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('dd/MM/YYYY');
 
 
         $this->response->statusCode(200);
