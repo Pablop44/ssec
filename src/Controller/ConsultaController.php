@@ -22,7 +22,7 @@ class ConsultaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['consultas']);
+        $this->Auth->allow(['consultas', 'consultaFicha']);
         $this->loadComponent('Csrf');
     }
 
@@ -65,6 +65,17 @@ class ConsultaController extends AppController
         ]);
 
         $this->set('consultum', $consultum);
+    }
+
+    public function consultaFicha($id = null)
+    {
+        $this->autoRender = false;
+        $consultas = $this->Consulta->find()->where(['ficha' => $id])->all();
+    
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($consultas);
+        $this->response->body($json);
     }
 
     /**

@@ -176,6 +176,7 @@ class UserController extends AppController
 
     public function login()
     {   
+        $this->autoRender = false;
         $username =  env('PHP_AUTH_USER');
         $pass = env('PHP_AUTH_PW');
         $userRaw = $this->User->find('all', array(
@@ -202,7 +203,11 @@ class UserController extends AppController
             $iteradorCuentaUsuario = $cuentas->find()->where(['user' => $idUser])->all();
             foreach($iteradorCuentaUsuario as $cuentaUsuario){
                 $estadoCuenta = $cuentaUsuario['estado'];
+                $rol = $cuentaUsuario['rol'];
             }
+
+            $user['rol'] = $rol;
+
     
             if($estadoCuenta == "desactivada"){
                 header('Access-Control-Allow-Origin: *');
@@ -226,11 +231,10 @@ class UserController extends AppController
                 }
                 else{
                     $this->Auth->setUser($user);
-                    header('Access-Control-Allow-Origin: *');
                     $this->response->statusCode(200);
-                    header('Content-Type: application/json');
-                    $this->set('user', $user);    
-                    $this->set('_serialize', ['user']); 
+                    $this->response->type('json');
+                    $json = json_encode($user);
+                    $this->response->body($json);
                 } 
             }    
         }
