@@ -23,7 +23,7 @@ class ConsultaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['consultas', 'consultaFicha']);
+        $this->Auth->allow(['consultas', 'consultaFicha', 'getHoras']);
         $this->loadComponent('Csrf');
     }
 
@@ -85,6 +85,57 @@ class ConsultaController extends AppController
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($consultas);
+        $this->response->body($json);
+    }
+
+    public function getHoras($fecha = null)
+    {
+        $this->autoRender = false;
+        $consultas = $this->Consulta->find()->where(['fecha LIKE' => '%'.$fecha.'%'])->all();
+        $horas = array();
+        $horas['9'] = false;
+        $horas['10'] = false;
+        $horas['11'] = false;
+        $horas['12'] = false;
+        $horas['13'] = false;
+        $horas['14'] = false;
+        $horas['15'] = false;
+        $horas['16'] = false;
+        foreach($consultas as $consulta){
+            $fecha = FrozenTime::parse($consulta['fecha']);
+            $consulta->fecha = $fecha;
+            
+            $consulta->fecha =  $consulta->fecha->i18nFormat('dd/MM/YYYY HH:mm:ss');
+           if(strpos($consulta->fecha, '09:00:00')){
+            $horas['9'] = true;
+           }
+           if(strpos($consulta->fecha, '10:00:00')){
+            $horas['10'] = true;
+           }
+           if(strpos($consulta->fecha, '11:00:00')){
+            $horas['11'] = true;
+           }
+           if(strpos($consulta->fecha, '12:00:00')){
+            $horas['12'] = true;
+           }
+           if(strpos($consulta->fecha, '13:00:00')){
+            $horas['13'] = true;
+           }
+           if(strpos($consulta->fecha, '14:00:00')){
+            $horas['14'] = true;
+           }
+           if(strpos($consulta->fecha, '15:00:00')){
+            $horas['15'] = true;
+           }
+           if(strpos($consulta->fecha, '16:00:00')){
+            $horas['16'] = true;
+           }
+
+        } 
+    
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($horas);
         $this->response->body($json);
     }
 
