@@ -4,6 +4,7 @@ namespace App\Controller;
 use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
 use Cake\I18n\FrozenTime;
+use Cake\Event\Event;
 
 /**
  * Consulta Controller
@@ -23,9 +24,16 @@ class ConsultaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['consultas', 'consultaFicha', 'getHoras']);
+        $this->Auth->allow(['consultas', 'consultaFicha', 'getHoras', 'add']);
         $this->loadComponent('Csrf');
     }
+
+    public function beforeFilter(Event $event) {
+        
+        $this->eventManager()->off($this->Csrf);
+    
+    }
+    
 
     public function consultas()
     {
@@ -146,19 +154,22 @@ class ConsultaController extends AppController
      */
     public function add()
     {
+        $this->autoRender = false;
+        header('Access-Control-Allow-Origin: *');
         $consultum = $this->Consulta->newEntity();
-        if ($this->request->is('post')) {
             $consultum = $this->Consulta->patchEntity($consultum, $this->request->getData());
             if ($this->Consulta->save($consultum)) {
-                $this->Flash->success(__('The consultum has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
+                $this->response->statusCode(200);
+                $this->response->type('json');
+                $json = json_encode($consultum);
+                $this->response->body($json);
             }
-            $this->Flash->error(__('The consultum could not be saved. Please, try again.'));
-        }
-        $this->set(compact('consultum'));
+            header('Access-Control-Allow-Origin: *');
+            $this->response->statusCode(500);
+            $this->response->type('json');
+            $json = json_encode("error al crear la consulta");
+            $this->response->body($json);
     }
-
     /**
      * Edit method
      *
