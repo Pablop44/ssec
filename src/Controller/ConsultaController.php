@@ -156,19 +156,30 @@ class ConsultaController extends AppController
     {
         $this->autoRender = false;
         header('Access-Control-Allow-Origin: *');
+        $consulta = $this->request->getData();
         $consultum = $this->Consulta->newEntity();
-            $consultum = $this->Consulta->patchEntity($consultum, $this->request->getData());
+        $consultum['fecha'] = $consulta['fecha'];
+        $consultum['observaciones'] = null;
+        $consultum['diagnostico'] = null;
+        $consultum['id'] = null;
+        $consultum['lugar'] = $consulta['lugar'];
+        $consultum['motivo'] = $consulta['motivo'];
+        $consultum['medico'] = $consulta['medico'];
+        $consultum['paciente'] = $consulta['paciente'];
+        $consultum['ficha'] = $consulta['ficha'];
+        $consultum['estado'] = $consulta['estado'];
             if ($this->Consulta->save($consultum)) {
                 $this->response->statusCode(200);
                 $this->response->type('json');
                 $json = json_encode($consultum);
                 $this->response->body($json);
-            }
-            header('Access-Control-Allow-Origin: *');
-            $this->response->statusCode(500);
-            $this->response->type('json');
-            $json = json_encode("error al crear la consulta");
-            $this->response->body($json);
+            }else{
+                header('Access-Control-Allow-Origin: *');
+                $this->response->statusCode(500);
+                $this->response->type('json');
+                $json = json_encode($consultum);
+                $this->response->body($json);
+            }     
     }
     /**
      * Edit method
