@@ -93,42 +93,42 @@ class ConsultaController extends AppController
         $this->autoRender = false;
         $consultas = $this->Consulta->find()->where(['fecha LIKE' => '%'.$fecha.'%'])->all();
         $horas = array();
-        $horas['9'] = false;
-        $horas['10'] = false;
-        $horas['11'] = false;
-        $horas['12'] = false;
-        $horas['13'] = false;
-        $horas['14'] = false;
-        $horas['15'] = false;
-        $horas['16'] = false;
+        $horas['09:00'] = false;
+        $horas['10:00'] = false;
+        $horas['11:00'] = false;
+        $horas['12:00'] = false;
+        $horas['13:00'] = false;
+        $horas['14:00'] = false;
+        $horas['15:00'] = false;
+        $horas['16:00'] = false;
         foreach($consultas as $consulta){
             $fecha = FrozenTime::parse($consulta['fecha']);
             $consulta->fecha = $fecha;
             
             $consulta->fecha =  $consulta->fecha->i18nFormat('dd/MM/YYYY HH:mm:ss');
            if(strpos($consulta->fecha, '09:00:00')){
-            $horas['9'] = true;
+            $horas['09:00'] = true;
            }
            if(strpos($consulta->fecha, '10:00:00')){
-            $horas['10'] = true;
+            $horas['10:00'] = true;
            }
            if(strpos($consulta->fecha, '11:00:00')){
-            $horas['11'] = true;
+            $horas['11:00'] = true;
            }
            if(strpos($consulta->fecha, '12:00:00')){
-            $horas['12'] = true;
+            $horas['12:00'] = true;
            }
            if(strpos($consulta->fecha, '13:00:00')){
-            $horas['13'] = true;
+            $horas['13:00'] = true;
            }
            if(strpos($consulta->fecha, '14:00:00')){
-            $horas['14'] = true;
+            $horas['14:00'] = true;
            }
            if(strpos($consulta->fecha, '15:00:00')){
-            $horas['15'] = true;
+            $horas['15:00'] = true;
            }
            if(strpos($consulta->fecha, '16:00:00')){
-            $horas['16'] = true;
+            $horas['16:00'] = true;
            }
 
         } 
