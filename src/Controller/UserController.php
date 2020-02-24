@@ -26,7 +26,7 @@ class UserController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios', 'logout', 'delete', 'view', 'registerMedico']);
+        $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios', 'logout', 'delete', 'view', 'registerMedico', 'todosMedicos']);
         $this->loadComponent('Csrf');
     }
 
@@ -106,6 +106,31 @@ class UserController extends AppController
         $json = json_encode($user);
         $this->response->body($json);
     }
+
+    public function todosMedicos()
+    {
+        $this->autoRender = false;
+        $usuarios = $this->User->find()->all();
+        $usuarioFinal = array();
+        $i=0;
+
+        foreach($usuarios as $usuario){
+            $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+            $iteradorCuentas = $cuenta->find()->where(['user' => $usuario['id']])->all();
+            foreach($iteradorCuentas as $cuenta){
+                $usuario['rol'] = $cuenta['rol'];
+                if($usuario['rol'] == "medico"){
+                  $usuarioFinal[$i++] = $usuario;  
+                }
+            }
+        }
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($usuarioFinal);
+        $this->response->body($json);
+    }
+    
 
     /**
      * Add method
