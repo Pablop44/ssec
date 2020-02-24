@@ -99,9 +99,9 @@ class ConsultaController extends AppController
     public function getHoras()
     {
         $this->autoRender = false;
-        debug($this->request->getData());
-        /*
-        $consultas = $this->Consulta->find()->where(['fecha LIKE' => '%'.$datos['fecha'].'%'])->all();
+        $data = $this->request->getData();
+        
+        $consultas = $this->Consulta->find()->where(['fecha LIKE' => '%'.$data['fecha'].'%'])->where(['medico' => $data['medico']])->all();
         $horas = array();
         $horas['09:00'] = false;
         $horas['10:00'] = false;
@@ -147,7 +147,7 @@ class ConsultaController extends AppController
         $this->response->type('json');
         $json = json_encode($horas);
         $this->response->body($json);
-        */
+        
     }
 
     /**
