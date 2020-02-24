@@ -90,6 +90,14 @@ class UserController extends AppController
         $user = $this->User->get($id, [
             'contain' => [],
         ]);
+
+        $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+            $iteradorCuentas = $cuenta->find()->where(['user' => $user->id])->all();
+            foreach($iteradorCuentas as $cuenta){
+                $user['rol'] = $cuenta['rol'];
+                $user['estado'] = $cuenta['estado'];
+            }
+
         $fecha = FrozenTime::parse($user->nacimiento);
         $user->nacimiento = $fecha;
         $user->nacimiento = $user->nacimiento->i18nFormat('dd/MM/YYYY');
