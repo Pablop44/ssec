@@ -79,13 +79,16 @@ class FichaController extends AppController
         $this->autoRender = false;
         $ficha = $this->Ficha->get($id);
         
+        $enfermedades = array();
 
         $fichaEnfermedad = TableRegistry::getTableLocator()->get('FichaEnfermedad');
         $iteradorEnfermedades = $fichaEnfermedad->find()->where(['ficha' => $id])->all();
         $i = 0;
-        foreach($iteradorEnfermedades as $enfermdad){
-            $ficha['enfermedad'.$i++] = $enfermdad['enfermedad'];
+        foreach($iteradorEnfermedades as $enfermedad){
+            $enfermedades[$i++] = $enfermedad['enfermedad'];
         }
+
+        $ficha['enfermedad'] = (object) $enfermedades;
 
         $fecha = FrozenTime::parse($ficha->fechaCreacion);
         $ficha->fechaCreacion = $fecha;

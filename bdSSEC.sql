@@ -610,3 +610,5 @@ insert into FICHA_ENFERMEDAD (ficha, enfermedad) values (20, 'migranas');
 insert into FICHA_ENFERMEDAD (ficha, enfermedad) values (21, 'asma');
 insert into FICHA_ENFERMEDAD (ficha, enfermedad) values (22, 'diabetes');
 insert into FICHA_ENFERMEDAD (ficha, enfermedad) values (23, 'diabetes');
+insert into FICHA_ENFERMEDAD (ficha, enfermedad) values (1, 'diabetes');
+insert into FICHA_ENFERMEDAD (ficha, enfermedad) values (1, 'asma');

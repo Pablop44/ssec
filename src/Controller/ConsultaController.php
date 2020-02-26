@@ -101,47 +101,69 @@ class ConsultaController extends AppController
         $this->autoRender = false;
         $data = $this->request->getData();
         
-        $consultas = $this->Consulta->find()->where(['fecha LIKE' => '%'.$data['fecha'].'%'])->where(['medico' => $data['medico']])->all();
-        $horas = array();
-        $horas['09:00'] = false;
-        $horas['10:00'] = false;
-        $horas['11:00'] = false;
-        $horas['12:00'] = false;
-        $horas['13:00'] = false;
-        $horas['14:00'] = false;
-        $horas['15:00'] = false;
-        $horas['16:00'] = false;
-        foreach($consultas as $consulta){
+            $fechaPrueba = FrozenTime::parse($data['fecha']);
+            $fechaPrueba =  $fechaPrueba->i18nFormat('dd/MM/YYYY');
+
+            $ahora = FrozenTime::now();
+            $ahora = $ahora->i18nFormat('dd/MM/YYYY');
+
+        if($ahora <= $fechaPrueba){
+
+            $consultas = $this->Consulta->find()->where(['fecha LIKE' => '%'.$data['fecha'].'%'])->where(['medico' => $data['medico']])->all();
+            $horas = array();
+            $horas['09:00'] = false;
+            $horas['10:00'] = false;
+            $horas['11:00'] = false;
+            $horas['12:00'] = false;
+            $horas['13:00'] = false;
+            $horas['14:00'] = false;
+            $horas['15:00'] = false;
+            $horas['16:00'] = false;
+            foreach($consultas as $consulta){
+
+
+            
             $fecha = FrozenTime::parse($consulta['fecha']);
             $consulta->fecha = $fecha;
             
             $consulta->fecha =  $consulta->fecha->i18nFormat('dd/MM/YYYY HH:mm:ss');
-           if(strpos($consulta->fecha, '09:00:00')){
+                if(strpos($consulta->fecha, '09:00:00')){
+                    $horas['09:00'] = true;
+                   }
+                   if(strpos($consulta->fecha, '10:00:00')){
+                    $horas['10:00'] = true;
+                   }
+                   if(strpos($consulta->fecha, '11:00:00')){
+                    $horas['11:00'] = true;
+                   }
+                   if(strpos($consulta->fecha, '12:00:00')){
+                    $horas['12:00'] = true;
+                   }
+                   if(strpos($consulta->fecha, '13:00:00')){
+                    $horas['13:00'] = true;
+                   }
+                   if(strpos($consulta->fecha, '14:00:00')){
+                    $horas['14:00'] = true;
+                   }
+                   if(strpos($consulta->fecha, '15:00:00')){
+                    $horas['15:00'] = true;
+                   }
+                   if(strpos($consulta->fecha, '16:00:00')){
+                    $horas['16:00'] = true;
+                   }
+             } 
+        }else{
+            
             $horas['09:00'] = true;
-           }
-           if(strpos($consulta->fecha, '10:00:00')){
             $horas['10:00'] = true;
-           }
-           if(strpos($consulta->fecha, '11:00:00')){
             $horas['11:00'] = true;
-           }
-           if(strpos($consulta->fecha, '12:00:00')){
             $horas['12:00'] = true;
-           }
-           if(strpos($consulta->fecha, '13:00:00')){
             $horas['13:00'] = true;
-           }
-           if(strpos($consulta->fecha, '14:00:00')){
             $horas['14:00'] = true;
-           }
-           if(strpos($consulta->fecha, '15:00:00')){
             $horas['15:00'] = true;
-           }
-           if(strpos($consulta->fecha, '16:00:00')){
             $horas['16:00'] = true;
-           }
-
-        } 
+        }
+        
     
         $this->response->statusCode(200);
         $this->response->type('json');
