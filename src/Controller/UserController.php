@@ -180,22 +180,21 @@ class UserController extends AppController
     {
         $this->autoRender = false;
 
-        /*
+        debug($this->request->data);
+        die();
 
         $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
-            $iteradorCuentas = $cuenta->find()->where(['user' => $id])->all();
+            $iteradorCuentas = $cuenta->find()->where(['user' => $data['id']])->all();
             foreach($iteradorCuentas as $cuenta){
                 $idCuenta= $cuenta['id'];
             }
 
         $cuenta = (new CuentaController());
-        $cuenta->edit2($idCuenta, $this->request->getData());
+        $cuenta->edit2($idCuenta, $data->estado);
 
-        */
-        
         $this->response->statusCode(200);
         $this->response->type('json');
-        $json = json_encode($this->request->getData());
+        $json = json_encode($data);
         $this->response->body($json);
     }
 
@@ -208,9 +207,6 @@ class UserController extends AppController
         $json = json_encode($this->request->getData());
         $this->response->body($json);
     }
-
-
-
     /**
      * Delete method
      *
