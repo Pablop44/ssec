@@ -199,21 +199,12 @@ class UserController extends AppController
         $this->response->body($json);
     }
 
-    public function editarEspecialidad()
-    {
-        $this->autoRender = false;
-        
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($this->request->getData());
-        $this->response->body($json);
-    }
-
 
     public function editarUser()
     {
         $this->autoRender = false;
         $data = $this->request->getData();
+        
         
         $user = $this->User->get($data['id'], [
             'contain' => [],
