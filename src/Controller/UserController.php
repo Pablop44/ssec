@@ -26,7 +26,7 @@ class UserController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios', 'logout', 'delete', 'view', 'registerMedico', 'todosMedicos', 'edit']);
+        $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios', 'logout', 'delete', 'view', 'registerMedico', 'todosMedicos', 'edit', 'editarEspecialidad']);
         $this->loadComponent('Csrf');
     }
 
@@ -178,10 +178,9 @@ class UserController extends AppController
      */
     public function edit()
     {
+        $this->autoRender = false;
 
-        $data = $this->request->getData();
-        debug($data);
-        die();
+        /*
 
         $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
             $iteradorCuentas = $cuenta->find()->where(['user' => $id])->all();
@@ -191,12 +190,26 @@ class UserController extends AppController
 
         $cuenta = (new CuentaController());
         $cuenta->edit2($idCuenta, $this->request->getData());
+
+        */
         
         $this->response->statusCode(200);
         $this->response->type('json');
-        $json = json_encode($user);
+        $json = json_encode($this->request->getData());
         $this->response->body($json);
     }
+
+    public function editarEspecialidad()
+    {
+        $this->autoRender = false;
+        
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($this->request->getData());
+        $this->response->body($json);
+    }
+
+
 
     /**
      * Delete method
