@@ -26,7 +26,8 @@ class UserController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios', 'logout', 'delete', 'view', 'registerMedico', 'todosMedicos', 'edit', 'editarEspecialidad']);
+        $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios', 'logout', 'delete', 
+        'view', 'registerMedico', 'todosMedicos', 'edit', 'editarEspecialidad', 'editarUser']);
         $this->loadComponent('Csrf');
     }
 
@@ -205,6 +206,29 @@ class UserController extends AppController
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($this->request->getData());
+        $this->response->body($json);
+    }
+
+
+    public function editarUser()
+    {
+        $this->autoRender = false;
+        $data = $this->request->getData();
+        
+        $user = $this->User->get($data['id'], [
+            'contain' => [],
+        ]);
+      
+            $user2 = $this->User->patchEntity($user, $data);
+            if ($this->User->save($user2)) {
+                $this->response->statusCode(200);
+                $this->response->type('json');
+                $json = json_encode($user2);
+                $this->response->body($json);
+            }
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($user2);
         $this->response->body($json);
     }
     /**
