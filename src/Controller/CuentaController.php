@@ -59,22 +59,22 @@ class CuentaController extends AppController
      * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function edit($id = null)
+    public function edit($id = null, $datos)
     {
+        $this->autoRender = false;
         $cuentum = $this->Cuenta->get($id, [
             'contain' => [],
         ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $cuentum = $this->Cuenta->patchEntity($cuentum, $this->request->getData());
-            if ($this->Cuenta->save($cuentum)) {
-                $this->Flash->success(__('The cuentum has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The cuentum could not be saved. Please, try again.'));
-        }
-        $this->set(compact('cuentum'));
+            $cuentum = $this->Cuenta->patchEntity($cuentum, $datos);
+            if (!$this->Cuenta->save($cuentum)) {
+                $this->response->statusCode(500);
+                $this->response->type('json');
+                $this->set('respuesta', 'No se ha actualizado la cuenta');   
+                $this->set('_serialize', ['respuesta']);
+            }   
     }
+        
+    
 
     public function edit2($id = null)
     {

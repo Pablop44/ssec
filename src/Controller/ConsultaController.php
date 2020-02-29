@@ -5,6 +5,7 @@ use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
 use Cake\I18n\FrozenTime;
 use Cake\Event\Event;
+use Cake\I18n\Time;
 
 /**
  * Consulta Controller
@@ -107,6 +108,9 @@ class ConsultaController extends AppController
             $ahora = FrozenTime::now();
             $ahora = $ahora->i18nFormat('dd/MM/YYYY');
 
+            $time = Time::now();
+            $time = $time->i18nFormat('HH:MM');
+
         if($ahora <= $fechaPrueba){
 
             $consultas = $this->Consulta->find()->where(['fecha LIKE' => '%'.$data['fecha'].'%'])->where(['medico' => $data['medico']])->all();
@@ -121,8 +125,6 @@ class ConsultaController extends AppController
             $horas['16:00'] = false;
             foreach($consultas as $consulta){
 
-
-            
             $fecha = FrozenTime::parse($consulta['fecha']);
             $consulta->fecha = $fecha;
             
@@ -151,9 +153,18 @@ class ConsultaController extends AppController
                    if(strpos($consulta->fecha, '16:00:00')){
                     $horas['16:00'] = true;
                    }
-             } 
+             }
+
+            /*
+            $time2 = new Time('09:00:00');
+            $time2 = $time2->i18nFormat('HH:MM');
+
+            if($time > $time2){
+                $horas['09:00'] = true;
+            }
+            */
         }else{
-            
+
             $horas['09:00'] = true;
             $horas['10:00'] = true;
             $horas['11:00'] = true;

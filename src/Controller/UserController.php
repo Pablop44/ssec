@@ -26,7 +26,7 @@ class UserController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios', 'logout', 'delete', 'view', 'registerMedico', 'todosMedicos']);
+        $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios', 'logout', 'delete', 'view', 'registerMedico', 'todosMedicos', 'edit']);
         $this->loadComponent('Csrf');
     }
 
@@ -97,6 +97,23 @@ class UserController extends AppController
                 $user['rol'] = $cuenta['rol'];
                 $user['estado'] = $cuenta['estado'];
             }
+        
+        $ficha = TableRegistry::getTableLocator()->get('Ficha');
+        if($user['rol'] == "medico"){
+            $iteradorFicha = $ficha->find()->where(['medico' => $user->id])->all();
+            foreach($iteradorFicha as $ficha){
+                $user['pacienteAcargo'] = $ficha['paciente'];
+                $user['medicoEncargado'] = null;
+            }
+        }
+        if($user['rol'] == "paciente"){
+            $iteradorFicha = $ficha->find()->where(['paciente' => $user->id])->all();
+            foreach($iteradorFicha as $ficha){
+                $user['pacienteAcargo'] = null;
+                $user['medicoEncargado'] = $ficha['medico'];
+            }
+        }
+        
 
         $fecha = FrozenTime::parse($user->nacimiento);
         $user->nacimiento = $fecha;
@@ -159,21 +176,26 @@ class UserController extends AppController
      * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function edit($id = null)
+    public function edit()
     {
-        $user = $this->User->get($id, [
-            'contain' => [],
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $user = $this->User->patchEntity($user, $this->request->getData());
-            if ($this->User->save($user)) {
-                $this->Flash->success(__('The user has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+        $data = $this->request->getData();
+        debug($data);
+        die();
+
+        $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+            $iteradorCuentas = $cuenta->find()->where(['user' => $id])->all();
+            foreach($iteradorCuentas as $cuenta){
+                $idCuenta= $cuenta['id'];
             }
-            $this->Flash->error(__('The user could not be saved. Please, try again.'));
-        }
-        $this->set(compact('user'));
+
+        $cuenta = (new CuentaController());
+        $cuenta->edit2($idCuenta, $this->request->getData());
+        
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($user);
+        $this->response->body($json);
     }
 
     /**
