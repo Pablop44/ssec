@@ -27,7 +27,7 @@ class UserController extends AppController
     {
         parent::initialize();
         $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios', 'logout', 'delete', 
-        'view', 'registerMedico', 'todosMedicos', 'edit', 'editarEspecialidad', 'editarUser']);
+        'view', 'registerMedico', 'todosMedicos', 'edit', 'editarEspecialidad', 'editarUser', 'userActivados', 'longitudUserActivados']);
         $this->loadComponent('Csrf');
     }
 
@@ -429,5 +429,52 @@ class UserController extends AppController
         header('Content-Type: application/json; charset=utf-8');
         $this->set('UsuarioCreado', $idCuenta);   
         $this->set('_serialize', ['UsuarioCreado']); 
+    }
+
+    public function userActivados()
+    {
+        $this->autoRender = false;
+        $usuarios = $this->User->find()->all();
+        $usuarioFinal = array();
+        $i=0;
+
+        foreach($usuarios as $usuario){
+            $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+            $iteradorCuentas = $cuenta->find()->where(['user' => $usuario['id']])->all();
+            foreach($iteradorCuentas as $cuenta){
+                if($cuenta['estado'] == "activada"){
+                  $usuarioFinal[$i++] = $usuario;  
+                }
+            }
+        }
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($usuarioFinal);
+        $this->response->body($json);
+    }
+
+    public function longitudUserActivados()
+    {
+        $this->autoRender = false;
+        $usuarios = $this->User->find()->all();
+        $usuarioFinal = array();
+        $i=0;
+
+        foreach($usuarios as $usuario){
+            $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+            $iteradorCuentas = $cuenta->find()->where(['user' => $usuario['id']])->all();
+            foreach($iteradorCuentas as $cuenta){
+                if($cuenta['estado'] == "activada"){
+                  $usuarioFinal[$i++] = $usuario;  
+                }
+            }
+        }
+        $longitud = sizeof($usuarioFinal);
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($longitud);
+        $this->response->body($json);
     }
 }
