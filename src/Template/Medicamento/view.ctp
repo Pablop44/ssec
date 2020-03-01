@@ -30,6 +30,10 @@
             <th scope="row"><?= __('Marca') ?></th>
             <td><?= h($medicamento->marca) ?></td>
         </tr>
+        <tr>
+            <th scope="row"><?= __('Dosis') ?></th>
+            <td><?= h($medicamento->dosis) ?></td>
+        </tr>
     </table>
     <div class="related">
         <h4><?= __('Related Tratamiento') ?></h4>

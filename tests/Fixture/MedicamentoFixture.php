@@ -47,7 +47,7 @@ class MedicamentoFixture extends TestFixture
     {
         $this->records = [
             [
-                'nombre' => '0bbfca5f-5639-41e6-91fe-a3bb416fd4e7',
+                'nombre' => 'c0e3a884-e437-4c69-b574-5787f62f8230',
                 'viaAdministracion' => 'Lorem ipsum dolor sit amet',
                 'marca' => 'Lorem ipsum dolor sit amet',
                 'dosis' => 'Lorem ipsum dolor sit amet',

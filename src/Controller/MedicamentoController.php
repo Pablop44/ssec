@@ -22,7 +22,7 @@ class MedicamentoController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['medicamentos']);
+        $this->Auth->allow(['add', 'medicamentos']);
         $this->loadComponent('Csrf');
     }
 
@@ -66,18 +66,16 @@ class MedicamentoController extends AppController
      */
     public function add()
     {
+        
+        $this->autoRender = false;
         $medicamento = $this->Medicamento->newEntity();
-        if ($this->request->is('post')) {
-            $medicamento = $this->Medicamento->patchEntity($medicamento, $this->request->getData());
-            if ($this->Medicamento->save($medicamento)) {
-                $this->Flash->success(__('The medicamento has been saved.'));
+        $medicamento = $this->Medicamento->patchEntity($medicamento, $this->request->getData());
+        $this->Medicamento->save($medicamento);
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The medicamento could not be saved. Please, try again.'));
-        }
-        $tratamiento = $this->Medicamento->Tratamiento->find('list', ['limit' => 200]);
-        $this->set(compact('medicamento', 'tratamiento'));
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($medicamento);
+        $this->response->body($json);
     }
 
     /**
