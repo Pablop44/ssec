@@ -254,6 +254,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`medicamento` (
   `nombre` VARCHAR(50) NOT NULL,
   `viaAdministracion` ENUM("oral", "sublingual", "parental", "intravenosa", "intraarterial", "intramuscular", "subcutanea", "otro") NOT NULL,
   `marca` VARCHAR(50) NOT NULL,
+  `dosis` VARCHAR(50) NOT NULL,
   PRIMARY KEY (`nombre`),
   INDEX `fkMarca_idx` (`marca` ASC),
   CONSTRAINT `fkMarcaMedicamento`
@@ -612,3 +613,46 @@ insert into FICHA_ENFERMEDAD (ficha, enfermedad) values (22, 'diabetes');
 insert into FICHA_ENFERMEDAD (ficha, enfermedad) values (23, 'diabetes');
 insert into FICHA_ENFERMEDAD (ficha, enfermedad) values (1, 'diabetes');
 insert into FICHA_ENFERMEDAD (ficha, enfermedad) values (1, 'asma');
+
+insert into marca (nombre, pais) values ('Cardene', 'Lesotho');
+insert into marca (nombre, pais) values ('Potassium Chloride in Dextrose and Sodium Chloride', 'Poland');
+insert into marca (nombre, pais) values ('Citroma', 'Indonesia');
+insert into marca (nombre, pais) values ('Sensodyne', 'Moldova');
+insert into marca (nombre, pais) values ('Clean N Fresh Instant Hand Sanitizer', 'South Korea');
+insert into marca (nombre, pais) values ('PHENYTOIN SODIUM', 'China');
+insert into marca (nombre, pais) values ('ACD Blood-Pack Units (PL 146 Plastic)', 'Brazil');
+insert into marca (nombre, pais) values ('NEOSPORIN', 'Russia');
+insert into marca (nombre, pais) values ('AMILORIDE HYDROCHLORIDE', 'United Arab Emirates');
+insert into marca (nombre, pais) values ('YES to coconut', 'Indonesia');
+
+
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('Naphazoline Hydrochloride and Hypromellose', 'otro', 'Sensodyne', 470);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('Adenosine 0.04%', 'parental', 'ACD Blood-Pack Units (PL 146 Plastic)', 217);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('methylprednisolone acetate', 'intraarterial', 'ACD Blood-Pack Units (PL 146 Plastic)', 390);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('Eucalyptol, menthol, methyl salicylate, thymol', 'subcutanea', 'Citroma', 14);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('Iodine Bush', 'intraarterial', 'NEOSPORIN', 10);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('Pecan Pollen', 'intravenosa', 'Sensodyne', 584);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('Benzocaine', 'subcutanea', 'Sensodyne', 530);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('German Cockroach', 'intravenosa', 'PHENYTOIN SODIUM', 386);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('chlorpheniramine maleate, dextromethorphan hyrdrobromide', 'otro', 'NEOSPORIN', 505);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('Acetaminophen, Dextromethorphan HBr, Doxylamine succinate', 'parental', 'Citroma', 390);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('ALUMINUM ZIRCONIUM OCTACHLOROHYDREX GLY', 'otro', 'Sensodyne', 363);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('Zafirlukast', 'oral', 'Citroma', 544);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('Oxygen', 'subcutanea', 'Sensodyne', 582);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('temazepam', 'intravenosa', 'Sensodyne', 406);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('sennosides', 'subcutanea', 'Cardene', 157);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('Ethambutol Hydrochloride', 'intravenosa', 'NEOSPORIN', 511);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('Lidocaine Hydrochloride', 'intraarterial', 'ACD Blood-Pack Units (PL 146 Plastic)', 518);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('acetic acid', 'subcutanea', 'YES to coconut', 245);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('Glyburide and Metformin', 'otro', 'YES to coconut', 578);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('OCTINOXATE, TITANIUM DIOXIDE', 'otro', 'YES to coconut', 37);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('CIMETIDINE', 'intramuscular', 'PHENYTOIN SODIUM', 382);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('ETHYL ALCOHOL', 'parental', 'AMILORIDE HYDROCHLORIDE', 95);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('benztropine mesylate', 'intraarterial', 'Cardene', 404);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('Octinoxate', 'subcutanea', 'ACD Blood-Pack Units (PL 146 Plastic)', 553);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('PETROLATUM', 'otro', 'AMILORIDE HYDROCHLORIDE', 52);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('Losartan potassium', 'parental', 'YES to coconut', 172);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('ETHYLHEXYL METHOXYCINNAMATE', 'sublingual', 'PHENYTOIN SODIUM', 428);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('Clopidogrel Bisulfate', 'intraarterial', 'PHENYTOIN SODIUM', 382);
+insert into medicamento (nombre, viaAdministracion, marca, dosis) values ('Aluminum Zirconium Tetrachlorohydrex GLY', 'intramuscular', 'AMILORIDE HYDROCHLORIDE', 227);
+
