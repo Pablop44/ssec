@@ -443,6 +443,7 @@ class UserController extends AppController
             $iteradorCuentas = $cuenta->find()->where(['user' => $usuario['id']])->all();
             foreach($iteradorCuentas as $cuenta){
                 if($cuenta['estado'] == "activada"){
+                    $usuario['rol'] = $cuenta['rol'];
                   $usuarioFinal[$i++] = $usuario;  
                 }
             }
@@ -466,7 +467,7 @@ class UserController extends AppController
             $iteradorCuentas = $cuenta->find()->where(['user' => $usuario['id']])->all();
             foreach($iteradorCuentas as $cuenta){
                 if($cuenta['estado'] == "activada"){
-                  $usuarioFinal[$i++] = $usuario;  
+                    $usuarioFinal[$i++] = $usuario;  
                 }
             }
         }
