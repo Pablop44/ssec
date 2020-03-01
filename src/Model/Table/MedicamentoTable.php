@@ -67,6 +67,12 @@ class MedicamentoTable extends Table
             ->requirePresence('marca', 'create')
             ->notEmptyString('marca');
 
+        $validator
+            ->scalar('dosis')
+            ->maxLength('dosis', 50)
+            ->requirePresence('dosis', 'create')
+            ->notEmptyString('dosis');
+
         return $validator;
     }
 }

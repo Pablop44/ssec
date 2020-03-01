@@ -19,6 +19,7 @@
         <?php
             echo $this->Form->control('viaAdministracion');
             echo $this->Form->control('marca');
+            echo $this->Form->control('dosis');
             echo $this->Form->control('tratamiento._ids', ['options' => $tratamiento]);
         ?>
     </fieldset>

@@ -24,6 +24,7 @@ class MedicamentoFixture extends TestFixture
         'nombre' => ['type' => 'string', 'length' => 50, 'null' => false, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
         'viaAdministracion' => ['type' => 'string', 'length' => null, 'null' => false, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
         'marca' => ['type' => 'string', 'length' => 50, 'null' => false, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
+        'dosis' => ['type' => 'string', 'length' => 50, 'null' => false, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
         '_indexes' => [
             'fkMarca_idx' => ['type' => 'index', 'columns' => ['marca'], 'length' => []],
         ],
@@ -46,9 +47,10 @@ class MedicamentoFixture extends TestFixture
     {
         $this->records = [
             [
-                'nombre' => '5556a88d-f0b5-41fb-b728-a27e68278e3c',
+                'nombre' => '0bbfca5f-5639-41e6-91fe-a3bb416fd4e7',
                 'viaAdministracion' => 'Lorem ipsum dolor sit amet',
                 'marca' => 'Lorem ipsum dolor sit amet',
+                'dosis' => 'Lorem ipsum dolor sit amet',
             ],
         ];
         parent::init();

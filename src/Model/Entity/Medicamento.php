@@ -9,6 +9,7 @@ use Cake\ORM\Entity;
  * @property string $nombre
  * @property string $viaAdministracion
  * @property string $marca
+ * @property string $dosis
  *
  * @property \App\Model\Entity\Tratamiento[] $tratamiento
  */
@@ -26,6 +27,7 @@ class Medicamento extends Entity
     protected $_accessible = [
         'viaAdministracion' => true,
         'marca' => true,
+        'dosis' => true,
         'tratamiento' => true,
     ];
 }

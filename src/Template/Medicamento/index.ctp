@@ -20,6 +20,7 @@
                 <th scope="col"><?= $this->Paginator->sort('nombre') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('viaAdministracion') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('marca') ?></th>
+                <th scope="col"><?= $this->Paginator->sort('dosis') ?></th>
                 <th scope="col" class="actions"><?= __('Actions') ?></th>
             </tr>
         </thead>
@@ -29,6 +30,7 @@
                 <td><?= h($medicamento->nombre) ?></td>
                 <td><?= h($medicamento->viaAdministracion) ?></td>
                 <td><?= h($medicamento->marca) ?></td>
+                <td><?= h($medicamento->dosis) ?></td>
                 <td class="actions">
                     <?= $this->Html->link(__('View'), ['action' => 'view', $medicamento->nombre]) ?>
                     <?= $this->Html->link(__('Edit'), ['action' => 'edit', $medicamento->nombre]) ?>
