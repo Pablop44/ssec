@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\Event\Event;
 
 /**
  * Medicamento Controller
@@ -17,11 +18,29 @@ class MedicamentoController extends AppController
      *
      * @return \Cake\Http\Response|null
      */
-    public function index()
-    {
-        $medicamento = $this->paginate($this->Medicamento);
 
-        $this->set(compact('medicamento'));
+    public function initialize()
+    {
+        parent::initialize();
+        $this->Auth->allow(['medicamentos']);
+        $this->loadComponent('Csrf');
+    }
+
+    public function beforeFilter(Event $event) {
+        
+            $this->eventManager()->off($this->Csrf);
+        
+    }
+
+    public function medicamentos()
+    {
+        $this->autoRender = false;
+        $medicamentos = $this->Medicamento->find()->all();
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($medicamentos);
+        $this->response->body($json);
     }
 
     /**
