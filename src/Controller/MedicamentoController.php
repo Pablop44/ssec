@@ -22,7 +22,7 @@ class MedicamentoController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['add', 'medicamentos']);
+        $this->Auth->allow(['delete','add', 'medicamentos']);
         $this->loadComponent('Csrf');
     }
 
@@ -41,6 +41,30 @@ class MedicamentoController extends AppController
         $this->response->type('json');
         $json = json_encode($medicamentos);
         $this->response->body($json);
+    }
+
+    public function delete($nombre = null)
+    {
+        print_r($nombre);
+        die();
+        $medicamentoIterador = $this->Medicamento->find()->where(['nombre' => $nombre])->all();
+
+       
+        foreach($medicamentoIterador as $medicamento){
+            $medicamentoFinal = $medicamento;
+        }
+
+        if ($this->Medicamento->delete($medicamentoFinal)) {
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $this->set('respuesta', 'Se ha eliminado correctamente');   
+            $this->set('_serialize', ['respuesta']);
+        } else {
+            $this->response->statusCode(500);
+            $this->response->type('json');
+            $this->set('respuesta', 'No se ha eliminado el medicamento');   
+            $this->set('_serialize', ['respuesta']);
+        }
     }
 
     /**
@@ -110,16 +134,5 @@ class MedicamentoController extends AppController
      * @return \Cake\Http\Response|null Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function delete($id = null)
-    {
-        $this->request->allowMethod(['post', 'delete']);
-        $medicamento = $this->Medicamento->get($id);
-        if ($this->Medicamento->delete($medicamento)) {
-            $this->Flash->success(__('The medicamento has been deleted.'));
-        } else {
-            $this->Flash->error(__('The medicamento could not be deleted. Please, try again.'));
-        }
-
-        return $this->redirect(['action' => 'index']);
-    }
+    
 }
