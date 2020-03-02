@@ -21,6 +21,7 @@ class Marca extends Entity
      * @var array
      */
     protected $_accessible = [
-        'pais' => true,
+        'nombre' => true,
+        'pais' => true
     ];
 }

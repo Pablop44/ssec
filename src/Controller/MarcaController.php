@@ -22,7 +22,7 @@ class MarcaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['todasMarcas']);
+        $this->Auth->allow(['todasMarcas', 'add']);
         $this->loadComponent('Csrf');
     }
 
@@ -66,19 +66,17 @@ class MarcaController extends AppController
      */
     public function add()
     {
+        
+        $this->autoRender = false;
         $marca = $this->Marca->newEntity();
-        if ($this->request->is('post')) {
-            $marca = $this->Marca->patchEntity($marca, $this->request->getData());
-            if ($this->Marca->save($marca)) {
-                $this->Flash->success(__('The marca has been saved.'));
+        $marca = $this->Marca->patchEntity($marca, $this->request->getData());
+        $this->Marca->save($marca);
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The marca could not be saved. Please, try again.'));
-        }
-        $this->set(compact('marca'));
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($marca);
+        $this->response->body($json);
     }
-
     /**
      * Edit method
      *
