@@ -45,26 +45,13 @@ class MedicamentoController extends AppController
 
     public function delete($nombre = null)
     {
-        print_r($nombre);
-        die();
-        $medicamentoIterador = $this->Medicamento->find()->where(['nombre' => $nombre])->all();
 
-       
-        foreach($medicamentoIterador as $medicamento){
-            $medicamentoFinal = $medicamento;
-        }
-
-        if ($this->Medicamento->delete($medicamentoFinal)) {
+        $this->Medicamento->deleteAll(['nombre' => $nombre]);
             $this->response->statusCode(200);
             $this->response->type('json');
             $this->set('respuesta', 'Se ha eliminado correctamente');   
             $this->set('_serialize', ['respuesta']);
-        } else {
-            $this->response->statusCode(500);
-            $this->response->type('json');
-            $this->set('respuesta', 'No se ha eliminado el medicamento');   
             $this->set('_serialize', ['respuesta']);
-        }
     }
 
     /**
