@@ -109,6 +109,17 @@ class CuentaController extends AppController
             $this->Cuenta->save($cuentum);
     }
 
+    public function edit3($id = null)
+    {
+        $cuentum = $this->Cuenta->get($id, [
+            'contain' => [],
+        ]);
+        $cuentum['estado'] = "autorizada";
+            $cuentum = $this->Cuenta->patchEntity($cuentum, $this->request->getData());
+            $this->Cuenta->save($cuentum);
+    }
+
+
     /**
      * Delete method
      *

@@ -27,7 +27,7 @@ class UserController extends AppController
     {
         parent::initialize();
         $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios', 'logout', 'delete', 
-        'view', 'registerMedico', 'todosMedicos', 'edit', 'editarEspecialidad', 'editarUser', 'userActivados', 'longitudUserActivados']);
+        'view', 'registerMedico', 'todosMedicos', 'edit', 'editarEspecialidad', 'editarUser', 'userActivados', 'longitudUserActivados', 'autorizar']);
         $this->loadComponent('Csrf');
     }
 
@@ -177,25 +177,22 @@ class UserController extends AppController
      * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function edit()
+    public function autorizar($id = null)
     {
         $this->autoRender = false;
 
-        debug($this->request->data);
-        die();
-
         $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
-            $iteradorCuentas = $cuenta->find()->where(['user' => $data['id']])->all();
+            $iteradorCuentas = $cuenta->find()->where(['user' => $id])->all();
             foreach($iteradorCuentas as $cuenta){
                 $idCuenta= $cuenta['id'];
             }
 
         $cuenta = (new CuentaController());
-        $cuenta->edit2($idCuenta, $data->estado);
+        $cuenta->edit3($idCuenta);
 
         $this->response->statusCode(200);
         $this->response->type('json');
-        $json = json_encode($data);
+        $json = json_encode($id);
         $this->response->body($json);
     }
 
