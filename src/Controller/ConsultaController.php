@@ -16,6 +16,18 @@ use Cake\I18n\Time;
  */
 class ConsultaController extends AppController
 {
+    public $paginate = [
+        'page' => 1,
+        'limit' => 10,
+        'maxLimit' => 15,
+        'fields' => [
+            'id', 'lugar', 'motivo', 'fecha', 'diagnostico', 'observaciones', 'medico', 'paciente', 'ficha', 'estado' 
+        ],
+        'sortWhitelist' => [
+            'id', 'lugar', 'motivo', 'fecha', 'diagnostico', 'observaciones', 'medico', 'paciente', 'ficha', 'estado' 
+        ]
+    ];
+    
     /**
      * Index method
      *
@@ -27,6 +39,7 @@ class ConsultaController extends AppController
         parent::initialize();
         $this->Auth->allow(['consultas', 'consultaFicha', 'getHoras', 'add']);
         $this->loadComponent('Csrf');
+        $this->loadComponent('Paginator');
     }
 
     public function beforeFilter(Event $event) {
@@ -38,10 +51,16 @@ class ConsultaController extends AppController
 
     public function consultas()
     {
+
+        $this->paginate['page'] = $page;
+        $this->paginate['order'] = ['id' => 'desc'];
         $this->autoRender = false;
         $consultas = $this->Consulta->find()->all();
 
-        foreach($consultas as $consulta){
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $paginador = $this->paginate($this->Consulta);
+        foreach($paginador as $consulta){
             $user = TableRegistry::getTableLocator()->get('User');
             $iteradorUsuario = $user->find()->where(['id' => $consulta['medico']])->all();
             $iteradorUsuario2 = $user->find()->where(['id' => $consulta['paciente']])->all();
@@ -54,10 +73,7 @@ class ConsultaController extends AppController
                 $consulta['dniPaciente'] = $usuario2['dni'];
             }
         }
-
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($consultas);
+        $json = json_encode($paginador);
         $this->response->body($json);
     }
 
@@ -77,12 +93,18 @@ class ConsultaController extends AppController
         $this->set('consultum', $consultum);
     }
 
-    public function consultaFicha($id = null)
+    public function consultaFicha()
     {
-        $this->autoRender = false;
-        $consultas = $this->Consulta->find()->where(['ficha' => $id])->all();
+        $data = $this->request->getData();
 
-        foreach($consultas as $consulta){
+        $this->paginate['page'] = $data['page'];
+        $this->paginate['limit'] = $data['limit'];
+
+        $this->autoRender = false;
+        $consultas = $this->Consulta->find()->where(['ficha' => $data['id']]);
+        $paginador = $this->paginate($consultas);
+
+        foreach($paginador as $consulta){
             $fecha = FrozenTime::parse($consulta['fecha']);
             $consulta->fecha = $fecha;
             
@@ -93,7 +115,7 @@ class ConsultaController extends AppController
     
         $this->response->statusCode(200);
         $this->response->type('json');
-        $json = json_encode($consultas);
+        $json = json_encode($paginador);
         $this->response->body($json);
     }
 
