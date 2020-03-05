@@ -37,7 +37,7 @@ class ConsultaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['consultas', 'consultaFicha', 'getHoras', 'add']);
+        $this->Auth->allow(['consultas', 'consultaFicha', 'getHoras', 'add', 'numeroConsultas']);
         $this->loadComponent('Csrf');
         $this->loadComponent('Paginator');
     }
@@ -97,7 +97,7 @@ class ConsultaController extends AppController
     {
         $data = $this->request->getData();
 
-        $this->paginate['page'] = $data['page'];
+        $this->paginate['page'] = $data['page']+1;
         $this->paginate['limit'] = $data['limit'];
 
         $this->autoRender = false;
@@ -116,6 +116,26 @@ class ConsultaController extends AppController
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($paginador);
+        $this->response->body($json);
+    }
+
+    public function numeroConsultas($id = null)
+    {
+
+        $this->autoRender = false;
+        $consultas = $this->Consulta->find()->where(['ficha' => $id])->all();
+        $i = 0;
+        foreach($consultas as $consulta){
+           $i++;
+        }
+
+        $myobj = array();
+        $myobj['numero'] = $i;
+        
+    
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($myobj);
         $this->response->body($json);
     }
 
