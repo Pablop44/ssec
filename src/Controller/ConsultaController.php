@@ -53,7 +53,6 @@ class ConsultaController extends AppController
     {
 
         $this->paginate['page'] = $page;
-        $this->paginate['order'] = ['id' => 'desc'];
         $this->autoRender = false;
         $consultas = $this->Consulta->find()->all();
 
@@ -99,6 +98,10 @@ class ConsultaController extends AppController
 
         $this->paginate['page'] = $data['page']+1;
         $this->paginate['limit'] = $data['limit'];
+        if(isset($data['tipo'])){
+            $this->paginate['order'] = [$data['tipo'] => 'desc'];
+        }
+        
 
         $this->autoRender = false;
         $consultas = $this->Consulta->find()->where(['ficha' => $data['id']]);
