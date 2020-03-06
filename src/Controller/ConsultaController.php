@@ -104,20 +104,43 @@ class ConsultaController extends AppController
             $this->paginate['order'] = [$data['tipo'] => 'desc'];
         }
 
-        if(isset($data['filtro']['observaciones'])){
-            $observarciones =  array('observaciones IS NOT NULL');
+        if(!isset($data['filtro'])){
+            $conditions = array('ficha' => $data['id']);
         }else{
-            $observarciones = "";
-        }
 
+            if(isset($data['filtro']['observaciones'])){
+                $observarciones =  array('observaciones IS NOT NULL');
+            }else{
+                $observarciones =  array('observaciones IS NULL');
+            }
+    
+            if(isset($data['filtro']['diagnostico'])){
+                $diagnostico =  array('diagnostico IS NOT NULL');
+            }else{
+                $diagnostico =  array('diagnostico IS NULL');
+            }
+
+            if(isset($data['filtro']['fechaInicio'])){
+                $fechaInicio =  array('fecha >' => $data['filtro']['fechaInicio']);
+            }else{
+                $fechaInicio = "";
+            }
+
+            if(isset($data['filtro']['fechaFin'])){
+                $fechaFin =  array('fecha <' => $data['filtro']['fechaFin']);
+            }else{
+                $fechaFin = "";
+            }
+    
+            if(isset($data['filtro']['id'])){
+                $conditions = array('ficha' => $data['id'], "id" => $data['filtro']['id'], "lugar LIKE" => "%".$data['filtro']['lugar']."%", $observarciones, $diagnostico, $fechaInicio, $fechaFin);
+            }else{
+                $conditions = array('ficha' => $data['id'], "lugar LIKE" => "%".$data['filtro']['lugar']."%", $observarciones, $diagnostico, $fechaInicio, $fechaFin);
+            }
+            
+        }
         
 
-        
-        if(isset($data['filtro']['id'])){
-            $conditions = array('ficha' => $data['id'], "id" => $data['filtro']['id'], "lugar LIKE" => "%".$data['filtro']['lugar']."%", $observarciones);
-        }else{
-            $conditions = array('ficha' => $data['id'], "lugar LIKE" => "%".$data['filtro']['lugar']."%", $observarciones);
-        }
         $consultas = $this->Consulta->find('all', array('conditions' => $conditions));
         $paginador = $this->paginate($consultas);
 
@@ -128,7 +151,6 @@ class ConsultaController extends AppController
             $consulta->fecha =  $consulta->fecha->i18nFormat('dd/MM/YYYY HH:mm:ss');
 
         }
-        
     
         $this->response->statusCode(200);
         $this->response->type('json');
