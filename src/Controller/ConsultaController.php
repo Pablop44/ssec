@@ -94,6 +94,8 @@ class ConsultaController extends AppController
 
     public function consultaFicha()
     {
+        $this->autoRender = false;
+
         $data = $this->request->getData();
 
         $this->paginate['page'] = $data['page']+1;
@@ -101,10 +103,22 @@ class ConsultaController extends AppController
         if(isset($data['tipo'])){
             $this->paginate['order'] = [$data['tipo'] => 'desc'];
         }
+
+        if(isset($data['filtro']['observaciones'])){
+            $observarciones =  array('observaciones IS NOT NULL');
+        }else{
+            $observarciones = "";
+        }
+
         
 
-        $this->autoRender = false;
-        $consultas = $this->Consulta->find()->where(['ficha' => $data['id']]);
+        
+        if(isset($data['filtro']['id'])){
+            $conditions = array('ficha' => $data['id'], "id" => $data['filtro']['id'], "lugar LIKE" => "%".$data['filtro']['lugar']."%", $observarciones);
+        }else{
+            $conditions = array('ficha' => $data['id'], "lugar LIKE" => "%".$data['filtro']['lugar']."%", $observarciones);
+        }
+        $consultas = $this->Consulta->find('all', array('conditions' => $conditions));
         $paginador = $this->paginate($consultas);
 
         foreach($paginador as $consulta){
