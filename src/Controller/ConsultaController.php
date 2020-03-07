@@ -158,11 +158,50 @@ class ConsultaController extends AppController
         $this->response->body($json);
     }
 
-    public function numeroConsultas($id = null)
+    public function numeroConsultas()
     {
+        $this->autoRender = false;
+
+        $data = $this->request->getData();
+
+        if(!isset($data['filtro'])){
+            $conditions = array('ficha' => $data['id']);
+        }else{
+
+            if(isset($data['filtro']['observaciones'])){
+                $observarciones =  array('observaciones IS NOT NULL');
+            }else{
+                $observarciones =  array('observaciones IS NULL');
+            }
+    
+            if(isset($data['filtro']['diagnostico'])){
+                $diagnostico =  array('diagnostico IS NOT NULL');
+            }else{
+                $diagnostico =  array('diagnostico IS NULL');
+            }
+
+            if(isset($data['filtro']['fechaInicio'])){
+                $fechaInicio =  array('fecha >' => $data['filtro']['fechaInicio']);
+            }else{
+                $fechaInicio = "";
+            }
+
+            if(isset($data['filtro']['fechaFin'])){
+                $fechaFin =  array('fecha <' => $data['filtro']['fechaFin']);
+            }else{
+                $fechaFin = "";
+            }
+    
+            if(isset($data['filtro']['id'])){
+                $conditions = array('ficha' => $data['id'], "id" => $data['filtro']['id'], "lugar LIKE" => "%".$data['filtro']['lugar']."%", $observarciones, $diagnostico, $fechaInicio, $fechaFin);
+            }else{
+                $conditions = array('ficha' => $data['id'], "lugar LIKE" => "%".$data['filtro']['lugar']."%", $observarciones, $diagnostico, $fechaInicio, $fechaFin);
+            }
+            
+        }
 
         $this->autoRender = false;
-        $consultas = $this->Consulta->find()->where(['ficha' => $id])->all();
+        $consultas = $this->Consulta->find('all', array('conditions' => $conditions));
         $i = 0;
         foreach($consultas as $consulta){
            $i++;
