@@ -18,11 +18,22 @@ class MedicamentoController extends AppController
      *
      * @return \Cake\Http\Response|null
      */
+    public $paginate = [
+        'page' => 1,
+        'limit' => 10,
+        'maxLimit' => 15,
+        'fields' => [
+            'nombre', 'viaAdministracion', 'marca', 'dosis'
+        ],
+        'sortWhitelist' => [
+            'nombre', 'viaAdministracion', 'marca', 'dosis'
+        ]
+    ];
 
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['delete','add', 'medicamentos']);
+        $this->Auth->allow(['delete','add', 'medicamentos', 'numeroMedicamentos']);
         $this->loadComponent('Csrf');
     }
 
@@ -35,11 +46,38 @@ class MedicamentoController extends AppController
     public function medicamentos()
     {
         $this->autoRender = false;
-        $medicamentos = $this->Medicamento->find()->all();
+        $data = $this->request->getData();
+        $this->paginate['page'] = $data['page']+1;
+        $this->paginate['limit'] = $data['limit'];
+        if(isset($data['tipo'])){
+            $this->paginate['order'] = [$data['tipo'] => 'desc'];
+        }
+        $conditions = array();
+        $medicamentos = $this->Medicamento->find('all', array('conditions' => $conditions));
+        $paginador = $this->paginate($medicamentos);
 
         $this->response->statusCode(200);
         $this->response->type('json');
-        $json = json_encode($medicamentos);
+        $json = json_encode($paginador);
+        $this->response->body($json);
+    }
+
+    public function numeroMedicamentos()
+    {
+        $this->autoRender = false;
+        $conditions = array();
+        $medicamentos = $this->Medicamento->find('all', array('conditions' => $conditions));
+        $i = 0;
+        foreach($medicamentos as $medicamento){
+            $i++;
+        }
+
+        $myobj = array();
+        $myobj['numero'] = $i;
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($myobj);
         $this->response->body($json);
     }
 
