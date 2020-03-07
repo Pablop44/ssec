@@ -52,7 +52,35 @@ class MedicamentoController extends AppController
         if(isset($data['tipo'])){
             $this->paginate['order'] = [$data['tipo'] => 'desc'];
         }
-        $conditions = array();
+        if(!isset($data['filtro'])){
+            $conditions = array();
+        }else{
+            
+            if(isset($data['filtro']['minDosis'])){
+                $minDosis =  array('dosis >' => $data['filtro']['minDosis']);
+            }else{
+                $minDosis = "";
+            }
+            if(isset($data['filtro']['maxDosis'])){
+                $maxDosis =  array('dosis <' => $data['filtro']['maxDosis']);
+            }else{
+                $maxDosis = "";
+            }
+            if(isset($data['filtro']['marca'])){
+                $marca =  array('marca' => $data['filtro']['marca']);
+            }else{
+                $marca = "";
+            }
+            
+            if(isset($data['filtro']['nombre'])){
+                $conditions = array('nombre' => $data['filtro']['nombre'], $marca, $minDosis, $maxDosis);
+            }else{
+                $conditions = array($marca, $minDosis, $maxDosis);
+            }
+
+            
+        }  
+        
         $medicamentos = $this->Medicamento->find('all', array('conditions' => $conditions));
         $paginador = $this->paginate($medicamentos);
 
