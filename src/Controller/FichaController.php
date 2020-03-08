@@ -19,11 +19,22 @@ class FichaController extends AppController
      *
      * @return \Cake\Http\Response|null
      */
+    public $paginate = [
+        'page' => 1,
+        'limit' => 10,
+        'maxLimit' => 15,
+        'fields' => [
+            'id', 'fechaCreacion', 'paciente', 'medico'
+        ],
+        'sortWhitelist' => [
+            'id', 'fechaCreacion', 'paciente', 'medico'
+        ]
+    ];
 
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['fichas', 'view']);
+        $this->Auth->allow(['fichas', 'view', 'fichasMedico', 'numeroFichas']);
         $this->loadComponent('Csrf');
     }
 
@@ -34,12 +45,88 @@ class FichaController extends AppController
 
     public function fichas()
     {
+
         $this->autoRender = false;
-        $fichas = $this->Ficha->find()->all();
+        $data = $this->request->getData();
+        $this->paginate['page'] = $data['page']+1;
+        $this->paginate['limit'] = $data['limit'];
+        $conditions = array();
+        $fichas = $this->Ficha->find('all', array('conditions' => $conditions));
+        $paginador = $this->paginate($fichas);
+
+        foreach($paginador as $ficha){
+            
+            $usuarios = TableRegistry::getTableLocator()->get('User');
+            $iteradorUsuarios = $usuarios->find()->where(['id' => $ficha['paciente']])->all();
+            foreach($iteradorUsuarios as $usuario){
+                $ficha['dniPaciente'] = $usuario['dni'];
+                $ficha['nombrePaciente'] = $usuario['nombre']." ".$usuario['apellidos'];
+            }
+            $iteradorUsuarios2 = $usuarios->find()->where(['id' => $ficha['medico']])->all();
+            foreach($iteradorUsuarios2 as $usuario2){
+                $ficha['dniMedico'] = $usuario2['dni'];
+                $ficha['nombreMedico'] = $usuario2['nombre']." ".$usuario2['apellidos'];
+                $ficha['colegiado'] = $usuario2['colegiado'];
+            }
+            $enfermedad = TableRegistry::getTableLocator()->get('FichaEnfermedad');
+            $iteradorEnfermedad = $enfermedad->find()->where(['ficha' => $ficha['id']])->all();
+            foreach($iteradorEnfermedad as $enfermedad){
+                $ficha['enfermedad'] = $enfermedad['enfermedad'];
+            }
+            $fecha = FrozenTime::parse($ficha->fechaCreacion);
+            $ficha->fechaCreacion = $fecha;
+            $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('dd/MM/YYYY');
+        }
+
+       
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($paginador);
+        $this->response->body($json);
+    }
+
+
+    public function numeroFichas()
+    {
+
+        $this->autoRender = false;
+        $conditions = array();
+        $fichas = $this->Ficha->find('all', array('conditions' => $conditions));
+
+        $i = 0;
+
+        foreach($fichas as $ficha){
+            $i++;
+        }
+
+        $myobj = array();
+        $myobj['numero'] = $i;
+
+       
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($myobj);
+        $this->response->body($json);
+    }
+
+    
+
+    public function fichasMedico($nombreMedico = null)
+    {
+        $this->autoRender = false;
+        
+
+        $usuarios = TableRegistry::getTableLocator()->get('User');
+        $iteradorUsuarios3 = $usuarios->find()->where(['username' => $nombreMedico])->all();
+        $idMedico;
+        foreach($iteradorUsuarios3 as $medico){
+            $idMedico = $medico['id'];
+        }
+
+        $fichas = $this->Ficha->find()->where(['medico' => $idMedico])->all();
 
         foreach($fichas as $ficha){
             
-            $usuarios = TableRegistry::getTableLocator()->get('User');
             $iteradorUsuarios = $usuarios->find()->where(['id' => $ficha['paciente']])->all();
             foreach($iteradorUsuarios as $usuario){
                 $ficha['dniPaciente'] = $usuario['dni'];
