@@ -73,7 +73,7 @@ class MedicamentoController extends AppController
             }
             
             if(isset($data['filtro']['nombre'])){
-                $conditions = array('nombre' => $data['filtro']['nombre'], $marca, $minDosis, $maxDosis);
+                $conditions = array('nombre LIKE' => '%'.$data['filtro']['nombre'].'%', $marca, $minDosis, $maxDosis);
             }else{
                 $conditions = array($marca, $minDosis, $maxDosis);
             }  
