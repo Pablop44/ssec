@@ -34,7 +34,7 @@ class FichaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['fichas', 'view', 'fichasMedico', 'numeroFichas']);
+        $this->Auth->allow(['fichas', 'view', 'fichasMedico', 'numeroFichas', 'delete']);
         $this->loadComponent('Csrf');
     }
 
@@ -56,12 +56,12 @@ class FichaController extends AppController
             $conditions = array();
         }else{
             if(isset($data['filtro']['fechaInicio'])){
-                $fechaInicio =  array('fecha >' => $data['filtro']['fechaInicio']);
+                $fechaInicio =  array('fechaCreacion >' => $data['filtro']['fechaInicio']);
             }else{
                 $fechaInicio = "";
             }
             if(isset($data['filtro']['fechaFin'])){
-                $fechaFin =  array('fecha <' => $data['filtro']['fechaFin']);
+                $fechaFin =  array('fechaCreacion <' => $data['filtro']['fechaFin']);
             }else{
                 $fechaFin = "";
             }
@@ -92,6 +92,7 @@ class FichaController extends AppController
             }
             $enfermedad = TableRegistry::getTableLocator()->get('FichaEnfermedad');
             $iteradorEnfermedad = $enfermedad->find()->where(['ficha' => $ficha['id']])->all();
+
             foreach($iteradorEnfermedad as $enfermedad){
                 $ficha['enfermedad'] = $enfermedad['enfermedad'];
             }
@@ -99,7 +100,6 @@ class FichaController extends AppController
             $ficha->fechaCreacion = $fecha;
             $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('dd/MM/YYYY');
         }
-
        
         $this->response->statusCode(200);
         $this->response->type('json');
@@ -264,15 +264,15 @@ class FichaController extends AppController
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function delete($id = null)
-    {
-        $this->request->allowMethod(['post', 'delete']);
+    { 
+        $this->autoRender = false;
         $ficha = $this->Ficha->get($id);
-        if ($this->Ficha->delete($ficha)) {
-            $this->Flash->success(__('The ficha has been deleted.'));
-        } else {
-            $this->Flash->error(__('The ficha could not be deleted. Please, try again.'));
-        }
+        $this->Ficha->delete($ficha);
 
-        return $this->redirect(['action' => 'index']);
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($ficha);
+        $this->response->body($json);
+
     }
 }
