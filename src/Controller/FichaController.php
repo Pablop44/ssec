@@ -50,7 +50,29 @@ class FichaController extends AppController
         $data = $this->request->getData();
         $this->paginate['page'] = $data['page']+1;
         $this->paginate['limit'] = $data['limit'];
-        $conditions = array();
+
+
+        if(!isset($data['filtro'])){
+            $conditions = array();
+        }else{
+            if(isset($data['filtro']['fechaInicio'])){
+                $fechaInicio =  array('fecha >' => $data['filtro']['fechaInicio']);
+            }else{
+                $fechaInicio = "";
+            }
+            if(isset($data['filtro']['fechaFin'])){
+                $fechaFin =  array('fecha <' => $data['filtro']['fechaFin']);
+            }else{
+                $fechaFin = "";
+            }
+            
+            if(isset($data['filtro']['id'])){
+                $conditions = array('id' => $data['filtro']['id'],$fechaFin, $fechaFin);
+            }else{
+                $conditions = array($fechaInicio, $fechaFin);
+            }  
+        } 
+
         $fichas = $this->Ficha->find('all', array('conditions' => $conditions));
         $paginador = $this->paginate($fichas);
 
