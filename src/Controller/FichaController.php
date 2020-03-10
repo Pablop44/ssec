@@ -51,6 +51,10 @@ class FichaController extends AppController
         $this->paginate['page'] = $data['page']+1;
         $this->paginate['limit'] = $data['limit'];
 
+        if(isset($data['tipo'])){
+            $this->paginate['order'] = [$data['tipo'] => 'desc'];
+        }
+
 
         if(!isset($data['filtro'])){
             $conditions = array();
@@ -139,6 +143,10 @@ class FichaController extends AppController
         $data = $this->request->getData();
         $this->paginate['page'] = $data['page']+1;
         $this->paginate['limit'] = $data['limit'];
+
+        if(isset($data['tipo'])){
+            $this->paginate['order'] = [$data['tipo'] => 'desc'];
+        }
 
         $usuarios2 = TableRegistry::getTableLocator()->get('User');
         $iteradorUsuarios = $usuarios2->find()->where(['username' => $data['medico']])->all();
