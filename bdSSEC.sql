@@ -320,12 +320,12 @@ CREATE TABLE IF NOT EXISTS `mydb`.`nota` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `fecha` DATE NOT NULL,
   `datos` VARCHAR(511) NOT NULL,
-  `paciente` INT NOT NULL,
+  `ficha` INT NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `fkPaciente_idx` (`paciente` ASC),
-  CONSTRAINT `fkPacienteNota`
-    FOREIGN KEY (`paciente`)
-    REFERENCES `mydb`.`user` (`id`)
+  INDEX `fkFicha_idx` (`ficha` ASC),
+  CONSTRAINT `fkFichaNota`
+    FOREIGN KEY (`ficha`)
+    REFERENCES `mydb`.`ficha` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE);
 
