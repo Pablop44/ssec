@@ -37,7 +37,7 @@ class NotaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['notasFicha']);
+        $this->Auth->allow(['notasFicha', 'numeroNotas']);
         $this->loadComponent('Csrf');
         $this->loadComponent('Paginator');
     }
@@ -53,20 +53,48 @@ class NotaController extends AppController
     {
 
         $this->autoRender = false;
-
         $data = $this->request->getData();
 
         $this->paginate['page'] = $data['page']+1;
         $this->paginate['limit'] = $data['limit'];
 
         $conditions = array('ficha' => $data['idFicha']);
-
         $nota = $this->Nota->find('all', array('conditions' => $conditions));
         $paginador = $this->paginate($nota);
+
+        foreach($paginador as $nota){
+            $fecha = FrozenTime::parse($nota['fecha']);
+            $nota->fecha = $fecha;
+            
+            $nota->fecha =  $nota->fecha->i18nFormat('dd/MM/YYYY HH:mm:ss');
+        }
 
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($paginador);
+        $this->response->body($json);
+    }
+
+
+    public function numeroNotas()
+    {
+
+        $this->autoRender = false;
+        $data = $this->request->getData();
+
+        $conditions = array('ficha' => $data['idFicha']);
+        $nota = $this->Nota->find('all', array('conditions' => $conditions));
+        $i = 0;
+        foreach($nota as $nota){
+            $i++;
+        }
+
+        $myobj = array();
+        $myobj['numero'] = $i;
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($myobj);
         $this->response->body($json);
     }
 
