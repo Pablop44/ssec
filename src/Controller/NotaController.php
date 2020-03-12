@@ -2,6 +2,10 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
+use Cake\I18n\FrozenTime;
+use Cake\Event\Event;
+use Cake\I18n\Time;
 
 /**
  * Nota Controller
@@ -12,16 +16,58 @@ use App\Controller\AppController;
  */
 class NotaController extends AppController
 {
+    public $paginate = [
+        'page' => 1,
+        'limit' => 10,
+        'maxLimit' => 15,
+        'fields' => [
+            'id', 'fecha', 'datos', 'ficha'
+        ],
+        'sortWhitelist' => [
+            'id', 'fecha', 'datos', 'ficha'
+        ]
+    ];
+    
     /**
      * Index method
      *
      * @return \Cake\Http\Response|null
      */
-    public function index()
-    {
-        $nota = $this->paginate($this->Nota);
 
-        $this->set(compact('nota'));
+    public function initialize()
+    {
+        parent::initialize();
+        $this->Auth->allow(['notasFicha']);
+        $this->loadComponent('Csrf');
+        $this->loadComponent('Paginator');
+    }
+
+    public function beforeFilter(Event $event) {
+        
+        $this->eventManager()->off($this->Csrf);
+    
+    }
+
+
+    public function notasFicha()
+    {
+
+        $this->autoRender = false;
+
+        $data = $this->request->getData();
+
+        $this->paginate['page'] = $data['page']+1;
+        $this->paginate['limit'] = $data['limit'];
+
+        $conditions = array('ficha' => $data['idFicha']);
+
+        $nota = $this->Nota->find('all', array('conditions' => $conditions));
+        $paginador = $this->paginate($nota);
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($paginador);
+        $this->response->body($json);
     }
 
     /**

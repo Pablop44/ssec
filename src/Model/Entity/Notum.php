@@ -23,6 +23,7 @@ class Notum extends Entity
      * @var array
      */
     protected $_accessible = [
+        'id' => true,
         'fecha' => true,
         'datos' => true,
         'ficha' => true,
