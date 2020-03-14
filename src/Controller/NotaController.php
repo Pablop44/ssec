@@ -37,7 +37,7 @@ class NotaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['notasFicha', 'numeroNotas']);
+        $this->Auth->allow(['notasFicha', 'numeroNotas', 'add']);
         $this->loadComponent('Csrf');
         $this->loadComponent('Paginator');
     }
@@ -57,6 +57,10 @@ class NotaController extends AppController
 
         $this->paginate['page'] = $data['page']+1;
         $this->paginate['limit'] = $data['limit'];
+
+        if(isset($data['tipo'])){
+            $this->paginate['order'] = [$data['tipo'] => 'desc'];
+        }
 
         if(!isset($data['filtro'])){
             $conditions = array('ficha' => $data['idFicha']);
@@ -102,7 +106,27 @@ class NotaController extends AppController
         $this->autoRender = false;
         $data = $this->request->getData();
 
-        $conditions = array('ficha' => $data['idFicha']);
+        if(!isset($data['filtro'])){
+            $conditions = array('ficha' => $data['idFicha']);
+        }else{
+            if(isset($data['filtro']['fechaInicio'])){
+                $fechaInicio =  array('fecha >' => $data['filtro']['fechaInicio']);
+            }else{
+                $fechaInicio = "";
+            }
+            if(isset($data['filtro']['fechaFin'])){
+                $fechaFin =  array('fecha <' => $data['filtro']['fechaFin']);
+            }else{
+                $fechaFin = "";
+            }
+            if(isset($data['filtro']['texto'])){
+                $texto = array('datos LIKE' => '%'.$data['filtro']['texto'].'%');
+            }else{
+                $texto = "";
+            }
+            $conditions = array('ficha' => $data['idFicha'], $fechaInicio, $fechaFin, $texto);
+        }
+
         $nota = $this->Nota->find('all', array('conditions' => $conditions));
         $i = 0;
         foreach($nota as $nota){
@@ -141,17 +165,14 @@ class NotaController extends AppController
      */
     public function add()
     {
+        $this->autoRender = false;
         $notum = $this->Nota->newEntity();
-        if ($this->request->is('post')) {
-            $notum = $this->Nota->patchEntity($notum, $this->request->getData());
-            if ($this->Nota->save($notum)) {
-                $this->Flash->success(__('The notum has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The notum could not be saved. Please, try again.'));
-        }
-        $this->set(compact('notum'));
+        $notum = $this->Nota->patchEntity($notum, $this->request->getData());
+        $this->Nota->save($notum);
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($notum);
+            $this->response->body($json);
     }
 
     /**
