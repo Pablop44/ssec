@@ -58,7 +58,27 @@ class NotaController extends AppController
         $this->paginate['page'] = $data['page']+1;
         $this->paginate['limit'] = $data['limit'];
 
-        $conditions = array('ficha' => $data['idFicha']);
+        if(!isset($data['filtro'])){
+            $conditions = array('ficha' => $data['idFicha']);
+        }else{
+            if(isset($data['filtro']['fechaInicio'])){
+                $fechaInicio =  array('fecha >' => $data['filtro']['fechaInicio']);
+            }else{
+                $fechaInicio = "";
+            }
+            if(isset($data['filtro']['fechaFin'])){
+                $fechaFin =  array('fecha <' => $data['filtro']['fechaFin']);
+            }else{
+                $fechaFin = "";
+            }
+            if(isset($data['filtro']['texto'])){
+                $texto = array('datos LIKE' => '%'.$data['filtro']['texto'].'%');
+            }else{
+                $texto = "";
+            }
+            $conditions = array('ficha' => $data['idFicha'], $fechaInicio, $fechaFin, $texto);
+        }
+
         $nota = $this->Nota->find('all', array('conditions' => $conditions));
         $paginador = $this->paginate($nota);
 

@@ -27,7 +27,8 @@ class UserController extends AppController
     {
         parent::initialize();
         $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios', 'logout', 'delete', 
-        'view', 'registerMedico', 'todosMedicos', 'edit', 'editarEspecialidad', 'editarUser', 'userActivados', 'longitudUserActivados', 'autorizar']);
+        'view', 'registerMedico', 'todosMedicos', 'edit', 'editarEspecialidad', 'editarUser',
+         'userActivados', 'longitudUserActivados', 'autorizar', 'loginPaciente']);
         $this->loadComponent('Csrf');
     }
 
@@ -312,6 +313,85 @@ class UserController extends AppController
                     $json = json_encode($user);
                     $this->response->body($json);
                 } 
+            }    
+        }
+    }
+
+    public function loginPaciente()
+    {   
+        $this->autoRender = false;
+        $username =  env('PHP_AUTH_USER');
+        $pass = env('PHP_AUTH_PW');
+        $userRaw = $this->User->find('all', array(
+            'conditions' => array('User.username' => $username),
+        ));
+
+        foreach($userRaw as $user){
+            $user = $user;
+            $idUser = $user['id'];
+            $fecha = FrozenTime::parse($user['nacimiento']);
+            $user->nacimiento = $fecha;
+            
+            $user->nacimiento =  $user->nacimiento->i18nFormat('dd/MM/YYYY HH:mm:ss');
+        }
+
+        if(!isset($idUser)){
+            $this->response->statusCode(403);
+            header('Access-Control-Allow-Origin: *');
+            header('Content-Type: application/json');
+            $this->set('problema', 'El usuario aun no esta registrado');    
+            $this->set('_serialize', ['problema']); 
+        }else{
+            foreach($userRaw as $user){
+                $user = $user;
+                $idUser = $user['id'];
+            }
+            $cuentas = TableRegistry::getTableLocator()->get('Cuenta');
+            $iteradorCuentaUsuario = $cuentas->find()->where(['user' => $idUser])->all();
+            foreach($iteradorCuentaUsuario as $cuentaUsuario){
+                $estadoCuenta = $cuentaUsuario['estado'];
+                $rol = $cuentaUsuario['rol'];
+            }
+
+            $user['rol'] = $rol;
+    
+            if($estadoCuenta == "desactivada"){
+                header('Access-Control-Allow-Origin: *');
+                $this->response->statusCode(403);
+                header('Content-Type: application/json');
+                $this->set('problema', 'Aun no has activado tu cuenta en el e-mail');    
+                $this->set('_serialize', ['problema']); 
+            }else if($estadoCuenta == "activada"){
+                header('Access-Control-Allow-Origin: *');
+                $this->response->statusCode(403);
+                header('Content-Type: application/json');
+                $this->set('problema', 'El administrador aun no te ha autorizado');    
+                $this->set('_serialize', ['problema']); 
+            }else{
+                if($user['password'] !== $pass) {
+                    header('Access-Control-Allow-Origin: *');
+                    $this->response->statusCode(403);
+                    header('Content-Type: application/json');
+                    $this->set('problema', 'Las credenciales son incorrectas');    
+                    $this->set('_serialize', ['problema']); 
+                }
+                else if($estadoCuenta == "autorizada" && $rol == "paciente" ){
+                    unset($user['colegiado']);
+                    unset($user['cargo']);
+                    unset($user['especialidad']);
+                    $this->Auth->setUser($user);
+                    $this->response->statusCode(200);
+                    $this->response->type('json');
+                    $json = json_encode($user);
+                    $this->response->body($json);
+                }
+                else{
+                    header('Access-Control-Allow-Origin: *');
+                    $this->response->statusCode(403);
+                    header('Content-Type: application/json');
+                    $this->set('problema', 'Las credenciales son incorrectas');    
+                    $this->set('_serialize', ['problema']); 
+                }
             }    
         }
     }

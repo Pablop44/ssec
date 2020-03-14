@@ -336,7 +336,7 @@ SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
 
 INSERT INTO `user`(`id`, `dni`, `username`, `password`, `email`, `nombre`, `apellidos`, `telefono`, `poblacion`, `colegiado`, `cargo`, `especialidad`, `genero`, `nacimiento`) VALUES (null, '11111111A', 'admin',  'admin', 'admin@admin.com', 'admin', 'admin', '111111111', 'vigo', null, 'administrador', '', 'Male', '');
-insert into USER (id, dni, username, password, email, nombre, apellidos, telefono, poblacion, colegiado, cargo, especialidad, genero, nacimiento) values (2, '53857525h', 'rhune1', 'NuZPTuTnJ0t', 'rhune1@weibo.com', 'Raymond', 'Hune', '6813029148', 'San Vicente', '44164292', 'medico', 'migranas', 'Male', '2010-05-07 04:56:32');
+insert into USER (id, dni, username, password, email, nombre, apellidos, telefono, poblacion, colegiado, cargo, especialidad, genero, nacimiento) values (2, '17463632P', 'pablo', 'pablo', 'pablo@pablo.com', 'pablo', 'pablo', '6813029148', 'San Vicente', '44164292', 'medico', 'migranas', 'Male', '2010-05-07 04:56:32');
 insert into USER (id, dni, username, password, email, nombre, apellidos, telefono, poblacion, colegiado, cargo, especialidad, genero, nacimiento) values (3, '25057904x', 'adomone2', 'BIhrVS1P', 'adomone2@shareasale.com', 'Alexine', 'Domone', '9186514509', 'Corinto', '24192239', 'medico', 'migranas', 'Female', '1999-06-26 07:50:02');
 insert into USER (id, dni, username, password, email, nombre, apellidos, telefono, poblacion, colegiado, cargo, especialidad, genero, nacimiento) values (4, '20656928o', 'gwalkington3', 'xLsmq8Pzmmda', 'gwalkington3@ucsd.edu', 'Gabby', 'Walkington', '3929262178', 'Oytal', '16349402', 'medico', 'migranas', 'Male', '1956-05-30 09:27:37');
 insert into USER (id, dni, username, password, email, nombre, apellidos, telefono, poblacion, colegiado, cargo, especialidad, genero, nacimiento) values (5, '78286619D', 'acammoile4', 't3kDkcDSMM', 'acammoile4@list-manage.com', 'Aloysius', 'Cammoile', '8518414499', 'Shuangmiao', '86929147', 'medico', 'migranas', 'Male', '2014-04-26 06:30:12');
@@ -438,7 +438,7 @@ insert into USER (id, dni, username, password, email, nombre, apellidos, telefon
 
 
 INSERT INTO `cuenta`(`id`, `rol`, `estado`, `user`) VALUES (null, 'administrador', 'autorizada', '1');
-insert into CUENTA (id, rol, estado, user) values (2, 'paciente', 'desactivada', 2);
+insert into CUENTA (id, rol, estado, user) values (2, 'paciente', 'autorizada', 2);
 insert into CUENTA (id, rol, estado, user) values (3, 'paciente', 'activada', 3);
 insert into CUENTA (id, rol, estado, user) values (4, 'paciente', 'desactivada', 4);
 insert into CUENTA (id, rol, estado, user) values (5, 'medico', 'autorizada', 5);
