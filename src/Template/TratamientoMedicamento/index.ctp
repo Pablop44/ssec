@@ -15,6 +15,7 @@
     <table cellpadding="0" cellspacing="0">
         <thead>
             <tr>
+                <th scope="col"><?= $this->Paginator->sort('id') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('medicamento') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('tratamiento') ?></th>
                 <th scope="col" class="actions"><?= __('Actions') ?></th>
@@ -23,6 +24,7 @@
         <tbody>
             <?php foreach ($tratamientoMedicamento as $tratamientoMedicamento): ?>
             <tr>
+                <td><?= $this->Number->format($tratamientoMedicamento->id) ?></td>
                 <td><?= h($tratamientoMedicamento->medicamento) ?></td>
                 <td><?= $this->Number->format($tratamientoMedicamento->tratamiento) ?></td>
                 <td class="actions">

@@ -21,6 +21,10 @@
             <td><?= h($tratamientoMedicamento->medicamento) ?></td>
         </tr>
         <tr>
+            <th scope="row"><?= __('Id') ?></th>
+            <td><?= $this->Number->format($tratamientoMedicamento->id) ?></td>
+        </tr>
+        <tr>
             <th scope="row"><?= __('Tratamiento') ?></th>
             <td><?= $this->Number->format($tratamientoMedicamento->tratamiento) ?></td>
         </tr>

@@ -21,13 +21,15 @@ class TratamientoMedicamentoFixture extends TestFixture
      */
     // @codingStandardsIgnoreStart
     public $fields = [
+        'id' => ['type' => 'integer', 'length' => 11, 'unsigned' => false, 'null' => false, 'default' => null, 'comment' => '', 'autoIncrement' => true, 'precision' => null],
         'medicamento' => ['type' => 'string', 'length' => 50, 'null' => false, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
         'tratamiento' => ['type' => 'integer', 'length' => 11, 'unsigned' => false, 'null' => false, 'default' => null, 'comment' => '', 'precision' => null, 'autoIncrement' => null],
         '_indexes' => [
             'fkTratamiento_idx' => ['type' => 'index', 'columns' => ['tratamiento'], 'length' => []],
+            'fkMedicamento' => ['type' => 'index', 'columns' => ['medicamento'], 'length' => []],
         ],
         '_constraints' => [
-            'primary' => ['type' => 'primary', 'columns' => ['medicamento', 'tratamiento'], 'length' => []],
+            'primary' => ['type' => 'primary', 'columns' => ['id'], 'length' => []],
             'fkMedicamento' => ['type' => 'foreign', 'columns' => ['medicamento'], 'references' => ['medicamento', 'nombre'], 'update' => 'noAction', 'delete' => 'noAction', 'length' => []],
             'fkTratamiento' => ['type' => 'foreign', 'columns' => ['tratamiento'], 'references' => ['tratamiento', 'id'], 'update' => 'cascade', 'delete' => 'cascade', 'length' => []],
         ],
@@ -46,7 +48,8 @@ class TratamientoMedicamentoFixture extends TestFixture
     {
         $this->records = [
             [
-                'medicamento' => '6373fb1a-1ebd-43f0-bbab-da012ec2d6d1',
+                'id' => 1,
+                'medicamento' => 'Lorem ipsum dolor sit amet',
                 'tratamiento' => 1,
             ],
         ];

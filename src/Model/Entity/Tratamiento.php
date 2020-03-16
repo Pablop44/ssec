@@ -4,13 +4,19 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * TratamientoMedicamento Entity
+ * Tratamiento Entity
  *
  * @property int $id
- * @property string $medicamento
- * @property int $tratamiento
+ * @property string $posologia
+ * @property \Cake\I18n\FrozenDate $fechaInicio
+ * @property \Cake\I18n\FrozenDate $fechaFin
+ * @property \Cake\I18n\FrozenTime $horario
+ * @property string $enfermedad
+ * @property int $ficha
+ *
+ * @property \App\Model\Entity\Medicamento[] $medicamento
  */
-class TratamientoMedicamento extends Entity
+class Tratamiento extends Entity
 {
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
@@ -22,7 +28,12 @@ class TratamientoMedicamento extends Entity
      * @var array
      */
     protected $_accessible = [
+        'posologia' => true,
+        'fechaInicio' => true,
+        'fechaFin' => true,
+        'horario' => true,
+        'enfermedad' => true,
+        'ficha' => true,
         'medicamento' => true,
-        'tratamiento' => true,
     ];
 }

@@ -15,6 +15,7 @@
     <fieldset>
         <legend><?= __('Add Tratamiento Medicamento') ?></legend>
         <?php
+            echo $this->Form->control('id');
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>

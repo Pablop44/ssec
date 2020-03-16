@@ -44,13 +44,19 @@ class TratamientoMedicamentoTable extends Table
     public function validationDefault(Validator $validator)
     {
         $validator
+            ->integer('id')
+            ->allowEmptyString('id', null, 'create');
+
+        $validator
             ->scalar('medicamento')
             ->maxLength('medicamento', 50)
-            ->allowEmptyString('medicamento', null, 'create');
+            ->requirePresence('medicamento', 'create')
+            ->notEmptyString('medicamento');
 
         $validator
             ->integer('tratamiento')
-            ->allowEmptyString('tratamiento', null, 'create');
+            ->requirePresence('tratamiento', 'create')
+            ->notEmptyString('tratamiento');
 
         return $validator;
     }
