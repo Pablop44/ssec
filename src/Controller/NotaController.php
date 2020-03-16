@@ -37,7 +37,7 @@ class NotaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['notasFicha', 'numeroNotas', 'add']);
+        $this->Auth->allow(['notasFicha', 'numeroNotas', 'add', 'delete']);
         $this->loadComponent('Csrf');
         $this->loadComponent('Paginator');
     }
@@ -208,14 +208,15 @@ class NotaController extends AppController
      */
     public function delete($id = null)
     {
+        $this->autoRender = false;
         $this->request->allowMethod(['post', 'delete']);
         $notum = $this->Nota->get($id);
-        if ($this->Nota->delete($notum)) {
-            $this->Flash->success(__('The notum has been deleted.'));
-        } else {
-            $this->Flash->error(__('The notum could not be deleted. Please, try again.'));
-        }
+        $this->Nota->delete($notum);
 
-        return $this->redirect(['action' => 'index']);
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($id);
+        $this->response->body($json);
+        
     }
 }
