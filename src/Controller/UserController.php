@@ -353,7 +353,15 @@ class UserController extends AppController
                 $rol = $cuentaUsuario['rol'];
             }
 
+            $fichas = TableRegistry::getTableLocator()->get('Ficha');
+            $iteradorfichaUsuario = $fichas->find()->where(['paciente' => $idUser])->all();
+
+            foreach($iteradorfichaUsuario as $fichaUsuario){
+                $idFicha = $fichaUsuario['id'];
+            }
+
             $user['rol'] = $rol;
+            $user['ficha'] = $idFicha;
     
             if($estadoCuenta == "desactivada"){
                 header('Access-Control-Allow-Origin: *');
