@@ -37,7 +37,7 @@ class NotaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['notasFicha', 'numeroNotas', 'add', 'delete']);
+        $this->Auth->allow(['notasFicha', 'numeroNotas', 'add', 'delete', 'editarNota']);
         $this->loadComponent('Csrf');
         $this->loadComponent('Paginator');
     }
@@ -182,21 +182,22 @@ class NotaController extends AppController
      * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function edit($id = null)
+    public function editarNota()
     {
-        $notum = $this->Nota->get($id, [
-            'contain' => [],
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $notum = $this->Nota->patchEntity($notum, $this->request->getData());
-            if ($this->Nota->save($notum)) {
-                $this->Flash->success(__('The notum has been saved.'));
+        $this->autoRender = false;
+        $data = $this->request->getData();
+        
+        $nota = $this->Nota->get($data['id']);
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The notum could not be saved. Please, try again.'));
-        }
-        $this->set(compact('notum'));
+        $x = array();
+        $x['datos'] = $data['datos'];
+      
+        $nota2 = $this->Nota->patchEntity($nota, $x);
+        $this->Nota->save($nota2);
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($nota2);
+        $this->response->body($json);
     }
 
     /**
