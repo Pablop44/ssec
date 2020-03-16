@@ -2,6 +2,9 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
+use Cake\Event\Event;
+use Cake\I18n\FrozenTime;
 
 /**
  * Tratamiento Controller
@@ -12,16 +15,74 @@ use App\Controller\AppController;
  */
 class TratamientoController extends AppController
 {
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null
-     */
-    public function index()
-    {
-        $tratamiento = $this->paginate($this->Tratamiento);
+    public $paginate = [
+        'page' => 1,
+        'limit' => 10,
+        'maxLimit' => 15,
+        'fields' => [
+            'id', 'posologia', 'fechaInicio', 'fechaFin', 'horario', 'enfermedad'
+        ],
+        'sortWhitelist' => [
+            'id', 'posologia', 'fechaInicio', 'fechaFin', 'horario', 'enfermedad'
+        ]
+    ];
 
-        $this->set(compact('tratamiento'));
+    public function initialize()
+    {
+        parent::initialize();
+        $this->Auth->allow(['tratramientosFicha']);
+        $this->loadComponent('Csrf');
+        $this->loadComponent('Paginator');
+    }
+
+    public function beforeFilter(Event $event) {
+        
+        $this->eventManager()->off($this->Csrf);
+    
+    }
+
+
+    public function tratramientosFicha()
+    {
+        $this->autoRender = false;
+        $data = $this->request->getData();
+
+        $this->paginate['page'] = $data['page']+1;
+        $this->paginate['limit'] = $data['limit'];
+
+        if(isset($data['tipo'])){
+            $this->paginate['order'] = [$data['tipo'] => 'desc'];
+        }
+
+        $conditions = array('ficha' => $data['idFicha']);
+    
+
+        $tratamiento = $this->Tratamiento->find('all', array('conditions' => $conditions));
+        $paginador = $this->paginate($tratamiento);
+
+        foreach($paginador as $tratamiento){
+            $fecha = FrozenTime::parse($tratamiento['fechaInicio']);
+            $tratamiento->fechaInicio = $fecha;
+            $tratamiento->fechaInicio =  $tratamiento->fechaInicio->i18nFormat('dd/MM/YYYY HH:mm:ss');
+
+            $fecha2 = FrozenTime::parse($tratamiento['fechaFin']);
+            $tratamiento->fechaFin = $fecha2;
+            $tratamiento->fechaFin =  $tratamiento->fechaFin->i18nFormat('dd/MM/YYYY HH:mm:ss');
+
+            $horario = FrozenTime::parse($tratamiento['horario']);
+            $tratamiento->horario = $horario;
+            $tratamiento->horario =  $tratamiento->horario->i18nFormat('HH:mm');
+
+            $tratamientoMedicamento = TableRegistry::getTableLocator()->get('TratamientoMedicamento');
+            $iteradorMedicamentos = $tratamientoMedicamento->find()->where(['tratamiento' => $tratamiento['id']])->all();
+
+            $tratamiento['medicamentos'] = $iteradorMedicamentos;
+        }
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($paginador);
+        $this->response->body($json);
     }
 
     /**

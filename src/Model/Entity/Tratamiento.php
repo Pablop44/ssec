@@ -28,6 +28,7 @@ class Tratamiento extends Entity
      * @var array
      */
     protected $_accessible = [
+        'id' => true,
         'posologia' => true,
         'fechaInicio' => true,
         'fechaFin' => true,
