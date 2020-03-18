@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`user` (
   `cargo` VARCHAR(45) NULL,
   `especialidad` VARCHAR(45) NULL,
   `genero` VARCHAR(45) NULL,
-  `nacimiento` DATETIME NULL,
+  `nacimiento` DATE NULL,
   PRIMARY KEY (`id`));
   
 

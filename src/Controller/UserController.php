@@ -407,6 +407,7 @@ class UserController extends AppController
 
     public function register()
     {
+        $this->autoRender = false;
         
         $user = $this->User->newEntity($this->request->data);
 
@@ -465,6 +466,7 @@ class UserController extends AppController
     public function registerMedico()
     {
         
+        $this->autoRender = false;
         $user = $this->User->newEntity($this->request->data);
 
         if ($this->User->save($user)){  
@@ -502,7 +504,17 @@ class UserController extends AppController
     public function registerPaciente()
     {
         
-        $user = $this->User->newEntity($this->request->data);
+        $this->autoRender = false;
+
+        $data = $this->request->getData();
+        $data['id'] = null;
+        
+        $user = $this->User->newEntity();
+        $user = $this->User->patchEntity($user, $data);
+
+        $error = array();
+        $error['error'] = "no se puedo crear el usuario";
+
 
         if ($this->User->save($user)){  
 
@@ -528,9 +540,9 @@ class UserController extends AppController
         }else{
                 $this->response->statusCode(500);
                 $this->response->type('json');
-                $json = json_encode($user);
+                $json = json_encode($error);
                 $this->response->body($json);
-        }  
+        } 
 
     }
 
