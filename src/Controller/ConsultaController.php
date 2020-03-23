@@ -37,7 +37,7 @@ class ConsultaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['consultas', 'consultaFicha', 'getHoras', 'add', 'numeroConsultas']);
+        $this->Auth->allow(['consultas', 'consultaFicha', 'getHoras', 'add', 'numeroConsultas', 'getHorasPaciente']);
         $this->loadComponent('Csrf');
         $this->loadComponent('Paginator');
     }
@@ -148,7 +148,7 @@ class ConsultaController extends AppController
             $fecha = FrozenTime::parse($consulta['fecha']);
             $consulta->fecha = $fecha;
             
-            $consulta->fecha =  $consulta->fecha->i18nFormat('dd/MM/YYYY HH:mm:ss');
+            $consulta->fecha =  $consulta->fecha->i18nFormat('dd/MM/YYYY HH:mm');
 
         }
     
@@ -293,6 +293,117 @@ class ConsultaController extends AppController
             $horas['14:00'] = true;
             $horas['15:00'] = true;
             $horas['16:00'] = true;
+        }
+        
+    
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($horas);
+        $this->response->body($json);
+        
+    }
+
+    public function getHorasPaciente()
+    {
+        $this->autoRender = false;
+        $data = $this->request->getData();
+        
+            $fechaPrueba = FrozenTime::parse($data['fecha']);
+            $fechaPrueba =  $fechaPrueba->i18nFormat('dd/MM/YYYY');
+
+            $ahora = FrozenTime::now();
+            $ahora = $ahora->i18nFormat('dd/MM/YYYY');
+
+            $time = Time::now();
+            $time = $time->i18nFormat('HH:MM');
+
+            
+
+        if($ahora <= $fechaPrueba){
+
+            $fichas = TableRegistry::getTableLocator()->get('Ficha');
+            $iterador = $fichas->find()->where(['id' => $data['ficha']])->all();
+            foreach($iterador as $usuario){
+                $medico = $usuario['medico'];
+            }
+
+            $consultas = $this->Consulta->find()->where(['fecha LIKE' => '%'.$data['fecha'].'%'])->where(['medico' => $medico])->all();
+            $horas = array();
+            $hora['hora'] = "09:00";
+            $hora['disponible'] = "false";
+            array_push($horas, $hora);
+            $hora['hora'] = "10:00";
+            $hora['disponible'] = "false";
+            array_push($horas, $hora);
+            $hora['hora'] = "11:00";
+            $hora['disponible'] = "false";
+            array_push($horas, $hora);
+            $hora['hora'] = "12:00";
+            $hora['disponible'] = "false";
+            array_push($horas, $hora);
+            $hora['hora'] = "13:00";
+            $hora['disponible'] = "false";
+            array_push($horas, $hora);
+            $hora['hora'] = "14:00";
+            $hora['disponible'] = "false";
+            array_push($horas, $hora);
+            $hora['hora'] = "15:00";
+            $hora['disponible'] = "false";
+            array_push($horas, $hora);
+            $hora['hora'] = "16:00";
+            $hora['disponible'] = "false";
+            array_push($horas, $hora);
+            
+            foreach($consultas as $consulta){
+
+            $fecha = FrozenTime::parse($consulta['fecha']);
+            $consulta->fecha = $fecha;
+            
+            $consulta->fecha =  $consulta->fecha->i18nFormat('dd/MM/YYYY HH:mm:ss');
+                if(strpos($consulta->fecha, '09:00:00')){
+                    $horas[0]['disponible'] = "true";
+                   }
+                   if(strpos($consulta->fecha, '10:00:00')){
+                    $horas[1]['disponible'] = "true";
+                   }
+                   if(strpos($consulta->fecha, '11:00:00')){
+                    $horas[2]['disponible'] = "true";
+                   }
+                   if(strpos($consulta->fecha, '12:00:00')){
+                    $horas[3]['disponible'] = "true";
+                   }
+                   if(strpos($consulta->fecha, '13:00:00')){
+                    $horas[4]['disponible'] = "true";
+                   }
+                   if(strpos($consulta->fecha, '14:00:00')){
+                    $horas[5]['disponible'] = "true";
+                   }
+                   if(strpos($consulta->fecha, '15:00:00')){
+                    $horas[6]['disponible'] = "true";
+                   }
+                   if(strpos($consulta->fecha, '16:00:00')){
+                    $horas[7]['disponible'] = "true";
+                   }
+             }
+
+            /*
+            $time2 = new Time('09:00:00');
+            $time2 = $time2->i18nFormat('HH:MM');
+
+            if($time > $time2){
+                $horas['09:00'] = true;
+            }
+            */
+        }else{
+
+            $horas[0]['disponible'] = "true";
+            $horas[1]['disponible'] = "true";
+            $horas[2]['disponible'] = "true";
+            $horas[3]['disponible'] = "true";
+            $horas[4]['disponible'] = "true";
+            $horas[5]['disponible'] = "true";
+            $horas[6]['disponible'] = "true"; 
+            $horas[7]['disponible'] = "true";
         }
         
     
