@@ -359,50 +359,57 @@ class ConsultaController extends AppController
             $fecha = FrozenTime::parse($consulta['fecha']);
             $consulta->fecha = $fecha;
             
-            $consulta->fecha =  $consulta->fecha->i18nFormat('dd/MM/YYYY HH:mm:ss');
+            $consulta->fecha = $consulta->fecha->i18nFormat('dd/MM/YYYY HH:mm:ss');
                 if(strpos($consulta->fecha, '09:00:00')){
+                    $horas[0]['hora'] = "09:00";
                     $horas[0]['disponible'] = "true";
                    }
                    if(strpos($consulta->fecha, '10:00:00')){
+                    $horas[1]['hora'] = "10:00";
                     $horas[1]['disponible'] = "true";
                    }
                    if(strpos($consulta->fecha, '11:00:00')){
+                    $horas[2]['hora'] = "11:00";
                     $horas[2]['disponible'] = "true";
                    }
                    if(strpos($consulta->fecha, '12:00:00')){
-                    $horas[3]['disponible'] = "true";
+                    $horas[3]['hora'] = "12:00";
+                    $horas[3]['disponible'] = "true";   
                    }
                    if(strpos($consulta->fecha, '13:00:00')){
+                    $horas[4]['hora'] = "13:00";
                     $horas[4]['disponible'] = "true";
                    }
                    if(strpos($consulta->fecha, '14:00:00')){
+                    $horas[5]['hora'] = "14:00";
                     $horas[5]['disponible'] = "true";
                    }
                    if(strpos($consulta->fecha, '15:00:00')){
+                    $horas[6]['hora'] = "15:00";
                     $horas[6]['disponible'] = "true";
                    }
                    if(strpos($consulta->fecha, '16:00:00')){
+                    $horas[7]['hora'] = "16:00";
                     $horas[7]['disponible'] = "true";
-                   }
-             }
-
-            /*
-            $time2 = new Time('09:00:00');
-            $time2 = $time2->i18nFormat('HH:MM');
-
-            if($time > $time2){
-                $horas['09:00'] = true;
+                    }
             }
-            */
         }else{
 
+            $horas[0]['hora'] = "09:00";
             $horas[0]['disponible'] = "true";
+            $horas[1]['hora'] = "10:00";
             $horas[1]['disponible'] = "true";
+            $horas[2]['hora'] = "11:00";
             $horas[2]['disponible'] = "true";
+            $horas[3]['hora'] = "12:00";
             $horas[3]['disponible'] = "true";
+            $horas[4]['hora'] = "13:00";
             $horas[4]['disponible'] = "true";
+            $horas[5]['hora'] = "14:00";
             $horas[5]['disponible'] = "true";
-            $horas[6]['disponible'] = "true"; 
+            $horas[6]['hora'] = "15:00";
+            $horas[6]['disponible'] = "true";
+            $horas[7]['hora'] = "16:00";
             $horas[7]['disponible'] = "true";
         }
         
@@ -425,16 +432,35 @@ class ConsultaController extends AppController
         header('Access-Control-Allow-Origin: *');
         $consulta = $this->request->getData();
         $consultum = $this->Consulta->newEntity();
+
         $consultum['fecha'] = $consulta['fecha'];
         $consultum['observaciones'] = null;
         $consultum['diagnostico'] = null;
         $consultum['id'] = null;
-        $consultum['lugar'] = $consulta['lugar'];
+        if(!isset($consulta['lugar'])){
+            $consultum['lugar'] = null;
+        }else{
+            $consultum['lugar'] = $consulta['lugar'];
+        }
+
+        if(!isset($consulta['medico'])){
+            $fichas = TableRegistry::getTableLocator()->get('Ficha');
+            $iterador = $fichas->find()->where(['id' => $consulta['ficha']])->all();
+            foreach($iterador as $usuario){
+                $medico = $usuario['medico'];
+                $paciente = $usuario['paciente'];
+            }
+            $consultum['medico'] = $medico;
+            $consultum['paciente'] = $paciente;
+
+        }else{
+            $consultum['medico'] = $consulta['medico'];
+            $consultum['paciente'] = $consulta['paciente'];
+        }
         $consultum['motivo'] = $consulta['motivo'];
-        $consultum['medico'] = $consulta['medico'];
-        $consultum['paciente'] = $consulta['paciente'];
         $consultum['ficha'] = $consulta['ficha'];
         $consultum['estado'] = $consulta['estado'];
+
             if ($this->Consulta->save($consultum)) {
                 $this->response->statusCode(200);
                 $this->response->type('json');
@@ -443,9 +469,9 @@ class ConsultaController extends AppController
             }else{
                 header('Access-Control-Allow-Origin: *');
                 $this->response->statusCode(500);
-                $this->response->type('json');
-                $json = json_encode($consultum);
-                $this->response->body($json);
+                header('Content-Type: application/json');
+                $this->set('problema', 'Error al crear la consulta');    
+                $this->set('_serialize', ['problema']); 
             }     
     }
     /**

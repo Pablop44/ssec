@@ -123,7 +123,7 @@ DROP TABLE IF EXISTS `mydb`.`consulta` ;
 
 CREATE TABLE IF NOT EXISTS `mydb`.`consulta` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `lugar` VARCHAR(50) NOT NULL,
+  `lugar` VARCHAR(50) NULL,
   `motivo` VARCHAR(255) NOT NULL,
   `fecha` DATETIME NOT NULL,
   `diagnostico` VARCHAR(511),
