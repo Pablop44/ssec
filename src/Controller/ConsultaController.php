@@ -37,7 +37,7 @@ class ConsultaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['consultas', 'consultaFicha', 'getHoras', 'add', 'numeroConsultas', 'getHorasPaciente']);
+        $this->Auth->allow(['consultas', 'consultaFicha', 'getHoras', 'add', 'numeroConsultas', 'getHorasPaciente', 'view']);
         $this->loadComponent('Csrf');
         $this->loadComponent('Paginator');
     }
@@ -85,11 +85,22 @@ class ConsultaController extends AppController
      */
     public function view($id = null)
     {
+
+        $this->autoRender = false;
+
         $consultum = $this->Consulta->get($id, [
             'contain' => [],
         ]);
 
-        $this->set('consultum', $consultum);
+        $fecha = FrozenTime::parse($consultum['fecha']);
+        $consultum->fecha = $fecha;
+            
+        $consultum->fecha =  $consultum->fecha->i18nFormat('dd-MM-YYYY HH:mm');
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($consultum);
+        $this->response->body($json);
     }
 
     public function consultaFicha()

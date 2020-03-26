@@ -33,7 +33,6 @@ class UserController extends AppController
     }
 
     public function beforeFilter(Event $event) {
-        
             $this->eventManager()->off($this->Csrf);
         
     }
@@ -71,12 +70,16 @@ class UserController extends AppController
     }
 
     public function logout(){
+        
         $this->autoRender = false;
         $this->Auth->logout();
+        $respuesta = array('respuesta' => "Has cerrado sesion correctamente");
         $this->response->statusCode(200);
         $this->response->type('json');
-        $this->set('respuesta', 'Has cerrado sesion correctamente');   
-        $this->set('_serialize', ['respuesta']); 
+        $json = json_encode($respuesta);
+        $this->response->body($json);
+        
+        
     }
 
     /**
