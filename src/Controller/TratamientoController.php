@@ -30,7 +30,7 @@ class TratamientoController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['tratramientosFicha']);
+        $this->Auth->allow(['tratramientosFicha', 'numeroTratramientosFicha', 'view']);
         $this->loadComponent('Csrf');
         $this->loadComponent('Paginator');
     }
@@ -85,6 +85,32 @@ class TratamientoController extends AppController
         $this->response->body($json);
     }
 
+    public function numeroTratramientosFicha()
+    {
+        $this->autoRender = false;
+        $data = $this->request->getData();
+
+        $conditions = array('ficha' => $data['idFicha']);
+    
+
+        $tratamiento = $this->Tratamiento->find('all', array('conditions' => $conditions));
+        $paginador = $this->paginate($tratamiento);
+
+        $i = 0;
+
+        foreach($paginador as $tratamiento){
+            $i++;
+        }
+
+        $obj = array();
+        $obj['numero'] = $i;
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($obj);
+        $this->response->body($json);
+    }
+
     /**
      * View method
      *
@@ -94,11 +120,27 @@ class TratamientoController extends AppController
      */
     public function view($id = null)
     {
+        $this->autoRender = false;
         $tratamiento = $this->Tratamiento->get($id, [
             'contain' => ['Medicamento'],
         ]);
 
-        $this->set('tratamiento', $tratamiento);
+        $fecha = FrozenTime::parse($tratamiento['fechaInicio']);
+        $tratamiento->fechaInicio = $fecha;
+        $tratamiento->fechaInicio =  $tratamiento->fechaInicio->i18nFormat('dd/MM/YYYY HH:mm:ss');
+
+        $fecha2 = FrozenTime::parse($tratamiento['fechaFin']);
+        $tratamiento->fechaFin = $fecha2;
+        $tratamiento->fechaFin =  $tratamiento->fechaFin->i18nFormat('dd/MM/YYYY HH:mm:ss');
+
+        $horario = FrozenTime::parse($tratamiento['horario']);
+        $tratamiento->horario = $horario;
+        $tratamiento->horario =  $tratamiento->horario->i18nFormat('HH:mm');
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($tratamiento);
+        $this->response->body($json);
     }
 
     /**
