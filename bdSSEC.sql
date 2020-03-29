@@ -152,49 +152,139 @@ CREATE TABLE IF NOT EXISTS `mydb`.`consulta` (
     ON DELETE CASCADE
     ON UPDATE CASCADE);
 
-
 -- -----------------------------------------------------
--- Table `mydb`.`plantilla`
+-- Table `mydb`.`diabetes`
 -- -----------------------------------------------------
 
-DROP TABLE IF EXISTS `mydb`.`plantilla` ;
+DROP TABLE IF EXISTS `mydb`.`diabetes` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`plantilla` (
+CREATE TABLE IF NOT EXISTS `mydb`.`diabetes` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `observaciones` VARCHAR(255) NOT NULL,
-  `estado` VARCHAR(255) NOT NULL,
-  `medico` INT NOT NULL,
+  `fecha` DATE NOT NULL,
+  `ficha` INT NOT NULL,
+  `numeroControles` INT NOT NULL,
+  `nivelBajo` ENUM('Si', 'No') NOT NULL,
+  `frecuenciaBajo` ENUM('No', 'Diaria', 'Mensual', 'Semanal') NOT NULL,
+  `horarioBajo` ENUM('Manana', 'Mediodia', 'Tarde', 'Media Tarde', 'Noche') NOT NULL,
+  `perdidaConocimiento` ENUM('Si', 'No') NOT NULL,
+  `nivelAlto` ENUM('Si', 'No') NOT NULL,
+  `frecuenciaAlto` ENUM('No', 'Diaria', 'Mensual', 'Semanal') NOT NULL,
+  `horarioAlto` ENUM('Manana', 'Mediodia', 'Tarde', 'Media Tarde', 'Noche') NOT NULL,
+  `actividadFisica` ENUM('Si', 'No') NOT NULL,
+  `problemaDieta` ENUM('Si', 'No') NOT NULL,
+  `estadoGeneral` VARCHAR(256) NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `fkMedico_idx` (`medico` ASC),
-  CONSTRAINT `fkMedicoPlantilla`
-    FOREIGN KEY (`medico`)
-    REFERENCES `mydb`.`user` (`id`)
+  INDEX `fkFicha_idx` (`ficha` ASC),
+  CONSTRAINT `fkFichaDiabetes`
+    FOREIGN KEY (`ficha`)
+    REFERENCES `mydb`.`ficha` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`informe`
+-- Table `mydb`.`momentoControlesDiabetes`
 -- -----------------------------------------------------
 
-DROP TABLE IF EXISTS `mydb`.`informe` ;
+DROP TABLE IF EXISTS `mydb`.`momentoControlesDiabetes` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`informe` (
+CREATE TABLE IF NOT EXISTS `mydb`.`momentoControlesDiabetes` (
+  `diabetes` INT NOT NULL,
+  `momento` ENUM('AntesComida', 'DespuesComida', 'PadecerEpisodio', 'Dormir', 'Levantarse') NOT NULL,
+  PRIMARY KEY (`diabetes`,  `momento`),
+  CONSTRAINT `fkDiabetesMomento`
+    FOREIGN KEY (`diabetes`)
+    REFERENCES `mydb`.`diabetes` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`asma`
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS `mydb`.`asma` ;
+
+CREATE TABLE IF NOT EXISTS `mydb`.`asma` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `fecha` DATE NOT NULL,
-  `plantilla` INT NOT NULL,
   `ficha` INT NOT NULL,
+  `calidadSueno` ENUM('Excelente', 'Buena', 'Media', 'Mala') NOT NULL,
+  `dificultadREspirar` ENUM('Si', 'No') NOT NULL,
+  `tos` ENUM('Si', 'No') NOT NULL,
+  `gravedadTos` ENUM('No', 'Alta', 'Media', 'Baja') NOT NULL,
+  `limitaciones` ENUM('Si', 'No') NOT NULL,
+  `silbidos` ENUM('Si', 'No') NOT NULL,
+  `usoMedicacion` ENUM('Si', 'No') NOT NULL,
+  `espirometria` VARCHAR(256) NOT NULL,
+  `factoresCrisis` VARCHAR(256) NOT NULL,
+  `estadoGeneral` VARCHAR(256) NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `fkPlantilla_idx` (`plantilla` ASC),
   INDEX `fkFicha_idx` (`ficha` ASC),
-  CONSTRAINT `fkPlantillaInforme`
-    FOREIGN KEY (`plantilla`)
-    REFERENCES `mydb`.`plantilla` (`id`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `fkFichaInforme`
+  CONSTRAINT `fkFichaAsma`
     FOREIGN KEY (`ficha`)
     REFERENCES `mydb`.`ficha` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`migranas`
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS `mydb`.`migranas` ;
+
+CREATE TABLE IF NOT EXISTS `mydb`.`migranas` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `fecha` DATE NOT NULL,
+  `ficha` INT NOT NULL,
+  `frecuencia` ENUM('Diaria', 'Semanal', 'Mensual') NOT NULL,
+  `duracion` ENUM('Segundos', 'Minutos', 'Horas', 'Dias') NOT NULL,
+  `horario` ENUM('Manana', 'Mediodia', 'Tarde', 'MediaTarde', 'Noche') NOT NULL,
+  `finalizacion` ENUM('Brusca', 'Progresiva', 'Remitente') NOT NULL,
+  `tipoEpisodio` ENUM('Pulsatil', 'Tenebrante', 'Urente', 'Lancinante', 'Opresivo') NOT NULL,
+  `intensidad` ENUM('Intenso', 'Medio', 'Leve') NOT NULL,
+  `limitaciones` ENUM('Si', 'No') NOT NULL,
+  `despiertoNoche` ENUM('Si', 'No') NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fkFicha_idx` (`ficha` ASC),
+  CONSTRAINT `fkFichaMigranas`
+    FOREIGN KEY (`ficha`)
+    REFERENCES `mydb`.`ficha` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+-- -----------------------------------------------------
+-- Table `mydb`.`sintomasMigranas`
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS `mydb`.`sintomasMigranas` ;
+
+CREATE TABLE IF NOT EXISTS `mydb`.`sintomasMigranas` (
+  `migranas` INT NOT NULL,
+  `sintomas` ENUM('Nauseas_Vomitos', 'Sono_foto_osmofobia', 'Fotopsias_escotomas_hemianopsia_diplopia', 'Hemiparesia_hemidisestesia',
+   'Inestabilidad_vertigo', 'SíntomasDisautonomicos', 'Afasia', 'Confusion_crisisComiciales_fiebre') NOT NULL,
+  PRIMARY KEY (`migranas`,  `sintomas`),
+  CONSTRAINT `fkMigranasSintomas`
+    FOREIGN KEY (`migranas`)
+    REFERENCES `mydb`.`migranas` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+-- -----------------------------------------------------
+-- Table `mydb`.`factoresMigranas`
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS `mydb`.`factoresMigranas` ;
+
+CREATE TABLE IF NOT EXISTS `mydb`.`factoresMigranas` (
+  `migranas` INT NOT NULL,
+  `factores` ENUM('Estres', 'EjercicioFisico', 'FactoresHormonales', 'Dietas_alcohol',
+   'CambiosAtmosferico', 'SíntomasDisautonomicos', 'CambiosPosturales', 'MovimientoCefalicos', 'ManiobrasValsalva') NOT NULL,
+  PRIMARY KEY (`migranas`,  `factores`),
+  CONSTRAINT `fkMigranasFactores`
+    FOREIGN KEY (`migranas`)
+    REFERENCES `mydb`.`migranas` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
