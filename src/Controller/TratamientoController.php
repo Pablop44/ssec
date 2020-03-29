@@ -76,7 +76,11 @@ class TratamientoController extends AppController
             $tratamientoMedicamento = TableRegistry::getTableLocator()->get('TratamientoMedicamento');
             $iteradorMedicamentos = $tratamientoMedicamento->find()->where(['tratamiento' => $tratamiento['id']])->all();
 
-            $tratamiento['medicamentos'] = $iteradorMedicamentos;
+            foreach($iteradorMedicamentos as $tratamientoMedicamento1){
+                $medicamentos = TableRegistry::getTableLocator()->get('Medicamento');
+                $iteradorMedicamentos2 = $medicamentos->find()->where(['nombre' => $tratamientoMedicamento1['medicamento']])->all();
+                $tratamiento['medicamentos'] = $iteradorMedicamentos2;
+            }
         }
 
         $this->response->statusCode(200);
@@ -121,9 +125,16 @@ class TratamientoController extends AppController
     public function view($id = null)
     {
         $this->autoRender = false;
-        $tratamiento = $this->Tratamiento->get($id, [
-            'contain' => ['Medicamento'],
-        ]);
+        $tratamiento = $this->Tratamiento->get($id);
+
+        $tratamientoMedicamento = TableRegistry::getTableLocator()->get('TratamientoMedicamento');
+        $iteradorMedicamentos = $tratamientoMedicamento->find()->where(['tratamiento' => $tratamiento['id']])->all();
+
+        foreach($iteradorMedicamentos as $tratamientoMedicamento1){
+            $medicamentos = TableRegistry::getTableLocator()->get('Medicamento');
+            $iteradorMedicamentos2 = $medicamentos->find()->where(['nombre' => $tratamientoMedicamento1['medicamento']])->all();
+            $tratamiento['medicamentos'] = $iteradorMedicamentos2;
+        }
 
         $fecha = FrozenTime::parse($tratamiento['fechaInicio']);
         $tratamiento->fechaInicio = $fecha;
