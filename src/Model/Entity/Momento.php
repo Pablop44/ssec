@@ -4,14 +4,12 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * Informe Entity
+ * Momento Entity
  *
- * @property int $id
- * @property \Cake\I18n\FrozenTime $fecha
- * @property int $plantilla
- * @property int $ficha
+ * @property int $diabetes
+ * @property string $momento
  */
-class Informe extends Entity
+class Momento extends Entity
 {
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
@@ -23,8 +21,8 @@ class Informe extends Entity
      * @var array
      */
     protected $_accessible = [
-        'fecha' => true,
-        'plantilla' => true,
-        'ficha' => true,
+        '*' => true,
+        'diabetes' => false,
+        'momento' => false,
     ];
 }

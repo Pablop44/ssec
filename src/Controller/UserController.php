@@ -310,11 +310,19 @@ class UserController extends AppController
                     $this->set('_serialize', ['problema']); 
                 }
                 else{
-                    $this->Auth->setUser($user);
-                    $this->response->statusCode(200);
-                    $this->response->type('json');
-                    $json = json_encode($user);
-                    $this->response->body($json);
+                    if($rol == "administrador" || $rol == "medico" ){
+                        $this->Auth->setUser($user);
+                        $this->response->statusCode(200);
+                        $this->response->type('json');
+                        $json = json_encode($user);
+                        $this->response->body($json);
+                    }else{
+                        header('Access-Control-Allow-Origin: *');
+                        $this->response->statusCode(403);
+                        header('Content-Type: application/json');
+                        $this->set('problema', 'Las credenciales son incorrectas');    
+                        $this->set('_serialize', ['problema']); 
+                    }
                 } 
             }    
         }
