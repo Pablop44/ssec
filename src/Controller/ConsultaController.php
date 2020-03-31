@@ -232,17 +232,13 @@ class ConsultaController extends AppController
     {
         $this->autoRender = false;
         $data = $this->request->getData();
-        
-            $fechaPrueba = FrozenTime::parse($data['fecha']);
-            $fechaPrueba =  $fechaPrueba->i18nFormat('dd/MM/YYYY');
+    
+        $fechaPrueba = FrozenTime::parse($data['fecha']);
 
-            $ahora = FrozenTime::now();
-            $ahora = $ahora->i18nFormat('dd/MM/YYYY');
+        $time = Time::now();
+        $time = $time->i18nFormat('HH:MM');
 
-            $time = Time::now();
-            $time = $time->i18nFormat('HH:MM');
-
-        if($ahora <= $fechaPrueba){
+        if(!$fechaPrueba->isPast()){
 
             $consultas = $this->Consulta->find()->where(['fecha LIKE' => '%'.$data['fecha'].'%'])->where(['medico' => $data['medico']])->all();
             $horas = array();
@@ -285,17 +281,8 @@ class ConsultaController extends AppController
                     $horas['16:00'] = true;
                    }
              }
-
-            /*
-            $time2 = new Time('09:00:00');
-            $time2 = $time2->i18nFormat('HH:MM');
-
-            if($time > $time2){
-                $horas['09:00'] = true;
-            }
-            */
+            
         }else{
-
             $horas['09:00'] = true;
             $horas['10:00'] = true;
             $horas['11:00'] = true;
@@ -305,7 +292,6 @@ class ConsultaController extends AppController
             $horas['15:00'] = true;
             $horas['16:00'] = true;
         }
-        
     
         $this->response->statusCode(200);
         $this->response->type('json');
