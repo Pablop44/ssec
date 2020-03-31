@@ -41,7 +41,7 @@ class MigranasController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['migranasFichas', 'numeroInformesMigranas']);
+        $this->Auth->allow(['migranasFichas', 'numeroInformesMigranas', 'view']);
         $this->loadComponent('Csrf');
     }
 
@@ -130,12 +130,42 @@ class MigranasController extends AppController
 
     }
     
+    public function view($id = null){
 
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
-     */
+        $this->autoRender = false;
+        $migranas = $this->Migranas->get($id);
+    
+
+        $fecha = FrozenTime::parse($migranas['fecha']);
+        $migranas->fecha = $fecha;
+        
+        $migranas->fecha =  $migranas->fecha->i18nFormat('dd/MM/YYYY HH:mm');
+        
+        $sintomas = TableRegistry::getTableLocator()->get('Sintomas');
+        $sintomasIterador = $sintomas->find()->where(['migranas' => $migranas['id']])->all();
+
+        foreach($sintomasIterador as $sintomas){
+            unset($sintomas['migranas']);
+        }
+
+        $migranas['sintomas'] = $sintomasIterador;
+
+        $factores = TableRegistry::getTableLocator()->get('Factores');
+        $factoresIterador = $factores->find()->where(['migranas' => $migranas['id']])->all();
+
+        foreach($factoresIterador as $factores){
+            unset($factores['migranas']);
+        }
+
+        $migranas['factores'] = $factoresIterador;
+       
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($migranas);
+        $this->response->body($json);
+    }
+
+
     public function add()
     {
         $migrana = $this->Migranas->newEntity();

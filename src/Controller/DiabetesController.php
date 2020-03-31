@@ -41,7 +41,7 @@ class DiabetesController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['diabetesFichas', 'numeroInformesDiabetes']);
+        $this->Auth->allow(['diabetesFichas', 'numeroInformesDiabetes', 'view']);
         $this->loadComponent('Csrf');
     }
 
@@ -123,11 +123,27 @@ class DiabetesController extends AppController
      */
     public function view($id = null)
     {
-        $diabetes = $this->Diabetes->get($id, [
-            'contain' => [],
-        ]);
+        $this->autoRender = false;
+        $diabetes = $this->Diabetes->get($id);
 
-        $this->set('diabetes', $diabetes);
+        $fecha = FrozenTime::parse($diabetes['fecha']);
+        $diabetes->fecha = $fecha;
+        
+        $diabetes->fecha =  $diabetes->fecha->i18nFormat('dd/MM/YYYY HH:mm');
+        
+        $momentos = TableRegistry::getTableLocator()->get('Momentos');
+        $momentosIterador = $momentos->find()->where(['diabetes' => $diabetes['id']])->all();
+
+        foreach($momentosIterador as $momento){
+            unset($momento['diabetes']);
+        }
+        
+        $diabetes['momentos'] = $momentosIterador;
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($diabetes);
+        $this->response->body($json);
     }
 
     /**
