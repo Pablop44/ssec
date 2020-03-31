@@ -41,7 +41,7 @@ class AsmaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['asmaFichas']);
+        $this->Auth->allow(['asmaFichas', 'numeroInformesAsma']);
         $this->loadComponent('Csrf');
     }
 
@@ -76,6 +76,32 @@ class AsmaController extends AppController
         $this->response->type('json');
         $json = json_encode($paginador);
         $this->response->body($json);
+    }
+
+    public function numeroInformesAsma()
+    {
+
+        $this->autoRender = false;
+        $data = $this->request->getData();
+
+        $conditions = array('ficha' => $data['id']);
+
+        $asma = $this->Asma->find('all', array('conditions' => $conditions));
+
+        $i = 0;
+
+        foreach($asma as $asma){
+            $i++;
+        }
+
+        $myobj = array();
+        $myobj['numero'] = $i;
+       
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($myobj);
+        $this->response->body($json);
+
     }
 
     /**

@@ -41,7 +41,7 @@ class DiabetesController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['diabetesFichas']);
+        $this->Auth->allow(['diabetesFichas', 'numeroInformesDiabetes']);
         $this->loadComponent('Csrf');
     }
 
@@ -84,6 +84,32 @@ class DiabetesController extends AppController
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($paginador);
+        $this->response->body($json);
+
+    }
+
+    public function numeroInformesDiabetes()
+    {
+
+        $this->autoRender = false;
+        $data = $this->request->getData();
+
+        $conditions = array('ficha' => $data['id']);
+
+        $diabetes = $this->Diabetes->find('all', array('conditions' => $conditions));
+
+        $i = 0;
+
+        foreach($diabetes as $diabetes){
+            $i++;
+        }
+
+        $myobj = array();
+        $myobj['numero'] = $i;
+       
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($myobj);
         $this->response->body($json);
 
     }

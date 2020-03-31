@@ -160,7 +160,7 @@ DROP TABLE IF EXISTS `mydb`.`diabetes` ;
 
 CREATE TABLE IF NOT EXISTS `mydb`.`diabetes` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `fecha` DATE NOT NULL,
+  `fecha` DATETIME NOT NULL,
   `ficha` INT NOT NULL,
   `numeroControles` INT NOT NULL,
   `nivelBajo` ENUM('Si', 'No') NOT NULL,
@@ -207,7 +207,7 @@ DROP TABLE IF EXISTS `mydb`.`asma` ;
 
 CREATE TABLE IF NOT EXISTS `mydb`.`asma` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `fecha` DATE NOT NULL,
+  `fecha` DATETIME NOT NULL,
   `ficha` INT NOT NULL,
   `calidadSueno` ENUM('Excelente', 'Buena', 'Media', 'Mala') NOT NULL,
   `dificultadRespirar` ENUM('Si', 'No') NOT NULL,
@@ -236,7 +236,7 @@ DROP TABLE IF EXISTS `mydb`.`migranas` ;
 
 CREATE TABLE IF NOT EXISTS `mydb`.`migranas` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `fecha` DATE NOT NULL,
+  `fecha` DATETIME NOT NULL,
   `ficha` INT NOT NULL,
   `frecuencia` ENUM('Diaria', 'Semanal', 'Mensual') NOT NULL,
   `duracion` ENUM('Segundos', 'Minutos', 'Horas', 'Dias') NOT NULL,

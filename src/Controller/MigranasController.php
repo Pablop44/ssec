@@ -41,7 +41,7 @@ class MigranasController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['migranasFichas']);
+        $this->Auth->allow(['migranasFichas', 'numeroInformesMigranas']);
         $this->loadComponent('Csrf');
     }
 
@@ -100,6 +100,32 @@ class MigranasController extends AppController
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($paginador);
+        $this->response->body($json);
+
+    }
+
+    public function numeroInformesMigranas()
+    {
+
+        $this->autoRender = false;
+        $data = $this->request->getData();
+
+        $conditions = array('ficha' => $data['id']);
+
+        $migranas = $this->Migranas->find('all', array('conditions' => $conditions));
+
+        $i = 0;
+
+        foreach($migranas as $migranas){
+            $i++;
+        }
+
+        $myobj = array();
+        $myobj['numero'] = $i;
+       
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($myobj);
         $this->response->body($json);
 
     }
