@@ -41,7 +41,7 @@ class DiabetesController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['diabetesFichas', 'numeroInformesDiabetes', 'view']);
+        $this->Auth->allow(['diabetesFichas', 'numeroInformesDiabetes', 'view', 'todosDiabetesFichas']);
         $this->loadComponent('Csrf');
     }
 
@@ -84,6 +84,40 @@ class DiabetesController extends AppController
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($paginador);
+        $this->response->body($json);
+
+    }
+
+    public function todosDiabetesFichas()
+    {
+
+        $this->autoRender = false;
+        $data = $this->request->getData();
+
+        $conditions = array('ficha' => $data['id']);
+
+        $diabetesInformes = $this->Diabetes->find()->where(['ficha' => $data['id']])->all();
+
+        foreach($diabetesInformes as $diabetes){
+
+            $fecha = FrozenTime::parse($diabetes['fecha']);
+            $diabetes->fecha = $fecha;
+            
+            $diabetes->fecha =  $diabetes->fecha->i18nFormat('dd/MM/YYYY HH:mm');
+            
+            $momentos = TableRegistry::getTableLocator()->get('Momentos');
+            $momentosIterador = $momentos->find()->where(['diabetes' => $diabetes['id']])->all();
+
+            foreach($momentosIterador as $momento){
+                unset($momento['diabetes']);
+            }
+            
+            $diabetes['momentos'] = $momentosIterador;
+        }
+       
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($diabetesInformes);
         $this->response->body($json);
 
     }

@@ -41,7 +41,7 @@ class MigranasController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['migranasFichas', 'numeroInformesMigranas', 'view']);
+        $this->Auth->allow(['migranasFichas', 'numeroInformesMigranas', 'view', 'todosMigranasFichas']);
         $this->loadComponent('Csrf');
     }
 
@@ -100,6 +100,49 @@ class MigranasController extends AppController
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($paginador);
+        $this->response->body($json);
+
+    }
+
+
+    public function todosMigranasFichas()
+    {
+
+        $this->autoRender = false;
+        $data = $this->request->getData();
+
+        $migranasInformes = $this->Migranas->find()->where(['ficha' => $data['id']])->all();
+
+        foreach($migranasInformes as $migranas){
+
+            $fecha = FrozenTime::parse($migranas['fecha']);
+            $migranas->fecha = $fecha;
+            
+            $migranas->fecha =  $migranas->fecha->i18nFormat('dd/MM/YYYY HH:mm');
+            
+            $sintomas = TableRegistry::getTableLocator()->get('Sintomas');
+            $sintomasIterador = $sintomas->find()->where(['migranas' => $migranas['id']])->all();
+
+            foreach($sintomasIterador as $sintomas){
+                unset($sintomas['migranas']);
+            }
+
+            $migranas['sintomas'] = $sintomasIterador;
+
+            $factores = TableRegistry::getTableLocator()->get('Factores');
+            $factoresIterador = $factores->find()->where(['migranas' => $migranas['id']])->all();
+
+            foreach($factoresIterador as $factores){
+                unset($factores['migranas']);
+            }
+
+            $migranas['factores'] = $factoresIterador;
+            
+        }
+       
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($migranasInformes);
         $this->response->body($json);
 
     }
