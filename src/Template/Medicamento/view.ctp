@@ -46,6 +46,7 @@
                 <th scope="col"><?= __('FechaFin') ?></th>
                 <th scope="col"><?= __('Horario') ?></th>
                 <th scope="col"><?= __('Enfermedad') ?></th>
+                <th scope="col"><?= __('Ficha') ?></th>
                 <th scope="col" class="actions"><?= __('Actions') ?></th>
             </tr>
             <?php foreach ($medicamento->tratamiento as $tratamiento): ?>
@@ -56,6 +57,7 @@
                 <td><?= h($tratamiento->fechaFin) ?></td>
                 <td><?= h($tratamiento->horario) ?></td>
                 <td><?= h($tratamiento->enfermedad) ?></td>
+                <td><?= h($tratamiento->ficha) ?></td>
                 <td class="actions">
                     <?= $this->Html->link(__('View'), ['controller' => 'Tratamiento', 'action' => 'view', $tratamiento->id]) ?>
                     <?= $this->Html->link(__('Edit'), ['controller' => 'Tratamiento', 'action' => 'edit', $tratamiento->id]) ?>

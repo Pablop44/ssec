@@ -25,7 +25,6 @@ class Medicamento extends Entity
      * @var array
      */
     protected $_accessible = [
-        'nombre' => true,
         'viaAdministracion' => true,
         'marca' => true,
         'dosis' => true,

@@ -37,8 +37,8 @@ class MedicamentoTable extends Table
         $this->setPrimaryKey('nombre');
 
         $this->belongsToMany('Tratamiento', [
-            'foreignKey' => 'medicamento_id',
-            'targetForeignKey' => 'tratamiento_id',
+            'foreignKey' => 'medicamento',
+            'targetForeignKey' => 'tratamiento',
             'joinTable' => 'tratamiento_medicamento',
         ]);
     }
