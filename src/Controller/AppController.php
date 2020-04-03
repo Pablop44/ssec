@@ -16,6 +16,7 @@ namespace App\Controller;
 
 use Cake\Controller\Controller;
 use Cake\Event\Event;
+use Cake\Core\Configure;
 
 /**
  * Application Controller
@@ -47,17 +48,18 @@ class AppController extends Controller
         $this->loadComponent('Auth', [
             'loginAction' => [
                 'controller' => 'User',
-                'action'=>'unauthorized',
+                'action'=> 'login',
                 '_ext'=>'json'],
             'authError' => __('No tienes los permisos necesarios para acceder a ese recurso.'),
             'authorize' => ['Controller'],
             'storage' => 'Session',
         ]);
 
-        /*
-         * Enable the following component for recommended CakePHP security settings.
-         * see https://book.cakephp.org/3.0/en/controllers/components/security.html
-         */
-        //$this->loadComponent('Security');
+        if (Configure::read('skipAuth')) {
+            $this->Auth->allow();
+        }
+
+        // Hacer AuthComponent accesible a las vistas
+        $this->set('Auth', $this->Auth);
     }
 }

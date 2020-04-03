@@ -16,41 +16,57 @@ use Cake\I18n\FrozenTime;
  *
  * @method \App\Model\Entity\User[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
  */
+
 class UserController extends AppController
 {
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null
-     */
-    public function initialize()
-    {
+
+    /*Función que inicializa el componente
+      define las acciones que pueden ser accesibles si el usuario no esta registrado
+    */
+    public function initialize(){
         parent::initialize();
-        $this->Auth->allow(['register', 'login', 'confirmar', 'usuarios', 'logout', 'delete', 
-        'view', 'registerMedico', 'todosMedicos', 'edit', 'editarEspecialidad', 'editarUser',
-         'userActivados', 'longitudUserActivados', 'autorizar', 'loginPaciente', 'registerPaciente']);
+        $this->Auth->allow(['register', 'login', 'logout','loginPaciente', 'registerPaciente', 'confirmar', 'view', 'editarUser'
+        ,'autorizar', 'registerMedico', 'userActivados', 'longitudUserActivados', 'register', 'autorizacion']);
         $this->loadComponent('Csrf');
     }
 
     public function beforeFilter(Event $event) {
-            $this->eventManager()->off($this->Csrf);
         
+        $this->eventManager()->off($this->Csrf);
+    
     }
-
 
     /*
-    public function isAuthorized($user)
-    {
-        // Los usuarios no administradores solo pueden ver su perfil, editarlo
-        // y desconectarse
-        return in_array($this->getRequest()->getParam('action'), ['view', 'edit', 'logout']) ||
-               $user['rol'] === 'administrador';
-    }
+    Función que define, una vez un usuario está registrado
+    que acciones son accesibles en función de cada rol
     */
 
+    public function autorizacion($action){
+        if($action == 'view' || $action == 'editarUser'){
+            return true;
+        }else if($action == 'todosMedicos' || $action == 'autorizar' || $action == 'registerMedico' || $action == 'userActivados' || $action == 'longitudUserActivados'){
+            if($this->Auth->user('rol') == 'administrador'){
+                return true;
+            }else{
+                return false;
+            }
+        }else if($action == 'register'){
+            if( $this->Auth->user('rol') == 'medico'){
+                return true;
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
 
-    public function usuarios()
-    {
+    /*
+    Función que devuelve todos los usuarios existentes en el sistema
+    Solo accesible por el administrador
+    */
+    public function usuarios(){
+        $this->request->allowMethod(['get']);
         $this->autoRender = false;
         $usuarios = $this->User->find()->all();
 
@@ -69,8 +85,12 @@ class UserController extends AppController
         $this->response->body($json);
     }
 
+    /*
+    Función que cierra sesión del usuario
+    Accesible por el administrador, médico y paciente
+    */
     public function logout(){
-        
+        $this->request->allowMethod(['get']);
         $this->autoRender = false;
         $this->Auth->logout();
         $respuesta = array('respuesta' => "Has cerrado sesion correctamente");
@@ -78,19 +98,16 @@ class UserController extends AppController
         $this->response->type('json');
         $json = json_encode($respuesta);
         $this->response->body($json);
-        
-        
     }
 
-    /**
-     * View method
-     *
-     * @param string|null $id User id.
-     * @return \Cake\Http\Response|null
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
+    /*
+    Función que devuelve los datos de un usuario según su id
+    También devuelve los datos asociados a su cuenta
+    Accesible por el administrador, médico y paciente
+    */
     public function view($id = null)
     {
+        $this->request->allowMethod(['get']);
         $this->autoRender = false;
         $user = $this->User->get($id, [
             'contain' => [],
@@ -118,19 +135,24 @@ class UserController extends AppController
                 $user['medicoEncargado'] = $ficha['medico'];
             }
         }
-        
 
         $fecha = FrozenTime::parse($user->nacimiento);
         $user->nacimiento = $fecha;
         $user->nacimiento = $user->nacimiento->i18nFormat('dd/MM/YYYY');
+
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($user);
         $this->response->body($json);
     }
 
+    /*
+    Función que devuelve los datos de todos los médicos existentes en la aplicación
+    Solo accesible por el administrador
+    */
     public function todosMedicos()
     {
+        $this->request->allowMethod(['get']);
         $this->autoRender = false;
         $usuarios = $this->User->find()->all();
         $usuarioFinal = array();
@@ -152,37 +174,14 @@ class UserController extends AppController
         $json = json_encode($usuarioFinal);
         $this->response->body($json);
     }
-    
 
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
-     */
-    public function add()
-    {
-        $user = $this->User->newEntity();
-        if ($this->request->is('post')) {
-            $user = $this->User->patchEntity($user, $this->request->getData());
-            if ($this->User->save($user)) {
-                $this->Flash->success(__('The user has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The user could not be saved. Please, try again.'));
-        }
-        $this->set(compact('user'));
-    }
-
-    /**
-     * Edit method
-     *
-     * @param string|null $id User id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
+    /*
+    Función que autoriza la cuenta asociada al id de un usuario
+    Solo accesible por el administrador
+    */
     public function autorizar($id = null)
     {
+        $this->request->allowMethod(['get']);
         $this->autoRender = false;
 
         $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
@@ -201,11 +200,15 @@ class UserController extends AppController
     }
 
 
+    /*
+    Función que edita los datos del usuario
+    Accesible por el administrador, médico y paciente
+    */
     public function editarUser()
     {
+        $this->request->allowMethod(['post']);
         $this->autoRender = false;
         $data = $this->request->getData();
-        
         
         $user = $this->User->get($data['id'], [
             'contain' => [],
@@ -223,13 +226,11 @@ class UserController extends AppController
         $json = json_encode($user2);
         $this->response->body($json);
     }
-    /**
-     * Delete method
-     *
-     * @param string|null $id User id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
+
+    /*
+    Función que elimina un usuario del sistema
+    Accesible por el administrador, médico y paciente
+    */
     public function delete($id = null)
     {
         $this->request->allowMethod(['delete']);
@@ -252,8 +253,13 @@ class UserController extends AppController
             $this->set('respuesta', 'No se ha eliminado el usuario');   
             $this->set('_serialize', ['respuesta']);
         }
+
     }
 
+    /*
+    Función que permite hacer login a un administrador o médico
+    Accesible por el administrador y médico
+    */
     public function login()
     {   
         $this->autoRender = false;
@@ -288,7 +294,6 @@ class UserController extends AppController
 
             $user['rol'] = $rol;
 
-    
             if($estadoCuenta == "desactivada"){
                 header('Access-Control-Allow-Origin: *');
                 $this->response->statusCode(403);
@@ -328,6 +333,10 @@ class UserController extends AppController
         }
     }
 
+    /*
+    Función que permite hacer login a un paciente
+    Accesible por el paciente
+    */
     public function loginPaciente()
     {   
         $this->autoRender = false;
@@ -342,7 +351,6 @@ class UserController extends AppController
             $idUser = $user['id'];
             $fecha = FrozenTime::parse($user['nacimiento']);
             $user->nacimiento = $fecha;
-            
             $user->nacimiento =  $user->nacimiento->i18nFormat('dd/MM/YYYY HH:mm:ss');
         }
 
@@ -415,11 +423,14 @@ class UserController extends AppController
         }
     }
 
-
+    /*
+    Función que permite registrar a un médico sin autorizar la cuenta
+    Accesible por el médico
+    */
     public function register()
     {
+        $this->request->allowMethod(['post']);
         $this->autoRender = false;
-        
         $user = $this->User->newEntity($this->request->data);
 
         if ($this->User->save($user)){  
@@ -428,7 +439,6 @@ class UserController extends AppController
             foreach($iterador as $usuario){
                 $idUsuario = $usuario['id'];
                 $emailUsuario =  $usuario['email'];
-                
             }
 
             TransportFactory::setConfig('mailtrap', [
@@ -471,12 +481,15 @@ class UserController extends AppController
             $this->set('_serialize', ['respuesta']);
 
         }  
-
     }
 
+    /*
+    Función que permite registrar a un médico autorizandolo
+    Accesible por el administrador
+    */
     public function registerMedico()
     {
-        
+        $this->request->allowMethod(['post']);
         $this->autoRender = false;
         $user = $this->User->newEntity($this->request->data);
 
@@ -509,14 +522,16 @@ class UserController extends AppController
             $this->set('UsuarioCreado', 'Error al crear el usuario'); 
             $this->set('_serialize', ['UsuarioCreado']);  
         }  
-
     }
 
+    /*
+    Función que permite registrar a un paciente sin autorizar
+    Accesible por el paciente
+    */
     public function registerPaciente()
     {
-        
+        $this->request->allowMethod(['post']);   
         $this->autoRender = false;
-
         $data = $this->request->getData();
         $data['id'] = null;
         
@@ -525,7 +540,6 @@ class UserController extends AppController
 
         $error = array();
         $error['error'] = "no se puedo crear el usuario";
-
 
         if ($this->User->save($user)){  
 
@@ -554,11 +568,15 @@ class UserController extends AppController
                 $json = json_encode($error);
                 $this->response->body($json);
         } 
-
     }
 
+    /*
+    Función que confirma el correo de un médico y activa su cuenta
+    Accesible por el médico
+    */
     public function confirmar($id = null)
     {
+        $this->request->allowMethod(['get']);
         $cuentas = TableRegistry::getTableLocator()->get('Cuenta');
         $iteradorCuentaUsuario = $cuentas->find()->where(['user' => $id])->all();
         foreach($iteradorCuentaUsuario as $cuentaUsuario){
@@ -574,8 +592,13 @@ class UserController extends AppController
         $this->set('_serialize', ['UsuarioCreado']); 
     }
 
+    /*
+    Función que devuelve los datos de los usuarios que tengas una cuenta en estado activado
+    Accesible por el administrador
+    */
     public function userActivados()
     {
+        $this->request->allowMethod(['get']);
         $this->autoRender = false;
         $usuarios = $this->User->find()->all();
         $usuarioFinal = array();
@@ -587,7 +610,7 @@ class UserController extends AppController
             foreach($iteradorCuentas as $cuenta){
                 if($cuenta['estado'] == "activada"){
                     $usuario['rol'] = $cuenta['rol'];
-                  $usuarioFinal[$i++] = $usuario;  
+                    $usuarioFinal[$i++] = $usuario;  
                 }
             }
         }
@@ -598,27 +621,34 @@ class UserController extends AppController
         $this->response->body($json);
     }
 
+
+    /*
+    Función que devuelve el número de usuarios activados
+    Accesible por el administrador
+    */
     public function longitudUserActivados()
     {
-        $this->autoRender = false;
-        $usuarios = $this->User->find()->all();
-        $usuarioFinal = array();
-        $i=0;
-
-        foreach($usuarios as $usuario){
-            $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
-            $iteradorCuentas = $cuenta->find()->where(['user' => $usuario['id']])->all();
-            foreach($iteradorCuentas as $cuenta){
-                if($cuenta['estado'] == "activada"){
-                    $usuarioFinal[$i++] = $usuario;  
+            $this->request->allowMethod(['get']);
+            $this->autoRender = false;
+            $usuarios = $this->User->find()->all();
+            $usuarioFinal = array();
+            $i=0;
+    
+            foreach($usuarios as $usuario){
+                $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+                $iteradorCuentas = $cuenta->find()->where(['user' => $usuario['id']])->all();
+                foreach($iteradorCuentas as $cuenta){
+                    if($cuenta['estado'] == "activada"){
+                        $usuarioFinal[$i++] = $usuario;  
+                    }
                 }
             }
-        }
-        $longitud = sizeof($usuarioFinal);
+            $longitud = sizeof($usuarioFinal);
+    
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($longitud);
+            $this->response->body($json);
 
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($longitud);
-        $this->response->body($json);
     }
 }
