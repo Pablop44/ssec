@@ -34,7 +34,7 @@ class FichaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['fichas', 'view', 'fichasMedico', 'numeroFichas', 'delete']);
+        $this->Auth->allow(['fichas', 'view', 'fichasMedico', 'numeroFichas', 'delete', 'getFichaPaciente']);
         $this->loadComponent('Csrf');
     }
 
@@ -242,6 +242,40 @@ class FichaController extends AppController
         $json = json_encode($ficha);
         $this->response->body($json);
     }
+
+
+    /*
+    Devuelve el numero de ficha de paciente
+    */
+    public function getFichaPaciente($id = null)
+    {
+        $this->autoRender = false;
+        $iteradorFicha = $this->Ficha->find()->where(['paciente' => $id])->all();
+        
+        foreach($iteradorFicha as $ficha){
+            $enfermedades = array();
+
+            $fichaEnfermedad = TableRegistry::getTableLocator()->get('FichaEnfermedad');
+            $iteradorEnfermedades = $fichaEnfermedad->find()->where(['ficha' => $ficha['id']])->all();
+            $i = 0;
+            foreach($iteradorEnfermedades as $enfermedad){
+                $enfermedades[$i++] = $enfermedad['enfermedad'];
+            }
+    
+            $ficha['enfermedad'] = (object) $enfermedades;
+    
+            $fecha = FrozenTime::parse($ficha->fechaCreacion);
+            $ficha->fechaCreacion = $fecha;
+            $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('dd/MM/YYYY');
+            $fichaAEnviar = array($ficha);
+        }
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($fichaAEnviar);
+        $this->response->body($json);
+    }
+
 
     /**
      * Add method
