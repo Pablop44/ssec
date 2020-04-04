@@ -181,6 +181,7 @@ class MedicamentoController extends AppController
     public function add()
     {
         
+        
         $this->autoRender = false;
         $medicamento = $this->Medicamento->newEntity();
         $medicamento = $this->Medicamento->patchEntity($medicamento, $this->request->getData());

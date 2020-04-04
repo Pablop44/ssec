@@ -23,10 +23,21 @@ class UserController extends AppController
     /*Función que inicializa el componente
       define las acciones que pueden ser accesibles si el usuario no esta registrado
     */
+
+    public $paginate = [
+        'page' => 1,
+        'limit' => 10,
+        'maxLimit' => 15,
+        'sortWhitelist' => [
+            'dni', 'nombre', 'email', 'telefono'
+        ]
+    ];
+
+
     public function initialize(){
         parent::initialize();
         $this->Auth->allow(['register', 'login', 'logout','loginPaciente', 'registerPaciente', 'confirmar', 'view', 'editarUser'
-        ,'autorizar', 'registerMedico', 'userActivados', 'longitudUserActivados', 'register', 'autorizacion']);
+        ,'autorizar', 'userActivados', 'longitudUserActivados', 'register', 'autorizacion', 'getMedicos', 'getAdministradores', 'getPacientes']);
         $this->loadComponent('Csrf');
     }
 
@@ -59,6 +70,117 @@ class UserController extends AppController
         }else{
             return false;
         }
+    }
+
+    /*
+    funcion que devulve los medicos según una página especificada
+    */
+    public function getMedicos(){
+        $this->request->allowMethod(['post']);
+        $this->autoRender = false;
+        $data = $this->request->getData();
+        $this->paginate['page'] = $data['page']+1;
+        $this->paginate['limit'] = $data['limit'];
+        if(isset($data['tipo'])){
+            $this->paginate['order'] = [$data['tipo'] => 'desc'];
+        }
+
+        $usuario = $this->User->find('all')->join([
+            'table' => 'cuenta',
+            'alias' => 'c',
+            'type' => 'INNER',
+            'conditions' => ['c.user = user.id',
+            'c.rol' => 'medico']
+        ]);
+
+        $paginador = $this->paginate($usuario);
+        foreach($paginador as $user){
+            $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+            $iteradorCuentas = $cuenta->find()->where(['user' => $user['id']])->all();
+            foreach($iteradorCuentas as $cuenta){
+                $user['rol'] = $cuenta['rol'];
+                $user['estado'] = $cuenta['estado'];
+            }
+        }
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($paginador);
+        $this->response->body($json);
+    }
+
+    /*
+    funcion que devulve los administradores según una página especificada
+    */
+    public function getAdministradores(){
+        $this->request->allowMethod(['post']);
+        $this->autoRender = false;
+        $data = $this->request->getData();
+        $this->paginate['page'] = $data['page']+1;
+        $this->paginate['limit'] = $data['limit'];
+        if(isset($data['tipo'])){
+            $this->paginate['order'] = [$data['tipo'] => 'desc'];
+        }
+
+        $usuario = $this->User->find('all')->join([
+            'table' => 'cuenta',
+            'alias' => 'c',
+            'type' => 'INNER',
+            'conditions' => ['c.user = user.id',
+            'c.rol' => 'administrador']
+        ]);
+
+        $paginador = $this->paginate($usuario);
+        foreach($paginador as $user){
+            $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+            $iteradorCuentas = $cuenta->find()->where(['user' => $user['id']])->all();
+            foreach($iteradorCuentas as $cuenta){
+                $user['rol'] = $cuenta['rol'];
+                $user['estado'] = $cuenta['estado'];
+            }
+        }
+        
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($paginador);
+        $this->response->body($json);
+    }
+
+    /*
+    funcion que devulve los pacientes según una página especificada
+    */
+    public function getPacientes(){
+        $this->request->allowMethod(['post']);
+        $this->autoRender = false;
+        $data = $this->request->getData();
+        $this->paginate['page'] = $data['page']+1;
+        $this->paginate['limit'] = $data['limit'];
+        if(isset($data['tipo'])){
+            $this->paginate['order'] = [$data['tipo'] => 'desc'];
+        }
+
+        $usuario = $this->User->find('all')->join([
+            'table' => 'cuenta',
+            'alias' => 'c',
+            'type' => 'INNER',
+            'conditions' => ['c.user = user.id',
+            'c.rol' => 'paciente']
+        ]);
+
+        $paginador = $this->paginate($usuario);
+        foreach($paginador as $user){
+            $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+            $iteradorCuentas = $cuenta->find()->where(['user' => $user['id']])->all();
+            foreach($iteradorCuentas as $cuenta){
+                $user['rol'] = $cuenta['rol'];
+                $user['estado'] = $cuenta['estado'];
+            }
+        }
+        
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($paginador);
+        $this->response->body($json);
     }
 
     /*
@@ -480,47 +602,6 @@ class UserController extends AppController
             $this->set('respuesta', 'Error al crear el usuario');   
             $this->set('_serialize', ['respuesta']);
 
-        }  
-    }
-
-    /*
-    Función que permite registrar a un médico autorizandolo
-    Accesible por el administrador
-    */
-    public function registerMedico()
-    {
-        $this->request->allowMethod(['post']);
-        $this->autoRender = false;
-        $user = $this->User->newEntity($this->request->data);
-
-        if ($this->User->save($user)){  
-
-            $iterador = $this->User->find()->where(['username' => $user['username']])->all();
-            foreach($iterador as $usuario){
-                $idUsuario = $usuario['id'];                
-            }
-                 
-                $datosCuenta = array();
-                $datosCuenta['rol'] = "medico";
-                $datosCuenta['estado'] = "autorizada";
-                $datosCuenta['user'] = $idUsuario;
-                $user['estado'] = "autorizada";
-
-                $cuenta = (new CuentaController());
-                $cuenta->add($datosCuenta);
-
-                header('Access-Control-Allow-Origin: *');
-                header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
-                header('Content-Type: application/json; charset=utf-8');
-                $this->set('UsuarioCreado', $user); 
-                $this->set('_serialize', ['UsuarioCreado']); 
-
-        }else{
-            header('Access-Control-Allow-Origin: *');
-            header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
-            header('Content-Type: application/json; charset=utf-8');
-            $this->set('UsuarioCreado', 'Error al crear el usuario'); 
-            $this->set('_serialize', ['UsuarioCreado']);  
         }  
     }
 
