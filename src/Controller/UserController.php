@@ -37,7 +37,8 @@ class UserController extends AppController
     public function initialize(){
         parent::initialize();
         $this->Auth->allow(['register', 'login', 'logout','loginPaciente', 'registerPaciente', 'confirmar', 'view', 'editarUser'
-        ,'autorizar', 'userActivados', 'longitudUserActivados', 'register', 'autorizacion', 'getMedicos', 'getAdministradores', 'getPacientes']);
+        ,'autorizar', 'userActivados', 'longitudUserActivados', 'register', 'autorizacion', 'getMedicos', 'getAdministradores', 'getPacientes'
+        ,'getNumeroAdministradores', 'getNumeroMedicos', 'getNumeroPacientes', 'delete']);
         $this->loadComponent('Csrf');
     }
 
@@ -180,6 +181,108 @@ class UserController extends AppController
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($paginador);
+        $this->response->body($json);
+    }
+
+    /*
+    funcion que devuelve el número de administradores
+    */
+    public function getNumeroAdministradores(){
+        $this->request->allowMethod(['get']);
+        $this->autoRender = false;
+        $data = $this->request->getData();
+        if(isset($data['tipo'])){
+            $this->paginate['order'] = [$data['tipo'] => 'desc'];
+        }
+
+        $usuario = $this->User->find('all')->join([
+            'table' => 'cuenta',
+            'alias' => 'c',
+            'type' => 'INNER',
+            'conditions' => ['c.user = user.id',
+            'c.rol' => 'administrador']
+        ]);
+
+        $i = 0;
+
+        foreach($usuario as $user){
+            $i++;
+        }
+
+        $myObj = array();
+        $myObj['numero'] = $i;
+        
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($myObj);
+        $this->response->body($json);
+    }
+
+    /*
+    funcion que devuelve el número de medicos
+    */
+    public function getNumeroMedicos(){
+        $this->request->allowMethod(['get']);
+        $this->autoRender = false;
+        $data = $this->request->getData();
+        if(isset($data['tipo'])){
+            $this->paginate['order'] = [$data['tipo'] => 'desc'];
+        }
+
+        $usuario = $this->User->find('all')->join([
+            'table' => 'cuenta',
+            'alias' => 'c',
+            'type' => 'INNER',
+            'conditions' => ['c.user = user.id',
+            'c.rol' => 'medico']
+        ]);
+
+        $i = 0;
+
+        foreach($usuario as $user){
+            $i++;
+        }
+
+        $myObj = array();
+        $myObj['numero'] = $i;
+        
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($myObj);
+        $this->response->body($json);
+    }
+
+    /*
+    funcion que devuelve el número de pacientes
+    */
+    public function getNumeroPacientes(){
+        $this->request->allowMethod(['get']);
+        $this->autoRender = false;
+        $data = $this->request->getData();
+        if(isset($data['tipo'])){
+            $this->paginate['order'] = [$data['tipo'] => 'desc'];
+        }
+
+        $usuario = $this->User->find('all')->join([
+            'table' => 'cuenta',
+            'alias' => 'c',
+            'type' => 'INNER',
+            'conditions' => ['c.user = user.id',
+            'c.rol' => 'paciente']
+        ]);
+
+        $i = 0;
+
+        foreach($usuario as $user){
+            $i++;
+        }
+
+        $myObj = array();
+        $myObj['numero'] = $i;
+        
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($myObj);
         $this->response->body($json);
     }
 
@@ -353,29 +456,19 @@ class UserController extends AppController
     Función que elimina un usuario del sistema
     Accesible por el administrador, médico y paciente
     */
-    public function delete($id = null)
+    public function delete($idUser = null)
     {
-        $this->request->allowMethod(['delete']);
-        $usuario = $this->User->get($id);
-
-        $cuentas = TableRegistry::getTableLocator()->get('Cuenta');
-        $iteradorCuentaUsuario = $cuentas->find()->where(['user' => $id])->all();
-        foreach($iteradorCuentaUsuario as $cuentaUsuario){
-            $idCuenta = $cuentaUsuario['id'];
-        }
-
-        if ($this->User->delete($usuario)) {
+            $this->autoRender = false;
+            $user = $this->User->find()->where(['id' => $idUser])->all();
+            foreach($user as $user){
+                $id = $user['id'];
+            }
+            $userAEliminar = $this->User->get($id);
+            $this->User->delete($userAEliminar);
             $this->response->statusCode(200);
             $this->response->type('json');
-            $this->set('respuesta', 'Se ha eliminado correctamente');   
-            $this->set('_serialize', ['respuesta']);
-        } else {
-            $this->response->statusCode(500);
-            $this->response->type('json');
-            $this->set('respuesta', 'No se ha eliminado el usuario');   
-            $this->set('_serialize', ['respuesta']);
-        }
-
+            $json = json_encode($userAEliminar);
+            $this->response->body($json);
     }
 
     /*

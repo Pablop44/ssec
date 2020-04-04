@@ -178,8 +178,8 @@ CREATE TABLE IF NOT EXISTS `mydb`.`diabetes` (
   CONSTRAINT `fkFichaDiabetes`
     FOREIGN KEY (`ficha`)
     REFERENCES `mydb`.`ficha` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
+    ON DELETE CASCADE
+    ON UPDATE CASCADE);
 
 
 -- -----------------------------------------------------
@@ -195,8 +195,8 @@ CREATE TABLE IF NOT EXISTS `mydb`.`momentos` (
   CONSTRAINT `fkDiabetesMomento`
     FOREIGN KEY (`diabetes`)
     REFERENCES `mydb`.`diabetes` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
+    ON DELETE CASCADE
+    ON UPDATE CASCADE);
 
 
 -- -----------------------------------------------------
@@ -224,8 +224,8 @@ CREATE TABLE IF NOT EXISTS `mydb`.`asma` (
   CONSTRAINT `fkFichaAsma`
     FOREIGN KEY (`ficha`)
     REFERENCES `mydb`.`ficha` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
+    ON DELETE CASCADE
+    ON UPDATE CASCADE);
 
 
 -- -----------------------------------------------------
@@ -252,8 +252,8 @@ CREATE TABLE IF NOT EXISTS `mydb`.`migranas` (
   CONSTRAINT `fkFichaMigranas`
     FOREIGN KEY (`ficha`)
     REFERENCES `mydb`.`ficha` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
+    ON DELETE CASCADE
+    ON UPDATE CASCADE);
 
 -- -----------------------------------------------------
 -- Table `mydb`.`sintomasMigranas`
@@ -269,8 +269,8 @@ CREATE TABLE IF NOT EXISTS `mydb`.`sintomas` (
   CONSTRAINT `fkMigranasSintomas`
     FOREIGN KEY (`migranas`)
     REFERENCES `mydb`.`migranas` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
+    ON DELETE CASCADE
+    ON UPDATE CASCADE);
 
 -- -----------------------------------------------------
 -- Table `mydb`.`factoresMigranas`
@@ -286,8 +286,8 @@ CREATE TABLE IF NOT EXISTS `mydb`.`factores` (
   CONSTRAINT `fkMigranasFactores`
     FOREIGN KEY (`migranas`)
     REFERENCES `mydb`.`migranas` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
+    ON DELETE CASCADE
+    ON UPDATE CASCADE);
 
 
 -- -----------------------------------------------------
@@ -326,8 +326,8 @@ CREATE TABLE IF NOT EXISTS `mydb`.`tratamiento` (
   CONSTRAINT `fkFichaTratamiento`
     FOREIGN KEY (`ficha`)
     REFERENCES `mydb`.`ficha` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
+    ON DELETE CASCADE
+    ON UPDATE CASCADE);
 
 
 -- -----------------------------------------------------
