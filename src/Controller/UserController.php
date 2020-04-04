@@ -38,7 +38,7 @@ class UserController extends AppController
         parent::initialize();
         $this->Auth->allow(['register', 'login', 'logout','loginPaciente', 'registerPaciente', 'confirmar', 'view', 'editarUser'
         ,'autorizar', 'userActivados', 'longitudUserActivados', 'register', 'autorizacion', 'getMedicos', 'getAdministradores', 'getPacientes'
-        ,'getNumeroAdministradores', 'getNumeroMedicos', 'getNumeroPacientes', 'delete']);
+        ,'getNumeroAdministradores', 'getNumeroMedicos', 'getNumeroPacientes', 'delete', 'todosMedicos']);
         $this->loadComponent('Csrf');
     }
 
@@ -375,28 +375,22 @@ class UserController extends AppController
     Función que devuelve los datos de todos los médicos existentes en la aplicación
     Solo accesible por el administrador
     */
-    public function todosMedicos()
-    {
+    public function todosMedicos(){
         $this->request->allowMethod(['get']);
         $this->autoRender = false;
-        $usuarios = $this->User->find()->all();
-        $usuarioFinal = array();
-        $i=0;
 
-        foreach($usuarios as $usuario){
-            $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
-            $iteradorCuentas = $cuenta->find()->where(['user' => $usuario['id']])->all();
-            foreach($iteradorCuentas as $cuenta){
-                $usuario['rol'] = $cuenta['rol'];
-                if($usuario['rol'] == "medico"){
-                  $usuarioFinal[$i++] = $usuario;  
-                }
-            }
-        }
+        $usuario = $this->User->find('all')->join([
+            'table' => 'cuenta',
+            'alias' => 'c',
+            'type' => 'INNER',
+            'conditions' => ['c.user = user.id',
+            'c.rol' => 'medico']
+        ]);
+
 
         $this->response->statusCode(200);
         $this->response->type('json');
-        $json = json_encode($usuarioFinal);
+        $json = json_encode($usuario);
         $this->response->body($json);
     }
 
