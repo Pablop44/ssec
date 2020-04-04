@@ -38,7 +38,7 @@ class UserController extends AppController
         parent::initialize();
         $this->Auth->allow(['register', 'login', 'logout','loginPaciente', 'registerPaciente', 'confirmar', 'view', 'editarUser'
         ,'autorizar', 'userActivados', 'longitudUserActivados', 'register', 'autorizacion', 'getMedicos', 'getAdministradores', 'getPacientes'
-        ,'getNumeroAdministradores', 'getNumeroMedicos', 'getNumeroPacientes', 'delete', 'todosMedicos']);
+        ,'getNumeroAdministradores', 'getNumeroMedicos', 'getNumeroPacientes', 'delete', 'todosMedicos', 'editCuentaEstado']);
         $this->loadComponent('Csrf');
     }
 
@@ -816,6 +816,31 @@ class UserController extends AppController
             $this->response->statusCode(200);
             $this->response->type('json');
             $json = json_encode($longitud);
+            $this->response->body($json);
+
+    }
+
+    /*
+    Cambia el estado de la cuenta de un usuario
+    */
+    public function editCuentaEstado()
+    {
+            $this->request->allowMethod(['post']);
+            $this->autoRender = false;
+            $data = $this->request->getData();
+            $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+            $iteradorCuentas = $cuenta->find()->where(['user' => $data['id']])->all();
+
+            foreach($iteradorCuentas as $cuenta){
+                $idCuenta = $cuenta['id'];
+            }
+
+            $cuentaController = (new CuentaController());
+            $cuentaController->edit($idCuenta, $data['valorCuenta'] );
+    
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($data);
             $this->response->body($json);
 
     }

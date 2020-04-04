@@ -74,27 +74,14 @@ class CuentaController extends AppController
      * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function edit()
+    public function edit($id = null, $valorCuenta = null)
     {
-        $this->autoRender = false;
-        $data = $this->request->getData();
-    
-            $iteradorCuenta = $this->Cuenta->find()->where(['user' => $data['user']])->all();
-            foreach($iteradorCuenta as $cuentaRaw){
-                $cuentaRaw = $this->Cuenta->patchEntity($cuentaRaw, $data);
-                if ($this->Cuenta->save($cuentaRaw)) {
-                    $this->response->statusCode(200);
-                    $this->response->type('json');
-                    $json = json_encode($cuentaRaw);
-                    $this->response->body($json);
-                }
-            }
-      
-            
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($cuentaRaw);
-        $this->response->body($json);
+        $cuentum = $this->Cuenta->get($id, [
+            'contain' => [],
+        ]);
+        $cuentum['estado'] = $valorCuenta;
+            $cuentum = $this->Cuenta->patchEntity($cuentum, $this->request->getData());
+            $this->Cuenta->save($cuentum);
     }
         
     
