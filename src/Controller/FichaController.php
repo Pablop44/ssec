@@ -34,7 +34,7 @@ class FichaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['fichas', 'view', 'fichasMedico', 'numeroFichas', 'delete', 'getFichaPaciente']);
+        $this->Auth->allow(['fichas', 'view', 'fichasMedico', 'numeroFichas', 'delete', 'getFichaPaciente', 'cambiarMedico']);
         $this->loadComponent('Csrf');
     }
 
@@ -321,6 +321,30 @@ class FichaController extends AppController
         }
         $enfermedad = $this->Ficha->Enfermedad->find('list', ['limit' => 200]);
         $this->set(compact('ficha', 'enfermedad'));
+    }
+
+    /*
+    permite asignar un medico a un paciente
+    */
+    public function cambiarMedico()
+    {
+        $this->autoRender = false;
+        $data = $this->request->getData();
+        $ficha = $this->Ficha->get($data['id']);
+        if ($this->request->is(['patch', 'post', 'put'])) {
+            $ficha = $this->Ficha->patchEntity($ficha, $this->request->getData());
+            if ($this->Ficha->save($ficha)) {
+                $this->response->statusCode(200);
+                $this->response->type('json');
+                $json = json_encode($ficha);
+                $this->response->body($json);
+            }else{
+                $this->response->statusCode(500);
+                $this->response->type('json');
+                $json = json_encode($ficha->errors());
+                $this->response->body($json);
+            }  
+        }
     }
 
     /**
