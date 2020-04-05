@@ -2,6 +2,9 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
+use Cake\Event\Event;
+use Cake\I18n\FrozenTime;
 
 /**
  * FichaEnfermedad Controller
@@ -17,6 +20,20 @@ class FichaEnfermedadController extends AppController
      *
      * @return \Cake\Http\Response|null
      */
+
+    public function initialize()
+    {
+        parent::initialize();
+        $this->Auth->allow(['anadirEnfermedad', 'eliminarEnfermedad']);
+        $this->loadComponent('Csrf');
+    }
+
+    public function beforeFilter(Event $event) {
+        
+            $this->eventManager()->off($this->Csrf);   
+    }
+
+
     public function index()
     {
         $fichaEnfermedad = $this->paginate($this->FichaEnfermedad);
@@ -40,67 +57,39 @@ class FichaEnfermedadController extends AppController
         $this->set('fichaEnfermedad', $fichaEnfermedad);
     }
 
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
-     */
-    public function add()
+    /*
+    permite añadir una enfermedad a la ficha del paciente
+    */
+    public function anadirEnfermedad()
     {
+        $this->autoRender = false;
         $fichaEnfermedad = $this->FichaEnfermedad->newEntity();
-        if ($this->request->is('post')) {
-            $fichaEnfermedad = $this->FichaEnfermedad->patchEntity($fichaEnfermedad, $this->request->getData());
-            if ($this->FichaEnfermedad->save($fichaEnfermedad)) {
-                $this->Flash->success(__('The ficha enfermedad has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The ficha enfermedad could not be saved. Please, try again.'));
-        }
-        $this->set(compact('fichaEnfermedad'));
+        $fichaEnfermedad = $this->FichaEnfermedad->patchEntity($fichaEnfermedad, $this->request->getData());
+        $this->FichaEnfermedad->save($fichaEnfermedad);
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($fichaEnfermedad);
+        $this->response->body($json);
     }
 
-    /**
-     * Edit method
-     *
-     * @param string|null $id Ficha Enfermedad id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function edit($id = null)
+    /*
+    elimina una enfermedad de la ficha del paciente
+    */
+    public function eliminarEnfermedad()
     {
-        $fichaEnfermedad = $this->FichaEnfermedad->get($id, [
-            'contain' => [],
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $fichaEnfermedad = $this->FichaEnfermedad->patchEntity($fichaEnfermedad, $this->request->getData());
-            if ($this->FichaEnfermedad->save($fichaEnfermedad)) {
-                $this->Flash->success(__('The ficha enfermedad has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The ficha enfermedad could not be saved. Please, try again.'));
-        }
-        $this->set(compact('fichaEnfermedad'));
-    }
-
-    /**
-     * Delete method
-     *
-     * @param string|null $id Ficha Enfermedad id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function delete($id = null)
-    {
-        $this->request->allowMethod(['post', 'delete']);
-        $fichaEnfermedad = $this->FichaEnfermedad->get($id);
+        $this->autoRender = false;
+        $data = $this->request->getData();
+        $fichaEnfermedad = $this->FichaEnfermedad->get([$data['ficha'], $data['enfermedad']]);
         if ($this->FichaEnfermedad->delete($fichaEnfermedad)) {
-            $this->Flash->success(__('The ficha enfermedad has been deleted.'));
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($fichaEnfermedad);
+            $this->response->body($json);
         } else {
-            $this->Flash->error(__('The ficha enfermedad could not be deleted. Please, try again.'));
+            $this->response->statusCode(500);
+            $this->response->type('json');
+            $json = json_encode($fichaEnfermedad);
+            $this->response->body($json);
         }
-
-        return $this->redirect(['action' => 'index']);
     }
 }

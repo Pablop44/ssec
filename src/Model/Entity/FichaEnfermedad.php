@@ -21,8 +21,6 @@ class FichaEnfermedad extends Entity
      * @var array
      */
     protected $_accessible = [
-        '*' => true,
-        'ficha' => false,
-        'enfermedad' => false,
+        '*' => true
     ];
 }
