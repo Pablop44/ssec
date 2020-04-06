@@ -37,8 +37,8 @@ class FichaTable extends Table
         $this->setPrimaryKey('id');
 
         $this->belongsToMany('Enfermedad', [
-            'foreignKey' => 'ficha',
-            'targetForeignKey' => 'enfermedad',
+            'foreignKey' => 'ficha_id',
+            'targetForeignKey' => 'enfermedad_id',
             'joinTable' => 'ficha_enfermedad',
         ]);
     }
@@ -67,8 +67,7 @@ class FichaTable extends Table
 
         $validator
             ->integer('medico')
-            ->requirePresence('medico', 'create')
-            ->notEmptyString('medico');
+            ->allowEmptyString('medico');
 
         return $validator;
     }

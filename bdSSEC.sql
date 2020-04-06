@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`ficha` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `fechaCreacion` DATETIME NOT NULL,
   `paciente` INT NOT NULL,
-  `medico` INT NOT NULL,
+  `medico` INT,
   PRIMARY KEY (`id`),
   INDEX `fkPaciente_idx` (`paciente` ASC),
   INDEX `fkMedico_idx` (`medico` ASC),

@@ -85,9 +85,7 @@ class ConsultaController extends AppController
      */
     public function view($id = null)
     {
-
         $this->autoRender = false;
-
         $consultum = $this->Consulta->get($id, [
             'contain' => [],
         ]);

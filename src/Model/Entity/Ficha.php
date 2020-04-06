@@ -9,7 +9,7 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property \Cake\I18n\FrozenTime $fechaCreacion
  * @property int $paciente
- * @property int $medico
+ * @property int|null $medico
  *
  * @property \App\Model\Entity\Enfermedad[] $enfermedad
  */
