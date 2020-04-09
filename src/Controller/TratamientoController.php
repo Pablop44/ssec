@@ -164,11 +164,12 @@ class TratamientoController extends AppController
         $this->autoRender = false;
         $tratamiento = $this->Tratamiento->newEntity();
         $tratamiento = $this->Tratamiento->patchEntity($tratamiento, $this->request->getData());
-        $this->Tratamiento->save($tratamiento);
-            $this->response->statusCode(200);
-            $this->response->type('json');
-            $json = json_encode($tratamiento->errors());
-            $this->response->body($json);
+        $result = $this->Tratamiento->save($tratamiento);
+        $tratamientoId['id'] = $result->id;
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($tratamientoId);
+        $this->response->body($json);
     }
 
     /**
