@@ -37,7 +37,8 @@ class ConsultaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['consultas', 'consultaFicha', 'getHoras', 'add', 'numeroConsultas', 'getHorasPaciente', 'view']);
+        $this->Auth->allow(['consultas', 'consultaFicha', 'getHoras', 'add', 'numeroConsultas', 'getHorasPaciente', 'view',
+        'editarConsulta']);
         $this->loadComponent('Csrf');
         $this->loadComponent('Paginator');
     }
@@ -476,21 +477,26 @@ class ConsultaController extends AppController
      * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function edit($id = null)
+    public function editarConsulta()
     {
-        $consultum = $this->Consulta->get($id, [
+        $this->autoRender = false;
+        $data = $this->request->getData();
+        $consultum = $this->Consulta->get($data['id'], [
             'contain' => [],
         ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $consultum = $this->Consulta->patchEntity($consultum, $this->request->getData());
+            $consultum = $this->Consulta->patchEntity($consultum, $data);
             if ($this->Consulta->save($consultum)) {
-                $this->Flash->success(__('The consultum has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
+                $this->response->statusCode(200);
+                $this->response->type('json');
+                $json = json_encode($consultum);
+                $this->response->body($json);
             }
-            $this->Flash->error(__('The consultum could not be saved. Please, try again.'));
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($consultum);
+            $this->response->body($json);
         }
-        $this->set(compact('consultum'));
     }
 
     /**
