@@ -30,7 +30,7 @@ class TratamientoController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['tratramientosFicha', 'numeroTratramientosFicha', 'view']);
+        $this->Auth->allow(['tratramientosFicha', 'numeroTratramientosFicha', 'view', 'crearTratamiento']);
         $this->loadComponent('Csrf');
         $this->loadComponent('Paginator');
     }
@@ -63,11 +63,11 @@ class TratamientoController extends AppController
         foreach($paginador as $tratamiento){
             $fecha = FrozenTime::parse($tratamiento['fechaInicio']);
             $tratamiento->fechaInicio = $fecha;
-            $tratamiento->fechaInicio =  $tratamiento->fechaInicio->i18nFormat('dd/MM/YYYY HH:mm:ss');
+            $tratamiento->fechaInicio =  $tratamiento->fechaInicio->i18nFormat('dd/MM/YYYY');
 
             $fecha2 = FrozenTime::parse($tratamiento['fechaFin']);
             $tratamiento->fechaFin = $fecha2;
-            $tratamiento->fechaFin =  $tratamiento->fechaFin->i18nFormat('dd/MM/YYYY HH:mm:ss');
+            $tratamiento->fechaFin =  $tratamiento->fechaFin->i18nFormat('dd/MM/YYYY');
 
             $horario = FrozenTime::parse($tratamiento['horario']);
             $tratamiento->horario = $horario;
@@ -159,20 +159,16 @@ class TratamientoController extends AppController
      *
      * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
      */
-    public function add()
+    public function crearTratamiento()
     {
+        $this->autoRender = false;
         $tratamiento = $this->Tratamiento->newEntity();
-        if ($this->request->is('post')) {
-            $tratamiento = $this->Tratamiento->patchEntity($tratamiento, $this->request->getData());
-            if ($this->Tratamiento->save($tratamiento)) {
-                $this->Flash->success(__('The tratamiento has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The tratamiento could not be saved. Please, try again.'));
-        }
-        $medicamento = $this->Tratamiento->Medicamento->find('list', ['limit' => 200]);
-        $this->set(compact('tratamiento', 'medicamento'));
+        $tratamiento = $this->Tratamiento->patchEntity($tratamiento, $this->request->getData());
+        $this->Tratamiento->save($tratamiento);
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($tratamiento->errors());
+            $this->response->body($json);
     }
 
     /**
