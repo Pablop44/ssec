@@ -40,7 +40,7 @@ class MedicamentoController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['delete','add', 'medicamentos', 'numeroMedicamentos']);
+        $this->Auth->allow(['delete','add', 'medicamentos', 'numeroMedicamentos', 'buscarMedicamento']);
         $this->loadComponent('Csrf');
     }
 
@@ -174,6 +174,28 @@ class MedicamentoController extends AppController
 
         $this->set('medicamento', $medicamento);
     }
+
+
+    /*
+    buscar un medicamento por su nombre
+    */
+    public function buscarMedicamento()
+    {
+        $this->autoRender = false;
+        $data = $this->request->getData();
+        $this->paginate['page'] = 0;
+        $this->paginate['limit'] = 1;
+        $conditions = array('nombre LIKE' => '%'.$data['nombre'].'%');
+        $medicamentos = $this->Medicamento->find('all', array('conditions' => $conditions));
+
+        $paginador = $this->paginate($medicamentos);
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($paginador);
+        $this->response->body($json);
+    }
+
 
     /*
     Añade un nuevo medicamento a sistema

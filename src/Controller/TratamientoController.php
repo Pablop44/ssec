@@ -125,24 +125,17 @@ class TratamientoController extends AppController
     public function view($id = null)
     {
         $this->autoRender = false;
-        $tratamiento = $this->Tratamiento->get($id);
-
-        $tratamientoMedicamento = TableRegistry::getTableLocator()->get('TratamientoMedicamento');
-        $iteradorMedicamentos = $tratamientoMedicamento->find()->where(['tratamiento' => $tratamiento['id']])->all();
-
-        foreach($iteradorMedicamentos as $tratamientoMedicamento1){
-            $medicamentos = TableRegistry::getTableLocator()->get('Medicamento');
-            $iteradorMedicamentos2 = $medicamentos->find()->where(['nombre' => $tratamientoMedicamento1['medicamento']])->all();
-            $tratamiento['medicamentos'] = $iteradorMedicamentos2;
-        }
+        $tratamiento = $this->Tratamiento->get($id,[
+            'contain' => ['Medicamento'],
+        ]);
 
         $fecha = FrozenTime::parse($tratamiento['fechaInicio']);
         $tratamiento->fechaInicio = $fecha;
-        $tratamiento->fechaInicio =  $tratamiento->fechaInicio->i18nFormat('dd/MM/YYYY HH:mm:ss');
+        $tratamiento->fechaInicio =  $tratamiento->fechaInicio->i18nFormat('dd/MM/YYYY');
 
         $fecha2 = FrozenTime::parse($tratamiento['fechaFin']);
         $tratamiento->fechaFin = $fecha2;
-        $tratamiento->fechaFin =  $tratamiento->fechaFin->i18nFormat('dd/MM/YYYY HH:mm:ss');
+        $tratamiento->fechaFin =  $tratamiento->fechaFin->i18nFormat('dd/MM/YYYY');
 
         $horario = FrozenTime::parse($tratamiento['horario']);
         $tratamiento->horario = $horario;

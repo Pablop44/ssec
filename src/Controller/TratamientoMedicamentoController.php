@@ -2,6 +2,9 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
+use Cake\Event\Event;
+use Cake\I18n\FrozenTime;
 
 /**
  * TratamientoMedicamento Controller
@@ -12,6 +15,20 @@ use App\Controller\AppController;
  */
 class TratamientoMedicamentoController extends AppController
 {
+
+    public function initialize()
+    {
+        parent::initialize();
+        $this->Auth->allow(['delete', 'add']);
+        $this->loadComponent('Csrf');
+    }
+
+    public function beforeFilter(Event $event) {
+        
+            $this->eventManager()->off($this->Csrf);   
+    }
+
+
     /**
      * Index method
      *
@@ -47,17 +64,14 @@ class TratamientoMedicamentoController extends AppController
      */
     public function add()
     {
+        $this->autoRender = false;
         $tratamientoMedicamento = $this->TratamientoMedicamento->newEntity();
-        if ($this->request->is('post')) {
-            $tratamientoMedicamento = $this->TratamientoMedicamento->patchEntity($tratamientoMedicamento, $this->request->getData());
-            if ($this->TratamientoMedicamento->save($tratamientoMedicamento)) {
-                $this->Flash->success(__('The tratamiento medicamento has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The tratamiento medicamento could not be saved. Please, try again.'));
-        }
-        $this->set(compact('tratamientoMedicamento'));
+        $tratamientoMedicamento = $this->TratamientoMedicamento->patchEntity($tratamientoMedicamento, $this->request->getData());
+        $this->TratamientoMedicamento->save($tratamientoMedicamento);
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($tratamientoMedicamento);
+        $this->response->body($json);
     }
 
     /**
@@ -91,16 +105,21 @@ class TratamientoMedicamentoController extends AppController
      * @return \Cake\Http\Response|null Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function delete($id = null)
+    public function delete()
     {
-        $this->request->allowMethod(['post', 'delete']);
-        $tratamientoMedicamento = $this->TratamientoMedicamento->get($id);
-        if ($this->TratamientoMedicamento->delete($tratamientoMedicamento)) {
-            $this->Flash->success(__('The tratamiento medicamento has been deleted.'));
+        $this->autoRender = false;
+        $data = $this->request->getData();
+        $tratamientoMedicamento = $this->TratamientoMedicamento->get([$data['medicamento'], $data['tratamiento']]);
+        if ($this->TratamientoMedicamento->delete($tratamientoMedicamento)){
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($tratamientoMedicamento);
+            $this->response->body($json);
         } else {
-            $this->Flash->error(__('The tratamiento medicamento could not be deleted. Please, try again.'));
+            $this->response->statusCode(500);
+            $this->response->type('json');
+            $json = json_encode($tratamientoMedicamento);
+            $this->response->body($json);
         }
-
-        return $this->redirect(['action' => 'index']);
     }
 }
