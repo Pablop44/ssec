@@ -157,7 +157,6 @@ class ConsultaController extends AppController
         foreach($paginador as $consulta){
             $fecha = FrozenTime::parse($consulta['fecha']);
             $consulta->fecha = $fecha;
-            
             $consulta->fecha =  $consulta->fecha->i18nFormat('dd/MM/YYYY HH:mm');
 
         }
