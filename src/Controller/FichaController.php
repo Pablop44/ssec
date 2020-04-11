@@ -34,7 +34,7 @@ class FichaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['fichas', 'view', 'fichasMedico', 'numeroFichas', 'delete', 'getFichaPaciente', 'cambiarMedico']);
+        $this->Auth->allow(['fichas', 'view', 'fichasMedico', 'numeroFichas', 'delete', 'getFichaPaciente', 'cambiarMedico', 'numeroFichasMedico']);
         $this->loadComponent('Csrf');
     }
 
@@ -206,6 +206,57 @@ class FichaController extends AppController
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($paginador);
+        $this->response->body($json);
+    }
+
+    public function numeroFichasMedico()
+    {
+        $this->autoRender = false;
+        $data = $this->request->getData();
+
+        if(isset($data['tipo'])){
+            $this->paginate['order'] = [$data['tipo'] => 'desc'];
+        }
+
+        $usuarios2 = TableRegistry::getTableLocator()->get('User');
+        $iteradorUsuarios = $usuarios2->find()->where(['username' => $data['medico']])->all();
+        foreach($iteradorUsuarios as $user){
+                $idUsuario = $user['id'];
+        }
+
+
+        if(!isset($data['filtro'])){
+            $conditions = array('medico' => $idUsuario);
+        }else{
+            if(isset($data['filtro']['fechaInicio'])){
+                $fechaInicio =  array('fechaCreacion >' => $data['filtro']['fechaInicio']);
+            }else{
+                $fechaInicio = "";
+            }
+            if(isset($data['filtro']['fechaFin'])){
+                $fechaFin =  array('fechaCreacion <' => $data['filtro']['fechaFin']);
+            }else{
+                $fechaFin = "";
+            }
+            if(isset($data['filtro']['id'])){
+                $conditions = array('medico' => $idUsuario,'id' => $data['filtro']['id'],$fechaFin, $fechaFin);
+            }else{
+                $conditions = array('medico' => $idUsuario,$fechaInicio, $fechaFin);
+            }  
+        } 
+
+        $fichas = $this->Ficha->find('all', array('conditions' => $conditions));
+        $i = 0;
+        foreach($fichas as $ficha){
+            $i++;
+        }
+
+        $myobj = array();
+        $myobj['numero'] = $i;
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($myobj);
         $this->response->body($json);
     }
 
