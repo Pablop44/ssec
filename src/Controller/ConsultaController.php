@@ -38,7 +38,7 @@ class ConsultaController extends AppController
     {
         parent::initialize();
         $this->Auth->allow(['consultas', 'consultaFicha', 'getHoras', 'add', 'numeroConsultas', 'getHorasPaciente', 'view',
-        'editarConsulta']);
+        'editarConsulta', 'consultasHoy', 'consultaMedico']);
         $this->loadComponent('Csrf');
         $this->loadComponent('Paginator');
     }
@@ -517,4 +517,97 @@ class ConsultaController extends AppController
 
         return $this->redirect(['action' => 'index']);
     }
+
+
+    public function consultasHoy($idMedico = null)
+    {
+        $this->autoRender = false;
+
+        $time = FrozenTime::now();
+        $time = $time->i18nFormat('YYYY-MM-dd');
+
+        $consultas = $this->Consulta->find()->where(['medico' => $idMedico, "fecha LIKE" => "%".$time."%", 'estado' => 'en tiempo'])->order(['fecha' => 'DESC'])->all();
+        foreach($consultas as $consulta){
+            $user = TableRegistry::getTableLocator()->get('User');
+            $iteradorUsuario2 = $user->find()->where(['id' => $consulta['paciente']])->all();
+            foreach($iteradorUsuario2 as $usuario2){
+                $consulta['paciente'] = $usuario2['nombre'].' '.$usuario2['apellidos'];
+                $consulta['dniPaciente'] = $usuario2['dni'];
+            }
+            $fecha = FrozenTime::parse($consulta['fecha']);
+            $consulta->fecha = $fecha;
+            $consulta->fecha =  $consulta->fecha->i18nFormat('HH:mm');
+        }
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($consultas);
+        $this->response->body($json);
+    }
+
+
+    public function consultaMedico()
+    {
+        $this->autoRender = false;
+
+        $data = $this->request->getData();
+
+        $this->paginate['page'] = $data['page']+1;
+        $this->paginate['limit'] = $data['limit'];
+        if(isset($data['tipo'])){
+            $this->paginate['order'] = [$data['tipo'] => 'desc'];
+        }
+
+        if(!isset($data['filtro'])){
+            $conditions = array('medico' => $data['medico']);
+        }else{
+
+            if(isset($data['filtro']['observaciones'])){
+                $observarciones =  array('observaciones IS NOT NULL');
+            }else{
+                $observarciones =  array('observaciones IS NULL');
+            }
+    
+            if(isset($data['filtro']['diagnostico'])){
+                $diagnostico =  array('diagnostico IS NOT NULL');
+            }else{
+                $diagnostico =  array('diagnostico IS NULL');
+            }
+
+            if(isset($data['filtro']['fechaInicio'])){
+                $fechaInicio =  array('fecha >' => $data['filtro']['fechaInicio']);
+            }else{
+                $fechaInicio = "";
+            }
+
+            if(isset($data['filtro']['fechaFin'])){
+                $fechaFin =  array('fecha <' => $data['filtro']['fechaFin']);
+            }else{
+                $fechaFin = "";
+            }
+    
+            if(isset($data['filtro']['id'])){
+                $conditions = array('medico' => $data['medico'], "id" => $data['filtro']['id'], "lugar LIKE" => "%".$data['filtro']['lugar']."%", $observarciones, $diagnostico, $fechaInicio, $fechaFin);
+            }else{
+                $conditions = array('medico' => $data['medico'], "lugar LIKE" => "%".$data['filtro']['lugar']."%", $observarciones, $diagnostico, $fechaInicio, $fechaFin);
+            }  
+        }
+
+        $consultas = $this->Consulta->find('all', array('conditions' => $conditions));
+        $paginador = $this->paginate($consultas);
+
+        foreach($paginador as $consulta){
+            $fecha = FrozenTime::parse($consulta['fecha']);
+            $consulta->fecha = $fecha;
+            $consulta->fecha =  $consulta->fecha->i18nFormat('dd/MM/YYYY HH:mm');
+
+        }
+    
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($paginador);
+        $this->response->body($json);
+    }
+
+    
 }
