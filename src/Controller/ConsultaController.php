@@ -38,7 +38,7 @@ class ConsultaController extends AppController
     {
         parent::initialize();
         $this->Auth->allow(['consultas', 'consultaFicha', 'getHoras', 'add', 'numeroConsultas', 'getHorasPaciente', 'view',
-        'editarConsulta', 'consultasHoy', 'consultaMedico', 'numeroConsultasMedico']);
+        'editarConsulta', 'consultasHoy', 'consultaMedico', 'numeroConsultasMedico', 'numeroConsultasTodas']);
         $this->loadComponent('Csrf');
         $this->loadComponent('Paginator');
     }
@@ -70,6 +70,26 @@ class ConsultaController extends AppController
             $consulta->fecha =  $consulta->fecha->i18nFormat('dd/MM/YYYY HH:mm');
         }
         $json = json_encode($paginador);
+        $this->response->body($json);
+    }
+
+    public function numeroConsultasTodas()
+    {
+        $this->autoRender = false;
+        $data = $this->request->getData();
+
+        $i = 0;
+        $iterador = $this->Consulta->find()->all();
+        foreach($iterador as $consulta){
+            $i++;
+        }
+
+        $array = array();
+        $array['numero'] = $i;
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($array);
         $this->response->body($json);
     }
 
