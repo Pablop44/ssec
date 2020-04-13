@@ -53,6 +53,7 @@ class AppController extends Controller
             'authError' => __('No tienes los permisos necesarios para acceder a ese recurso.'),
             'authorize' => ['Controller'],
             'storage' => 'Session',
+            'loginRedirect' => array('controller' => 'User', 'action' => 'getLoggedUser'),
         ]);
 
         if (Configure::read('skipAuth')) {

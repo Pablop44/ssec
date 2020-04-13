@@ -527,7 +527,6 @@ class UserController extends AppController
                 $this->set('_serialize', ['problema']); 
             }else{
                 if(!(new DefaultPasswordHasher)->check($pass, $user['password'])) {
-                    $this->Auth->setUser($user);
                     $this->response->statusCode(403);
                     $this->response->type('json');
                     $json = json_encode(array('error'));
@@ -535,7 +534,9 @@ class UserController extends AppController
                 }
                 else{
                     if($rol == "administrador" || $rol == "medico" ){
-                        $this->Auth->setUser($user);
+                        $this->Auth->setUser($this->User->get($user['id'], [
+                            'contain' => [],
+                        ]));
                         $this->response->statusCode(200);
                         $this->response->type('json');
                         $json = json_encode($user);
