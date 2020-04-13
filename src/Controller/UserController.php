@@ -7,6 +7,7 @@ use Cake\Event\Event;
 use Cake\Mailer\Email;
 use Cake\Mailer\TransportFactory;
 use Cake\I18n\FrozenTime;
+use Cake\Auth\DefaultPasswordHasher;
 
 
 /**
@@ -38,7 +39,7 @@ class UserController extends AppController
         parent::initialize();
         $this->Auth->allow(['register', 'login', 'logout','loginPaciente', 'registerPaciente', 'confirmar', 'view', 'editarUser'
         ,'autorizar', 'userActivados', 'longitudUserActivados', 'register', 'autorizacion', 'getMedicos', 'getAdministradores', 'getPacientes'
-        ,'getNumeroAdministradores', 'getNumeroMedicos', 'getNumeroPacientes', 'delete', 'todosMedicos', 'editCuentaEstado']);
+        ,'getNumeroAdministradores', 'getNumeroMedicos', 'getNumeroPacientes', 'delete', 'todosMedicos', 'editCuentaEstado', 'getLoggedUser']);
         $this->loadComponent('Csrf');
     }
 
@@ -46,6 +47,15 @@ class UserController extends AppController
         
         $this->eventManager()->off($this->Csrf);
     
+    }
+
+
+    public function getLoggedUser(){
+        $this->autoRender = false;
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($this->Auth->user());
+        $this->response->body($json);
     }
 
     /*
@@ -516,12 +526,12 @@ class UserController extends AppController
                 $this->set('problema', 'El administrador aun no te ha autorizado');    
                 $this->set('_serialize', ['problema']); 
             }else{
-                if($user['password'] !== $pass) {
-                    header('Access-Control-Allow-Origin: *');
+                if(!(new DefaultPasswordHasher)->check($pass, $user['password'])) {
+                    $this->Auth->setUser($user);
                     $this->response->statusCode(403);
-                    header('Content-Type: application/json');
-                    $this->set('problema', 'Las credenciales son incorrectas');    
-                    $this->set('_serialize', ['problema']); 
+                    $this->response->type('json');
+                    $json = json_encode(array('error'));
+                    $this->response->body($json);
                 }
                 else{
                     if($rol == "administrador" || $rol == "medico" ){
