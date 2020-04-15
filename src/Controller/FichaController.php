@@ -34,7 +34,8 @@ class FichaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['fichas', 'view', 'fichasMedico', 'numeroFichas', 'delete', 'getFichaPaciente', 'cambiarMedico', 'numeroFichasMedico']);
+        $this->Auth->allow(['fichas', 'view', 'fichasMedico', 'numeroFichas', 'delete',
+         'getFichaPaciente', 'cambiarMedico', 'numeroFichasMedico', 'viewPaciente']);
         $this->loadComponent('Csrf');
     }
 
@@ -282,6 +283,34 @@ class FichaController extends AppController
         }
 
         $ficha['enfermedad'] = (object) $enfermedades;
+
+        $fecha = FrozenTime::parse($ficha->fechaCreacion);
+        $ficha->fechaCreacion = $fecha;
+        $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('dd/MM/YYYY');
+
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($ficha);
+        $this->response->body($json);
+    }
+
+    public function viewPaciente($id = null)
+    {
+        $this->autoRender = false;
+        $ficha = $this->Ficha->get($id);
+        
+        $enfermedades = array();
+
+        $fichaEnfermedad = TableRegistry::getTableLocator()->get('FichaEnfermedad');
+        $iteradorEnfermedades = $fichaEnfermedad->find()->select([
+            'enfermedad'
+        ])->where(['ficha' => $id])->all();
+        foreach($iteradorEnfermedades as $enfermedad){
+            array_push($enfermedades, $enfermedad);
+        }
+
+        $ficha['enfermedad'] = $enfermedades;
 
         $fecha = FrozenTime::parse($ficha->fechaCreacion);
         $ficha->fechaCreacion = $fecha;

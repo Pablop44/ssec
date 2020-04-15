@@ -30,7 +30,7 @@ class TratamientoController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['tratramientosFicha', 'numeroTratramientosFicha', 'view', 'crearTratamiento']);
+        $this->Auth->allow(['tratramientosFicha', 'numeroTratramientosFicha', 'view', 'crearTratamiento', 'viewPaciente']);
         $this->loadComponent('Csrf');
         $this->loadComponent('Paginator');
     }
@@ -140,6 +140,43 @@ class TratamientoController extends AppController
         $horario = FrozenTime::parse($tratamiento['horario']);
         $tratamiento->horario = $horario;
         $tratamiento->horario =  $tratamiento->horario->i18nFormat('HH:mm');
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($tratamiento);
+        $this->response->body($json);
+    }
+
+
+    public function viewPaciente($id = null)
+    {
+        $this->autoRender = false;
+        $tratamiento = $this->Tratamiento->get($id);
+
+        $fecha = FrozenTime::parse($tratamiento['fechaInicio']);
+        $tratamiento->fechaInicio = $fecha;
+        $tratamiento->fechaInicio =  $tratamiento->fechaInicio->i18nFormat('dd/MM/YYYY');
+
+        $fecha2 = FrozenTime::parse($tratamiento['fechaFin']);
+        $tratamiento->fechaFin = $fecha2;
+        $tratamiento->fechaFin =  $tratamiento->fechaFin->i18nFormat('dd/MM/YYYY');
+
+        $horario = FrozenTime::parse($tratamiento['horario']);
+        $tratamiento->horario = $horario;
+        $tratamiento->horario =  $tratamiento->horario->i18nFormat('HH:mm');
+
+        $tratamientoMedicamento = TableRegistry::getTableLocator()->get('TratamientoMedicamento');
+        $iteradorMedicamentos = $tratamientoMedicamento->find()->where(['tratamiento' => $tratamiento['id']])->all();
+
+        $medicamentosArray = array();
+
+        foreach($iteradorMedicamentos as $tratamientoMedicamento1){
+            $medicamentos = TableRegistry::getTableLocator()->get('Medicamento');
+            $iteradorMedicamentos2 = $medicamentos->find()->where(['nombre' => $tratamientoMedicamento1['medicamento']])->all();
+            array_push($medicamentosArray, $iteradorMedicamentos2->toArray()[0]);
+        }
+
+        $tratamiento['medicamentos'] = $medicamentosArray;
 
         $this->response->statusCode(200);
         $this->response->type('json');

@@ -615,7 +615,7 @@ class UserController extends AppController
                 $this->set('problema', 'El administrador aun no te ha autorizado');    
                 $this->set('_serialize', ['problema']); 
             }else{
-                if($user['password'] !== $pass) {
+                if(!(new DefaultPasswordHasher)->check($pass, $user['password'])) {
                     header('Access-Control-Allow-Origin: *');
                     $this->response->statusCode(403);
                     header('Content-Type: application/json');
