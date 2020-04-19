@@ -41,7 +41,7 @@ class MigranasController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['migranasFichas', 'numeroInformesMigranas', 'view', 'todosMigranasFichas']);
+        $this->Auth->allow(['migranasFichas', 'numeroInformesMigranas', 'view', 'todosMigranasFichas', 'getCubierto']);
         $this->loadComponent('Csrf');
     }
 
@@ -266,5 +266,27 @@ class MigranasController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+
+    public function getCubierto($id = null)
+    {
+    
+        $this->autoRender = false;
+        $cubierto['cubierto'] = false;
+
+        $fecha = FrozenTime::now();
+        
+        $fecha =  $fecha->i18nFormat('YYYY-MM-dd');
+
+        $informes = $this->Migranas->find()->where(['fecha LIKE' => '%'.$fecha.'%'])->where(['ficha' => $id])->all();
+        if(sizeof($informes) > 0){
+            $cubierto['cubierto'] = true;
+        }
+       
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($cubierto);
+        $this->response->body($json);
+
     }
 }

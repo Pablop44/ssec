@@ -41,7 +41,7 @@ class DiabetesController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['diabetesFichas', 'numeroInformesDiabetes', 'view', 'todosDiabetesFichas']);
+        $this->Auth->allow(['diabetesFichas', 'numeroInformesDiabetes', 'view', 'todosDiabetesFichas', 'getCubierto']);
         $this->loadComponent('Csrf');
     }
 
@@ -242,5 +242,27 @@ class DiabetesController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+
+    public function getCubierto($id = null)
+    {
+    
+        $this->autoRender = false;
+        $cubierto['cubierto'] = false;
+
+        $fecha = FrozenTime::now();
+        
+        $fecha =  $fecha->i18nFormat('YYYY-MM-dd');
+
+        $informes = $this->Diabetes->find()->where(['fecha LIKE' => '%'.$fecha.'%'])->where(['ficha' => $id])->all();
+        if(sizeof($informes) > 0){
+            $cubierto['cubierto'] = true;
+        }
+       
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($cubierto);
+        $this->response->body($json);
+
     }
 }
