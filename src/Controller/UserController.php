@@ -482,10 +482,9 @@ class UserController extends AppController
     public function login()
     {   
         $this->autoRender = false;
-        $username =  env('PHP_AUTH_USER');
-        $pass = env('PHP_AUTH_PW');
+        $data = $this->request->getData();
         $userRaw = $this->User->find('all', array(
-            'conditions' => array('User.username' => $username),
+            'conditions' => array('User.username' => $data['username']),
         ));
 
         foreach($userRaw as $user){
@@ -526,7 +525,7 @@ class UserController extends AppController
                 $this->set('problema', 'El administrador aun no te ha autorizado');    
                 $this->set('_serialize', ['problema']); 
             }else{
-                if(!(new DefaultPasswordHasher)->check($pass, $user['password'])) {
+                if(!(new DefaultPasswordHasher)->check($data['password'], $user['password'])) {
                     $this->response->statusCode(403);
                     $this->response->type('json');
                     $json = json_encode(array('error'));
@@ -534,9 +533,8 @@ class UserController extends AppController
                 }
                 else{
                     if($rol == "administrador" || $rol == "medico" ){
-                        $this->Auth->setUser($this->User->get($user['id'], [
-                            'contain' => [],
-                        ]));
+                        $user2 = $this->Auth->identify();
+                        $this->Auth->setUser($user);
                         $this->response->statusCode(200);
                         $this->response->type('json');
                         $json = json_encode($user);

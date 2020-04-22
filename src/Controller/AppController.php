@@ -46,14 +46,16 @@ class AppController extends Controller
         $this->loadComponent('Flash');
 
         $this->loadComponent('Auth', [
-            'loginAction' => [
-                'controller' => 'User',
-                'action'=> 'login',
-                '_ext'=>'json'],
-            'authError' => __('No tienes los permisos necesarios para acceder a ese recurso.'),
-            'authorize' => ['Controller'],
             'storage' => 'Session',
-            'loginRedirect' => array('controller' => 'User', 'action' => 'getLoggedUser'),
+            'authenticate' => [
+                'Form' => [
+                    'userModel' => 'User',
+                    'fields' => [
+                        'username' => 'username',
+                        'password' => 'password'
+                    ]
+                ],
+            ]
         ]);
 
         if (Configure::read('skipAuth')) {
