@@ -55,7 +55,7 @@ class AppController extends Controller
                         'password' => 'password'
                     ]
                 ],
-            ]
+            ],
         ]);
 
         if (Configure::read('skipAuth')) {

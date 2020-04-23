@@ -34,21 +34,21 @@ class UserController extends AppController
         ]
     ];
 
-
     public function initialize(){
         parent::initialize();
-        $this->Auth->allow(['register', 'login', 'logout','loginPaciente', 'registerPaciente', 'confirmar', 'view', 'editarUser'
-        ,'autorizar', 'userActivados', 'longitudUserActivados', 'register', 'autorizacion', 'getMedicos', 'getAdministradores', 'getPacientes'
-        ,'getNumeroAdministradores', 'getNumeroMedicos', 'getNumeroPacientes', 'delete', 'todosMedicos', 'editCuentaEstado', 'getLoggedUser']);
-        $this->loadComponent('Csrf');
+        $this->Auth->allow(['register', 'login','loginPaciente', 'registerPaciente', 'confirmar', 'longitudUserActivados', 'getLoggedUser']);
     }
 
-    public function beforeFilter(Event $event) {
-        
-        $this->eventManager()->off($this->Csrf);
-    
+    public function isAuthorized($user)
+    {
+        $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+        $iteradorCuentas = $cuenta->find()->where(['user' => $user['id']])->all();
+        foreach($iteradorCuentas as $cuenta){
+            $rol = $cuenta['rol'];
+        }
+        return in_array($this->getRequest()->getParam('action'), ['logout']) ||
+               $rol === 'administrador';
     }
-
 
     public function getLoggedUser(){
         $this->autoRender = false;
@@ -59,139 +59,134 @@ class UserController extends AppController
     }
 
     /*
-    Función que define, una vez un usuario está registrado
-    que acciones son accesibles en función de cada rol
-    */
-
-    public function autorizacion($action){
-        if($action == 'view' || $action == 'editarUser'){
-            return true;
-        }else if($action == 'todosMedicos' || $action == 'autorizar' || $action == 'registerMedico' || $action == 'userActivados' || $action == 'longitudUserActivados'){
-            if($this->Auth->user('rol') == 'administrador'){
-                return true;
-            }else{
-                return false;
-            }
-        }else if($action == 'register'){
-            if( $this->Auth->user('rol') == 'medico'){
-                return true;
-            }else{
-                return false;
-            }
-        }else{
-            return false;
-        }
-    }
-
-    /*
     funcion que devulve los medicos según una página especificada
     */
     public function getMedicos(){
-        $this->request->allowMethod(['post']);
         $this->autoRender = false;
-        $data = $this->request->getData();
-        $this->paginate['page'] = $data['page']+1;
-        $this->paginate['limit'] = $data['limit'];
-        if(isset($data['tipo'])){
-            $this->paginate['order'] = [$data['tipo'] => 'desc'];
-        }
-
-        $usuario = $this->User->find('all')->join([
-            'table' => 'cuenta',
-            'alias' => 'c',
-            'type' => 'INNER',
-            'conditions' => ['c.user = user.id',
-            'c.rol' => 'medico']
-        ]);
-
-        $paginador = $this->paginate($usuario);
-        foreach($paginador as $user){
-            $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
-            $iteradorCuentas = $cuenta->find()->where(['user' => $user['id']])->all();
-            foreach($iteradorCuentas as $cuenta){
-                $user['rol'] = $cuenta['rol'];
-                $user['estado'] = $cuenta['estado'];
+        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
+            $data = $this->request->getData();
+            $this->paginate['page'] = $data['page']+1;
+            $this->paginate['limit'] = $data['limit'];
+            if(isset($data['tipo'])){
+                $this->paginate['order'] = [$data['tipo'] => 'desc'];
             }
-        }
 
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($paginador);
-        $this->response->body($json);
+            $usuario = $this->User->find('all')->join([
+                'table' => 'cuenta',
+                'alias' => 'c',
+                'type' => 'INNER',
+                'conditions' => ['c.user = user.id',
+                'c.rol' => 'medico']
+            ]);
+
+            $paginador = $this->paginate($usuario);
+            foreach($paginador as $user){
+                $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+                $iteradorCuentas = $cuenta->find()->where(['user' => $user['id']])->all();
+                foreach($iteradorCuentas as $cuenta){
+                    $user['rol'] = $cuenta['rol'];
+                    $user['estado'] = $cuenta['estado'];
+                }
+            }
+
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($paginador);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $error = array("error");
+            $json = json_encode($error);
+            $this->response->body($json);
+        }
     }
 
     /*
     funcion que devulve los administradores según una página especificada
     */
     public function getAdministradores(){
-        $this->request->allowMethod(['post']);
         $this->autoRender = false;
-        $data = $this->request->getData();
-        $this->paginate['page'] = $data['page']+1;
-        $this->paginate['limit'] = $data['limit'];
-        if(isset($data['tipo'])){
-            $this->paginate['order'] = [$data['tipo'] => 'desc'];
-        }
-
-        $usuario = $this->User->find('all')->join([
-            'table' => 'cuenta',
-            'alias' => 'c',
-            'type' => 'INNER',
-            'conditions' => ['c.user = user.id',
-            'c.rol' => 'administrador']
-        ]);
-
-        $paginador = $this->paginate($usuario);
-        foreach($paginador as $user){
-            $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
-            $iteradorCuentas = $cuenta->find()->where(['user' => $user['id']])->all();
-            foreach($iteradorCuentas as $cuenta){
-                $user['rol'] = $cuenta['rol'];
-                $user['estado'] = $cuenta['estado'];
+        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
+            $data = $this->request->getData();
+            $this->paginate['page'] = $data['page']+1;
+            $this->paginate['limit'] = $data['limit'];
+            if(isset($data['tipo'])){
+                $this->paginate['order'] = [$data['tipo'] => 'desc'];
             }
+
+            $usuario = $this->User->find('all')->join([
+                'table' => 'cuenta',
+                'alias' => 'c',
+                'type' => 'INNER',
+                'conditions' => ['c.user = user.id',
+                'c.rol' => 'administrador']
+            ]);
+
+            $paginador = $this->paginate($usuario);
+            foreach($paginador as $user){
+                $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+                $iteradorCuentas = $cuenta->find()->where(['user' => $user['id']])->all();
+                foreach($iteradorCuentas as $cuenta){
+                    $user['rol'] = $cuenta['rol'];
+                    $user['estado'] = $cuenta['estado'];
+                }
+            }
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($paginador);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $error = array("error");
+            $json = json_encode($error);
+            $this->response->body($json);
         }
-        
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($paginador);
-        $this->response->body($json);
     }
 
     /*
     funcion que devulve los pacientes según una página especificada
     */
     public function getPacientes(){
-        $this->request->allowMethod(['post']);
         $this->autoRender = false;
-        $data = $this->request->getData();
-        $this->paginate['page'] = $data['page']+1;
-        $this->paginate['limit'] = $data['limit'];
-        if(isset($data['tipo'])){
-            $this->paginate['order'] = [$data['tipo'] => 'desc'];
-        }
-
-        $usuario = $this->User->find('all')->join([
-            'table' => 'cuenta',
-            'alias' => 'c',
-            'type' => 'INNER',
-            'conditions' => ['c.user = user.id',
-            'c.rol' => 'paciente']
-        ]);
-
-        $paginador = $this->paginate($usuario);
-        foreach($paginador as $user){
-            $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
-            $iteradorCuentas = $cuenta->find()->where(['user' => $user['id']])->all();
-            foreach($iteradorCuentas as $cuenta){
-                $user['rol'] = $cuenta['rol'];
-                $user['estado'] = $cuenta['estado'];
+        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
+            $data = $this->request->getData();
+            $this->paginate['page'] = $data['page']+1;
+            $this->paginate['limit'] = $data['limit'];
+            if(isset($data['tipo'])){
+                $this->paginate['order'] = [$data['tipo'] => 'desc'];
             }
+
+            $usuario = $this->User->find('all')->join([
+                'table' => 'cuenta',
+                'alias' => 'c',
+                'type' => 'INNER',
+                'conditions' => ['c.user = user.id',
+                'c.rol' => 'paciente']
+            ]);
+
+            $paginador = $this->paginate($usuario);
+            foreach($paginador as $user){
+                $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+                $iteradorCuentas = $cuenta->find()->where(['user' => $user['id']])->all();
+                foreach($iteradorCuentas as $cuenta){
+                    $user['rol'] = $cuenta['rol'];
+                    $user['estado'] = $cuenta['estado'];
+                }
+            }
+            
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($paginador);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $error = array("error");
+            $json = json_encode($error);
+            $this->response->body($json);
         }
-        
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($paginador);
-        $this->response->body($json);
     }
 
     /*
@@ -200,100 +195,121 @@ class UserController extends AppController
     public function getNumeroAdministradores(){
         $this->request->allowMethod(['get']);
         $this->autoRender = false;
-        $data = $this->request->getData();
-        if(isset($data['tipo'])){
-            $this->paginate['order'] = [$data['tipo'] => 'desc'];
+        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
+            $data = $this->request->getData();
+            if(isset($data['tipo'])){
+                $this->paginate['order'] = [$data['tipo'] => 'desc'];
+            }
+    
+            $usuario = $this->User->find('all')->join([
+                'table' => 'cuenta',
+                'alias' => 'c',
+                'type' => 'INNER',
+                'conditions' => ['c.user = user.id',
+                'c.rol' => 'administrador']
+            ]);
+            $i = 0;
+    
+            foreach($usuario as $user){
+                $i++;
+            }
+    
+            $myObj = array();
+            $myObj['numero'] = $i;
+            
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($myObj);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $error = array("error");
+            $json = json_encode($error);
+            $this->response->body($json);
         }
-
-        $usuario = $this->User->find('all')->join([
-            'table' => 'cuenta',
-            'alias' => 'c',
-            'type' => 'INNER',
-            'conditions' => ['c.user = user.id',
-            'c.rol' => 'administrador']
-        ]);
-
-        $i = 0;
-
-        foreach($usuario as $user){
-            $i++;
-        }
-
-        $myObj = array();
-        $myObj['numero'] = $i;
-        
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($myObj);
-        $this->response->body($json);
     }
 
     /*
     funcion que devuelve el número de medicos
     */
     public function getNumeroMedicos(){
-        $this->request->allowMethod(['get']);
         $this->autoRender = false;
         $data = $this->request->getData();
-        if(isset($data['tipo'])){
-            $this->paginate['order'] = [$data['tipo'] => 'desc'];
+        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
+            if(isset($data['tipo'])){
+                $this->paginate['order'] = [$data['tipo'] => 'desc'];
+            }
+
+            $usuario = $this->User->find('all')->join([
+                'table' => 'cuenta',
+                'alias' => 'c',
+                'type' => 'INNER',
+                'conditions' => ['c.user = user.id',
+                'c.rol' => 'medico']
+            ]);
+
+            $i = 0;
+
+            foreach($usuario as $user){
+                $i++;
+            }
+
+            $myObj = array();
+            $myObj['numero'] = $i;
+            
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($myObj);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $error = array("error");
+            $json = json_encode($error);
+            $this->response->body($json);
         }
-
-        $usuario = $this->User->find('all')->join([
-            'table' => 'cuenta',
-            'alias' => 'c',
-            'type' => 'INNER',
-            'conditions' => ['c.user = user.id',
-            'c.rol' => 'medico']
-        ]);
-
-        $i = 0;
-
-        foreach($usuario as $user){
-            $i++;
-        }
-
-        $myObj = array();
-        $myObj['numero'] = $i;
-        
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($myObj);
-        $this->response->body($json);
     }
 
     /*
     funcion que devuelve el número de pacientes
     */
     public function getNumeroPacientes(){
-        $this->request->allowMethod(['get']);
         $this->autoRender = false;
-        $data = $this->request->getData();
-        if(isset($data['tipo'])){
-            $this->paginate['order'] = [$data['tipo'] => 'desc'];
+        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
+            $data = $this->request->getData();
+            if(isset($data['tipo'])){
+                $this->paginate['order'] = [$data['tipo'] => 'desc'];
+            }
+
+            $usuario = $this->User->find('all')->join([
+                'table' => 'cuenta',
+                'alias' => 'c',
+                'type' => 'INNER',
+                'conditions' => ['c.user = user.id',
+                'c.rol' => 'paciente']
+            ]);
+
+            $i = 0;
+
+            foreach($usuario as $user){
+                $i++;
+            }
+
+            $myObj = array();
+            $myObj['numero'] = $i;
+            
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($myObj);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $error = array("error");
+            $json = json_encode($error);
+            $this->response->body($json);
         }
-
-        $usuario = $this->User->find('all')->join([
-            'table' => 'cuenta',
-            'alias' => 'c',
-            'type' => 'INNER',
-            'conditions' => ['c.user = user.id',
-            'c.rol' => 'paciente']
-        ]);
-
-        $i = 0;
-
-        foreach($usuario as $user){
-            $i++;
-        }
-
-        $myObj = array();
-        $myObj['numero'] = $i;
-        
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($myObj);
-        $this->response->body($json);
     }
 
     /*
@@ -301,23 +317,30 @@ class UserController extends AppController
     Solo accesible por el administrador
     */
     public function usuarios(){
-        $this->request->allowMethod(['get']);
         $this->autoRender = false;
-        $usuarios = $this->User->find()->all();
+        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
+            $usuarios = $this->User->find()->all();
 
-        foreach($usuarios as $usuario){
-            $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
-            $iteradorCuentas = $cuenta->find()->where(['user' => $usuario['id']])->all();
-            foreach($iteradorCuentas as $cuenta){
-                $usuario['rol'] = $cuenta['rol'];
-                $usuario['estado'] = $cuenta['estado'];
+            foreach($usuarios as $usuario){
+                $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+                $iteradorCuentas = $cuenta->find()->where(['user' => $usuario['id']])->all();
+                foreach($iteradorCuentas as $cuenta){
+                    $usuario['rol'] = $cuenta['rol'];
+                    $usuario['estado'] = $cuenta['estado'];
+                }
             }
-        }
 
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($usuarios);
-        $this->response->body($json);
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($usuarios);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $error = array("error");
+            $json = json_encode($error);
+            $this->response->body($json);
+        }
     }
 
     /*
@@ -342,43 +365,51 @@ class UserController extends AppController
     */
     public function view($id = null)
     {
-        $this->request->allowMethod(['get']);
+
         $this->autoRender = false;
-        $user = $this->User->get($id, [
-            'contain' => [],
-        ]);
+        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
+            $user = $this->User->get($id, [
+                'contain' => [],
+            ]);
 
-        $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
-            $iteradorCuentas = $cuenta->find()->where(['user' => $user->id])->all();
-            foreach($iteradorCuentas as $cuenta){
-                $user['rol'] = $cuenta['rol'];
-                $user['estado'] = $cuenta['estado'];
+            $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+                $iteradorCuentas = $cuenta->find()->where(['user' => $user->id])->all();
+                foreach($iteradorCuentas as $cuenta){
+                    $user['rol'] = $cuenta['rol'];
+                    $user['estado'] = $cuenta['estado'];
+                }
+            
+            $ficha = TableRegistry::getTableLocator()->get('Ficha');
+            if($user['rol'] == "medico"){
+                $iteradorFicha = $ficha->find()->where(['medico' => $user->id])->all();
+                foreach($iteradorFicha as $ficha){
+                    $user['pacienteAcargo'] = $ficha['paciente'];
+                    $user['medicoEncargado'] = null;
+                }
             }
-        
-        $ficha = TableRegistry::getTableLocator()->get('Ficha');
-        if($user['rol'] == "medico"){
-            $iteradorFicha = $ficha->find()->where(['medico' => $user->id])->all();
-            foreach($iteradorFicha as $ficha){
-                $user['pacienteAcargo'] = $ficha['paciente'];
-                $user['medicoEncargado'] = null;
+            if($user['rol'] == "paciente"){
+                $iteradorFicha = $ficha->find()->where(['paciente' => $user->id])->all();
+                foreach($iteradorFicha as $ficha){
+                    $user['pacienteAcargo'] = null;
+                    $user['medicoEncargado'] = $ficha['medico'];
+                }
             }
+
+            $fecha = FrozenTime::parse($user->nacimiento);
+            $user->nacimiento = $fecha;
+            $user->nacimiento = $user->nacimiento->i18nFormat('dd/MM/YYYY');
+
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($user);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $error = array("error");
+            $json = json_encode($error);
+            $this->response->body($json);
         }
-        if($user['rol'] == "paciente"){
-            $iteradorFicha = $ficha->find()->where(['paciente' => $user->id])->all();
-            foreach($iteradorFicha as $ficha){
-                $user['pacienteAcargo'] = null;
-                $user['medicoEncargado'] = $ficha['medico'];
-            }
-        }
-
-        $fecha = FrozenTime::parse($user->nacimiento);
-        $user->nacimiento = $fecha;
-        $user->nacimiento = $user->nacimiento->i18nFormat('dd/MM/YYYY');
-
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($user);
-        $this->response->body($json);
     }
 
     /*
@@ -386,22 +417,30 @@ class UserController extends AppController
     Solo accesible por el administrador
     */
     public function todosMedicos(){
-        $this->request->allowMethod(['get']);
         $this->autoRender = false;
 
-        $usuario = $this->User->find('all')->join([
-            'table' => 'cuenta',
-            'alias' => 'c',
-            'type' => 'INNER',
-            'conditions' => ['c.user = user.id',
-            'c.rol' => 'medico']
-        ]);
+        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
+
+            $usuario = $this->User->find('all')->join([
+                'table' => 'cuenta',
+                'alias' => 'c',
+                'type' => 'INNER',
+                'conditions' => ['c.user = user.id',
+                'c.rol' => 'medico']
+            ]);
 
 
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($usuario);
-        $this->response->body($json);
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($usuario);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $error = array("error");
+            $json = json_encode($error);
+            $this->response->body($json);
+        }
     }
 
     /*
@@ -410,22 +449,28 @@ class UserController extends AppController
     */
     public function autorizar($id = null)
     {
-        $this->request->allowMethod(['get']);
         $this->autoRender = false;
+        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
+            $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+                $iteradorCuentas = $cuenta->find()->where(['user' => $id])->all();
+                foreach($iteradorCuentas as $cuenta){
+                    $idCuenta= $cuenta['id'];
+                }
 
-        $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
-            $iteradorCuentas = $cuenta->find()->where(['user' => $id])->all();
-            foreach($iteradorCuentas as $cuenta){
-                $idCuenta= $cuenta['id'];
-            }
+            $cuenta = (new CuentaController());
+            $cuenta->edit3($idCuenta);
 
-        $cuenta = (new CuentaController());
-        $cuenta->edit3($idCuenta);
-
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($id);
-        $this->response->body($json);
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($id);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $error = array("error");
+            $json = json_encode($error);
+            $this->response->body($json);
+        }
     }
 
 
@@ -435,25 +480,32 @@ class UserController extends AppController
     */
     public function editarUser()
     {
-        $this->request->allowMethod(['post']);
         $this->autoRender = false;
-        $data = $this->request->getData();
+        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
+            $data = $this->request->getData();
+            
+            $user = $this->User->get($data['id'], [
+                'contain' => [],
+            ]);
         
-        $user = $this->User->get($data['id'], [
-            'contain' => [],
-        ]);
-      
-            $user2 = $this->User->patchEntity($user, $data);
-            if ($this->User->save($user2)) {
-                $this->response->statusCode(200);
-                $this->response->type('json');
-                $json = json_encode($user2);
-                $this->response->body($json);
-            }
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($user2);
-        $this->response->body($json);
+                $user2 = $this->User->patchEntity($user, $data);
+                if ($this->User->save($user2)) {
+                    $this->response->statusCode(200);
+                    $this->response->type('json');
+                    $json = json_encode($user2);
+                    $this->response->body($json);
+                }
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($user2);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $error = array("error");
+            $json = json_encode($error);
+            $this->response->body($json);
+        }
     }
 
     /*
@@ -462,7 +514,8 @@ class UserController extends AppController
     */
     public function delete($idUser = null)
     {
-            $this->autoRender = false;
+        $this->autoRender = false;
+        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
             $user = $this->User->find()->where(['id' => $idUser])->all();
             foreach($user as $user){
                 $id = $user['id'];
@@ -473,6 +526,13 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($userAEliminar);
             $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $error = array("error");
+            $json = json_encode($error);
+            $this->response->body($json);
+        }
     }
 
     /*
@@ -522,7 +582,7 @@ class UserController extends AppController
                 header('Access-Control-Allow-Origin: *');
                 $this->response->statusCode(403);
                 header('Content-Type: application/json');
-                $this->set('problema', 'El administrador aun no te ha autorizado');    
+                $this->set('problema', 'El administrador aun no te ha isAuthorized');    
                 $this->set('_serialize', ['problema']); 
             }else{
                 if(!(new DefaultPasswordHasher)->check($data['password'], $user['password'])) {
@@ -534,10 +594,10 @@ class UserController extends AppController
                 else{
                     if($rol == "administrador" || $rol == "medico" ){
                         $user2 = $this->Auth->identify();
-                        $this->Auth->setUser($user);
+                        $this->Auth->setUser($user2);
                         $this->response->statusCode(200);
                         $this->response->type('json');
-                        $json = json_encode($user);
+                        $json = json_encode($user2);
                         $this->response->body($json);
                     }else{
                         header('Access-Control-Allow-Origin: *');
@@ -558,10 +618,9 @@ class UserController extends AppController
     public function loginPaciente()
     {   
         $this->autoRender = false;
-        $username =  env('PHP_AUTH_USER');
-        $pass = env('PHP_AUTH_PW');
+        $data = $this->request->getData();
         $userRaw = $this->User->find('all', array(
-            'conditions' => array('User.username' => $username),
+            'conditions' => array('User.username' => $data['username']),
         ));
 
         foreach($userRaw as $user){
@@ -610,10 +669,10 @@ class UserController extends AppController
                 header('Access-Control-Allow-Origin: *');
                 $this->response->statusCode(403);
                 header('Content-Type: application/json');
-                $this->set('problema', 'El administrador aun no te ha autorizado');    
+                $this->set('problema', 'El administrador aun no te ha isAuthorized');    
                 $this->set('_serialize', ['problema']); 
             }else{
-                if(!(new DefaultPasswordHasher)->check($pass, $user['password'])) {
+                if(!(new DefaultPasswordHasher)->check($data['password'], $user['password'])) {
                     header('Access-Control-Allow-Origin: *');
                     $this->response->statusCode(403);
                     header('Content-Type: application/json');
@@ -621,10 +680,11 @@ class UserController extends AppController
                     $this->set('_serialize', ['problema']); 
                 }
                 else if($estadoCuenta == "autorizada" && $rol == "paciente" ){
+                    $user2 = $this->Auth->identify();
+                    $this->Auth->setUser($user2);
                     unset($user['colegiado']);
                     unset($user['cargo']);
                     unset($user['especialidad']);
-                    $this->Auth->setUser($user);
                     $this->response->statusCode(200);
                     $this->response->type('json');
                     $json = json_encode($user);
@@ -775,27 +835,35 @@ class UserController extends AppController
     */
     public function userActivados()
     {
-        $this->request->allowMethod(['get']);
-        $this->autoRender = false;
-        $usuarios = $this->User->find()->all();
-        $usuarioFinal = array();
-        $i=0;
+        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
+            $this->request->allowMethod(['get']);
+            $this->autoRender = false;
+            $usuarios = $this->User->find()->all();
+            $usuarioFinal = array();
+            $i=0;
 
-        foreach($usuarios as $usuario){
-            $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
-            $iteradorCuentas = $cuenta->find()->where(['user' => $usuario['id']])->all();
-            foreach($iteradorCuentas as $cuenta){
-                if($cuenta['estado'] == "activada"){
-                    $usuario['rol'] = $cuenta['rol'];
-                    $usuarioFinal[$i++] = $usuario;  
+            foreach($usuarios as $usuario){
+                $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+                $iteradorCuentas = $cuenta->find()->where(['user' => $usuario['id']])->all();
+                foreach($iteradorCuentas as $cuenta){
+                    if($cuenta['estado'] == "activada"){
+                        $usuario['rol'] = $cuenta['rol'];
+                        $usuarioFinal[$i++] = $usuario;  
+                    }
                 }
             }
-        }
 
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($usuarioFinal);
-        $this->response->body($json);
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($usuarioFinal);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $error = array("error");
+            $json = json_encode($error);
+            $this->response->body($json);
+        }
     }
 
 
@@ -805,12 +873,13 @@ class UserController extends AppController
     */
     public function longitudUserActivados()
     {
-            $this->request->allowMethod(['get']);
-            $this->autoRender = false;
+        $this->autoRender = false;
+        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
+            
             $usuarios = $this->User->find()->all();
             $usuarioFinal = array();
             $i=0;
-    
+
             foreach($usuarios as $usuario){
                 $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
                 $iteradorCuentas = $cuenta->find()->where(['user' => $usuario['id']])->all();
@@ -821,12 +890,18 @@ class UserController extends AppController
                 }
             }
             $longitud = sizeof($usuarioFinal);
-    
+
             $this->response->statusCode(200);
             $this->response->type('json');
             $json = json_encode($longitud);
             $this->response->body($json);
-
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $error = array("error");
+            $json = json_encode($error);
+            $this->response->body($json);
+        } 
     }
 
     /*
@@ -834,6 +909,8 @@ class UserController extends AppController
     */
     public function editCuentaEstado()
     {
+
+        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
             $this->request->allowMethod(['post']);
             $this->autoRender = false;
             $data = $this->request->getData();
@@ -851,6 +928,12 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($data);
             $this->response->body($json);
-
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $error = array("error");
+            $json = json_encode($error);
+            $this->response->body($json);
+        }
     }
 }
