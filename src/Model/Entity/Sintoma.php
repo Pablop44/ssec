@@ -22,7 +22,5 @@ class Sintoma extends Entity
      */
     protected $_accessible = [
         '*' => true,
-        'migranas' => false,
-        'sintomas' => false,
     ];
 }

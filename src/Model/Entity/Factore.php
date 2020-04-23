@@ -21,8 +21,6 @@ class Factore extends Entity
      * @var array
      */
     protected $_accessible = [
-        '*' => true,
-        'migranas' => false,
-        'factores' => false,
+        '*' => true
     ];
 }

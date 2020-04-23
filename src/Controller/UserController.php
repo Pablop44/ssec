@@ -36,18 +36,9 @@ class UserController extends AppController
 
     public function initialize(){
         parent::initialize();
-        $this->Auth->allow(['register', 'login','loginPaciente', 'registerPaciente', 'confirmar', 'longitudUserActivados', 'getLoggedUser']);
-    }
-
-    public function isAuthorized($user)
-    {
-        $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
-        $iteradorCuentas = $cuenta->find()->where(['user' => $user['id']])->all();
-        foreach($iteradorCuentas as $cuenta){
-            $rol = $cuenta['rol'];
-        }
-        return in_array($this->getRequest()->getParam('action'), ['logout']) ||
-               $rol === 'administrador';
+        $this->Auth->allow(['register', 'login','logout','loginPaciente', 'registerPaciente', 'confirmar', 'longitudUserActivados', 'getLoggedUser',
+        'getMedicos', 'getAdministradores', 'getPacientes', 'getNumeroAdministradores', 'getNumeroMedicos', 'getNumeroPacientes', 'usuarios',
+        'view', 'todosMedicos', 'autorizar', 'editarUser', 'delete', 'userActivados', 'longitudUserActivados', 'editCuentaEstado']);
     }
 
     public function getLoggedUser(){
@@ -63,7 +54,6 @@ class UserController extends AppController
     */
     public function getMedicos(){
         $this->autoRender = false;
-        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
             $data = $this->request->getData();
             $this->paginate['page'] = $data['page']+1;
             $this->paginate['limit'] = $data['limit'];
@@ -93,13 +83,6 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($paginador);
             $this->response->body($json);
-        }else{
-            $this->response->statusCode(403);
-            $this->response->type('json');
-            $error = array("error");
-            $json = json_encode($error);
-            $this->response->body($json);
-        }
     }
 
     /*
@@ -107,7 +90,6 @@ class UserController extends AppController
     */
     public function getAdministradores(){
         $this->autoRender = false;
-        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
             $data = $this->request->getData();
             $this->paginate['page'] = $data['page']+1;
             $this->paginate['limit'] = $data['limit'];
@@ -136,13 +118,6 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($paginador);
             $this->response->body($json);
-        }else{
-            $this->response->statusCode(403);
-            $this->response->type('json');
-            $error = array("error");
-            $json = json_encode($error);
-            $this->response->body($json);
-        }
     }
 
     /*
@@ -150,7 +125,6 @@ class UserController extends AppController
     */
     public function getPacientes(){
         $this->autoRender = false;
-        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
             $data = $this->request->getData();
             $this->paginate['page'] = $data['page']+1;
             $this->paginate['limit'] = $data['limit'];
@@ -180,13 +154,6 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($paginador);
             $this->response->body($json);
-        }else{
-            $this->response->statusCode(403);
-            $this->response->type('json');
-            $error = array("error");
-            $json = json_encode($error);
-            $this->response->body($json);
-        }
     }
 
     /*
@@ -195,7 +162,6 @@ class UserController extends AppController
     public function getNumeroAdministradores(){
         $this->request->allowMethod(['get']);
         $this->autoRender = false;
-        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
             $data = $this->request->getData();
             if(isset($data['tipo'])){
                 $this->paginate['order'] = [$data['tipo'] => 'desc'];
@@ -221,13 +187,6 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($myObj);
             $this->response->body($json);
-        }else{
-            $this->response->statusCode(403);
-            $this->response->type('json');
-            $error = array("error");
-            $json = json_encode($error);
-            $this->response->body($json);
-        }
     }
 
     /*
@@ -236,7 +195,6 @@ class UserController extends AppController
     public function getNumeroMedicos(){
         $this->autoRender = false;
         $data = $this->request->getData();
-        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
             if(isset($data['tipo'])){
                 $this->paginate['order'] = [$data['tipo'] => 'desc'];
             }
@@ -262,13 +220,6 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($myObj);
             $this->response->body($json);
-        }else{
-            $this->response->statusCode(403);
-            $this->response->type('json');
-            $error = array("error");
-            $json = json_encode($error);
-            $this->response->body($json);
-        }
     }
 
     /*
@@ -276,7 +227,6 @@ class UserController extends AppController
     */
     public function getNumeroPacientes(){
         $this->autoRender = false;
-        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
             $data = $this->request->getData();
             if(isset($data['tipo'])){
                 $this->paginate['order'] = [$data['tipo'] => 'desc'];
@@ -303,13 +253,6 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($myObj);
             $this->response->body($json);
-        }else{
-            $this->response->statusCode(403);
-            $this->response->type('json');
-            $error = array("error");
-            $json = json_encode($error);
-            $this->response->body($json);
-        }
     }
 
     /*
@@ -318,7 +261,6 @@ class UserController extends AppController
     */
     public function usuarios(){
         $this->autoRender = false;
-        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
             $usuarios = $this->User->find()->all();
 
             foreach($usuarios as $usuario){
@@ -334,13 +276,6 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($usuarios);
             $this->response->body($json);
-        }else{
-            $this->response->statusCode(403);
-            $this->response->type('json');
-            $error = array("error");
-            $json = json_encode($error);
-            $this->response->body($json);
-        }
     }
 
     /*
@@ -367,7 +302,6 @@ class UserController extends AppController
     {
 
         $this->autoRender = false;
-        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
             $user = $this->User->get($id, [
                 'contain' => [],
             ]);
@@ -403,13 +337,6 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($user);
             $this->response->body($json);
-        }else{
-            $this->response->statusCode(403);
-            $this->response->type('json');
-            $error = array("error");
-            $json = json_encode($error);
-            $this->response->body($json);
-        }
     }
 
     /*
@@ -419,7 +346,6 @@ class UserController extends AppController
     public function todosMedicos(){
         $this->autoRender = false;
 
-        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
 
             $usuario = $this->User->find('all')->join([
                 'table' => 'cuenta',
@@ -434,13 +360,6 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($usuario);
             $this->response->body($json);
-        }else{
-            $this->response->statusCode(403);
-            $this->response->type('json');
-            $error = array("error");
-            $json = json_encode($error);
-            $this->response->body($json);
-        }
     }
 
     /*
@@ -450,7 +369,6 @@ class UserController extends AppController
     public function autorizar($id = null)
     {
         $this->autoRender = false;
-        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
             $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
                 $iteradorCuentas = $cuenta->find()->where(['user' => $id])->all();
                 foreach($iteradorCuentas as $cuenta){
@@ -464,13 +382,6 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($id);
             $this->response->body($json);
-        }else{
-            $this->response->statusCode(403);
-            $this->response->type('json');
-            $error = array("error");
-            $json = json_encode($error);
-            $this->response->body($json);
-        }
     }
 
 
@@ -481,7 +392,6 @@ class UserController extends AppController
     public function editarUser()
     {
         $this->autoRender = false;
-        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
             $data = $this->request->getData();
             
             $user = $this->User->get($data['id'], [
@@ -494,18 +404,13 @@ class UserController extends AppController
                     $this->response->type('json');
                     $json = json_encode($user2);
                     $this->response->body($json);
-                }
-            $this->response->statusCode(200);
-            $this->response->type('json');
-            $json = json_encode($user2);
-            $this->response->body($json);
-        }else{
-            $this->response->statusCode(403);
-            $this->response->type('json');
-            $error = array("error");
-            $json = json_encode($error);
-            $this->response->body($json);
-        }
+                }else{
+                    $this->response->statusCode(500);
+                    $this->response->type('json');
+                    $error = array("error");
+                    $json = json_encode($error);
+                    $this->response->body($json);
+                }     
     }
 
     /*
@@ -515,7 +420,6 @@ class UserController extends AppController
     public function delete($idUser = null)
     {
         $this->autoRender = false;
-        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
             $user = $this->User->find()->where(['id' => $idUser])->all();
             foreach($user as $user){
                 $id = $user['id'];
@@ -526,13 +430,6 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($userAEliminar);
             $this->response->body($json);
-        }else{
-            $this->response->statusCode(403);
-            $this->response->type('json');
-            $error = array("error");
-            $json = json_encode($error);
-            $this->response->body($json);
-        }
     }
 
     /*
@@ -597,7 +494,7 @@ class UserController extends AppController
                         $this->Auth->setUser($user2);
                         $this->response->statusCode(200);
                         $this->response->type('json');
-                        $json = json_encode($user2);
+                        $json = json_encode($user);
                         $this->response->body($json);
                     }else{
                         header('Access-Control-Allow-Origin: *');
@@ -835,7 +732,6 @@ class UserController extends AppController
     */
     public function userActivados()
     {
-        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
             $this->request->allowMethod(['get']);
             $this->autoRender = false;
             $usuarios = $this->User->find()->all();
@@ -857,13 +753,6 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($usuarioFinal);
             $this->response->body($json);
-        }else{
-            $this->response->statusCode(403);
-            $this->response->type('json');
-            $error = array("error");
-            $json = json_encode($error);
-            $this->response->body($json);
-        }
     }
 
 
@@ -874,7 +763,6 @@ class UserController extends AppController
     public function longitudUserActivados()
     {
         $this->autoRender = false;
-        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
             
             $usuarios = $this->User->find()->all();
             $usuarioFinal = array();
@@ -895,13 +783,6 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($longitud);
             $this->response->body($json);
-        }else{
-            $this->response->statusCode(403);
-            $this->response->type('json');
-            $error = array("error");
-            $json = json_encode($error);
-            $this->response->body($json);
-        } 
     }
 
     /*
@@ -909,8 +790,6 @@ class UserController extends AppController
     */
     public function editCuentaEstado()
     {
-
-        if($this->Auth->user() != null && $this->isAuthorized($this->Auth->user())){
             $this->request->allowMethod(['post']);
             $this->autoRender = false;
             $data = $this->request->getData();
@@ -928,12 +807,5 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($data);
             $this->response->body($json);
-        }else{
-            $this->response->statusCode(403);
-            $this->response->type('json');
-            $error = array("error");
-            $json = json_encode($error);
-            $this->response->body($json);
-        }
     }
 }

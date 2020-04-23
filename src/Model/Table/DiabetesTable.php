@@ -48,9 +48,9 @@ class DiabetesTable extends Table
             ->allowEmptyString('id', null, 'create');
 
         $validator
-            ->date('fecha')
+            ->scalar('fecha')
             ->requirePresence('fecha', 'create')
-            ->notEmptyDate('fecha');
+            ->notEmptyString('fecha');
 
         $validator
             ->integer('ficha')

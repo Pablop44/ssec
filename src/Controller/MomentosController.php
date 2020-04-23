@@ -2,6 +2,9 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
+use Cake\Event\Event;
+use Cake\I18n\FrozenTime;
 
 /**
  * Momentos Controller
@@ -17,6 +20,18 @@ class MomentosController extends AppController
      *
      * @return \Cake\Http\Response|null
      */
+    public function initialize()
+    {
+        parent::initialize();
+        $this->Auth->allow(['add']);
+        $this->loadComponent('Csrf');
+    }
+
+    public function beforeFilter(Event $event) {
+        
+        $this->eventManager()->off($this->Csrf);   
+    }
+
     public function index()
     {
         $momentos = $this->paginate($this->Momentos);
@@ -47,17 +62,22 @@ class MomentosController extends AppController
      */
     public function add()
     {
+        $this->autoRender = false;
+        $data = $this->request->getData();
         $momento = $this->Momentos->newEntity();
-        if ($this->request->is('post')) {
-            $momento = $this->Momentos->patchEntity($momento, $this->request->getData());
-            if ($this->Momentos->save($momento)) {
-                $this->Flash->success(__('The momento has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The momento could not be saved. Please, try again.'));
-        }
-        $this->set(compact('momento'));
+        $momento = $this->Momentos->patchEntity($momento, $data);
+        if($this->Momentos->save($momento)){
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($momento);
+            $this->response->body($json);
+        }else{
+            header('Access-Control-Allow-Origin: *');
+            $this->response->statusCode(500);
+            header('Content-Type: application/json');
+            $this->set('problema', 'Error al crear la consulta');    
+            $this->set('_serialize', ['problema']); 
+        } 
     }
 
     /**

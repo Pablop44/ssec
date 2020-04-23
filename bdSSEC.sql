@@ -264,7 +264,7 @@ DROP TABLE IF EXISTS `mydb`.`sintomas` ;
 CREATE TABLE IF NOT EXISTS `mydb`.`sintomas` (
   `migranas` INT NOT NULL,
   `sintomas` ENUM('Nauseas_Vomitos', 'Sono_foto_osmofobia', 'Fotopsias_escotomas_hemianopsia_diplopia', 'Hemiparesia_hemidisestesia',
-   'Inestabilidad_vertigo', 'SíntomasDisautonomicos', 'Afasia', 'Confusion_crisisComiciales_fiebre') NOT NULL,
+   'Inestabilidad_vertigo', 'SintomasDisautonomicos', 'Afasia', 'Confusion_crisisComiciales_fiebre') NOT NULL,
   PRIMARY KEY (`migranas`,  `sintomas`),
   CONSTRAINT `fkMigranasSintomas`
     FOREIGN KEY (`migranas`)
@@ -281,7 +281,7 @@ DROP TABLE IF EXISTS `mydb`.`factores` ;
 CREATE TABLE IF NOT EXISTS `mydb`.`factores` (
   `migranas` INT NOT NULL,
   `factores` ENUM('Estres', 'EjercicioFisico', 'FactoresHormonales', 'Dietas_alcohol',
-   'CambiosAtmosferico', 'SíntomasDisautonomicos', 'CambiosPosturales', 'MovimientoCefalicos', 'ManiobrasValsalva') NOT NULL,
+   'CambiosAtmosferico', 'SintomasDisautonomicos', 'CambiosPosturales', 'MovimientoCefalicos', 'ManiobrasValsalva') NOT NULL,
   PRIMARY KEY (`migranas`,  `factores`),
   CONSTRAINT `fkMigranasFactores`
     FOREIGN KEY (`migranas`)
@@ -438,7 +438,7 @@ INSERT INTO `user`(`id`, `dni`, `username`, `password`, `email`, `nombre`, `apel
 insert into USER (id, dni, username, password, email, nombre, apellidos, telefono, poblacion, colegiado, cargo, especialidad, genero, nacimiento) values (2, '17463632P', 'Paciente1', '$2y$10$xTrtfuOXrMZPRg8rPV.NheT.0k8EASPyIHvxQuKmRlel97eKlP25u', 'pablo@pablo.com', 'pablo', 'pablo', '681302914', 'San Vicente', '441642929', 'medico', 'migranas', 'Male', '2010-05-07 04:56:32');
 insert into USER (id, dni, username, password, email, nombre, apellidos, telefono, poblacion, colegiado, cargo, especialidad, genero, nacimiento) values (3, '25057904x', 'adomone2', 'BIhrVS1P', 'adomone2@shareasale.com', 'Alexine', 'Domone', '9186514509', 'Corinto', '24192239', 'medico', 'migranas', 'Female', '1999-06-26 07:50:02');
 insert into USER (id, dni, username, password, email, nombre, apellidos, telefono, poblacion, colegiado, cargo, especialidad, genero, nacimiento) values (4, '20656928o', 'gwalkington3', 'xLsmq8Pzmmda', 'gwalkington3@ucsd.edu', 'Gabby', 'Walkington', '3929262178', 'Oytal', '16349402', 'medico', 'migranas', 'Male', '1956-05-30 09:27:37');
-insert into USER (id, dni, username, password, email, nombre, apellidos, telefono, poblacion, colegiado, cargo, especialidad, genero, nacimiento) values (5, '78286619D', 'Medico1', '$2y$10$cdTjj2fBU1uUBzrV.C88Q.j4EyoB0QAvG2v6LGo3k3bhFEgrHTsMS', 'acammoile4@list-manage.com', 'Aloysius', 'Cammoile', '8518414499', 'Shuangmiao', '86929147', 'medico', 'migranas', 'Male', '2014-04-26 06:30:12');
+insert into USER (id, dni, username, password, email, nombre, apellidos, telefono, poblacion, colegiado, cargo, especialidad, genero, nacimiento) values (5, '78286619D', 'Medico1', '$2y$10$cdTjj2fBU1uUBzrV.C88Q.j4EyoB0QAvG2v6LGo3k3bhFEgrHTsMS', 'acammoile4@list-manage.com', 'Aloysius', 'Cammoile', '851841449', 'Shuangmiao', '86929147', 'medico', 'migranas', 'Male', '2014-04-26 06:30:12');
 insert into USER (id, dni, username, password, email, nombre, apellidos, telefono, poblacion, colegiado, cargo, especialidad, genero, nacimiento) values (6, '30516357q', 'ahendriks5', 'f13i5I', 'ahendriks5@senate.gov', 'Antony', 'Hendriks', '4436125447', 'Junyang', '31783927', 'medico', 'migranas', 'Male', '2013-09-14 17:40:34');
 insert into USER (id, dni, username, password, email, nombre, apellidos, telefono, poblacion, colegiado, cargo, especialidad, genero, nacimiento) values (7, '86797706E', 'cmessenbird6', 'F6DSdv', 'cmessenbird6@tumblr.com', 'Chris', 'Messenbird', '8415045078', 'Ban Thaen', '78120449', 'medico', 'migranas', 'Male', '2004-12-13 09:11:39');
 insert into USER (id, dni, username, password, email, nombre, apellidos, telefono, poblacion, colegiado, cargo, especialidad, genero, nacimiento) values (8, '69971711O', 'vfalkous7', 'axef80ktvAvI', 'vfalkous7@jugem.jp', 'Veda', 'Falkous', '8371631900', 'Banes', '60128202', 'medico', 'migranas', 'Female', '1958-06-30 18:57:44');
@@ -1501,8 +1501,8 @@ insert into sintomas (migranas, sintomas) values (93, 'Nauseas_Vomitos');
 insert into sintomas (migranas, sintomas) values (73, 'Nauseas_Vomitos');
 insert into sintomas (migranas, sintomas) values (62, 'Confusion_crisisComiciales_fiebre');
 insert into sintomas (migranas, sintomas) values (85, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (62, 'SíntomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (47, 'SíntomasDisautonomicos');
+insert into sintomas (migranas, sintomas) values (62, 'SintomasDisautonomicos');
+insert into sintomas (migranas, sintomas) values (47, 'SintomasDisautonomicos');
 insert into sintomas (migranas, sintomas) values (67, 'Fotopsias_escotomas_hemianopsia_diplopia');
 insert into sintomas (migranas, sintomas) values (16, 'Inestabilidad_vertigo');
 insert into sintomas (migranas, sintomas) values (38, 'Afasia');
@@ -1510,7 +1510,7 @@ insert into sintomas (migranas, sintomas) values (85, 'Sono_foto_osmofobia');
 insert into sintomas (migranas, sintomas) values (73, 'Hemiparesia_hemidisestesia');
 insert into sintomas (migranas, sintomas) values (88, 'Hemiparesia_hemidisestesia');
 insert into sintomas (migranas, sintomas) values (88, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (42, 'SíntomasDisautonomicos');
+insert into sintomas (migranas, sintomas) values (42, 'SintomasDisautonomicos');
 insert into sintomas (migranas, sintomas) values (29, 'Afasia');
 insert into sintomas (migranas, sintomas) values (64, 'Fotopsias_escotomas_hemianopsia_diplopia');
 insert into sintomas (migranas, sintomas) values (36, 'Confusion_crisisComiciales_fiebre');
@@ -1523,7 +1523,7 @@ insert into sintomas (migranas, sintomas) values (48, 'Inestabilidad_vertigo');
 insert into sintomas (migranas, sintomas) values (48, 'Confusion_crisisComiciales_fiebre');
 insert into sintomas (migranas, sintomas) values (24, 'Sono_foto_osmofobia');
 insert into sintomas (migranas, sintomas) values (10, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (63, 'SíntomasDisautonomicos');
+insert into sintomas (migranas, sintomas) values (63, 'SintomasDisautonomicos');
 insert into sintomas (migranas, sintomas) values (95, 'Hemiparesia_hemidisestesia');
 insert into sintomas (migranas, sintomas) values (81, 'Fotopsias_escotomas_hemianopsia_diplopia');
 insert into sintomas (migranas, sintomas) values (21, 'Nauseas_Vomitos');
@@ -1539,7 +1539,7 @@ insert into sintomas (migranas, sintomas) values (43, 'Afasia');
 insert into sintomas (migranas, sintomas) values (17, 'Inestabilidad_vertigo');
 insert into sintomas (migranas, sintomas) values (95, 'Fotopsias_escotomas_hemianopsia_diplopia');
 insert into sintomas (migranas, sintomas) values (97, 'Afasia');
-insert into sintomas (migranas, sintomas) values (15, 'SíntomasDisautonomicos');
+insert into sintomas (migranas, sintomas) values (15, 'SintomasDisautonomicos');
 insert into sintomas (migranas, sintomas) values (79, 'Confusion_crisisComiciales_fiebre');
 insert into sintomas (migranas, sintomas) values (15, 'Nauseas_Vomitos');
 insert into sintomas (migranas, sintomas) values (54, 'Nauseas_Vomitos');
@@ -1547,26 +1547,26 @@ insert into sintomas (migranas, sintomas) values (89, 'Nauseas_Vomitos');
 insert into sintomas (migranas, sintomas) values (28, 'Fotopsias_escotomas_hemianopsia_diplopia');
 insert into sintomas (migranas, sintomas) values (5, 'Confusion_crisisComiciales_fiebre');
 insert into sintomas (migranas, sintomas) values (4, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (4, 'SíntomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (49, 'SíntomasDisautonomicos');
+insert into sintomas (migranas, sintomas) values (4, 'SintomasDisautonomicos');
+insert into sintomas (migranas, sintomas) values (49, 'SintomasDisautonomicos');
 insert into sintomas (migranas, sintomas) values (47, 'Fotopsias_escotomas_hemianopsia_diplopia');
 insert into sintomas (migranas, sintomas) values (10, 'Afasia');
 insert into sintomas (migranas, sintomas) values (7, 'Hemiparesia_hemidisestesia');
 insert into sintomas (migranas, sintomas) values (57, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (65, 'SíntomasDisautonomicos');
+insert into sintomas (migranas, sintomas) values (65, 'SintomasDisautonomicos');
 insert into sintomas (migranas, sintomas) values (36, 'Inestabilidad_vertigo');
 insert into sintomas (migranas, sintomas) values (6, 'Sono_foto_osmofobia');
 insert into sintomas (migranas, sintomas) values (56, 'Fotopsias_escotomas_hemianopsia_diplopia');
 insert into sintomas (migranas, sintomas) values (10, 'Nauseas_Vomitos');
 insert into sintomas (migranas, sintomas) values (58, 'Hemiparesia_hemidisestesia');
 insert into sintomas (migranas, sintomas) values (15, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (58, 'SíntomasDisautonomicos');
+insert into sintomas (migranas, sintomas) values (58, 'SintomasDisautonomicos');
 insert into sintomas (migranas, sintomas) values (50, 'Inestabilidad_vertigo');
 insert into sintomas (migranas, sintomas) values (75, 'Hemiparesia_hemidisestesia');
 insert into sintomas (migranas, sintomas) values (60, 'Nauseas_Vomitos');
 insert into sintomas (migranas, sintomas) values (24, 'Fotopsias_escotomas_hemianopsia_diplopia');
 insert into sintomas (migranas, sintomas) values (34, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (12, 'SíntomasDisautonomicos');
+insert into sintomas (migranas, sintomas) values (12, 'SintomasDisautonomicos');
 insert into sintomas (migranas, sintomas) values (81, 'Confusion_crisisComiciales_fiebre');
 insert into sintomas (migranas, sintomas) values (83, 'Sono_foto_osmofobia');
 insert into sintomas (migranas, sintomas) values (84, 'Confusion_crisisComiciales_fiebre');
@@ -1591,10 +1591,10 @@ insert into sintomas (migranas, sintomas) values (21, 'Confusion_crisisComiciale
 insert into sintomas (migranas, sintomas) values (96, 'Nauseas_Vomitos');
 insert into sintomas (migranas, sintomas) values (69, 'Nauseas_Vomitos');
 insert into sintomas (migranas, sintomas) values (26, 'Hemiparesia_hemidisestesia');
-insert into sintomas (migranas, sintomas) values (66, 'SíntomasDisautonomicos');
+insert into sintomas (migranas, sintomas) values (66, 'SintomasDisautonomicos');
 insert into sintomas (migranas, sintomas) values (32, 'Afasia');
 insert into sintomas (migranas, sintomas) values (28, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (70, 'SíntomasDisautonomicos');
+insert into sintomas (migranas, sintomas) values (70, 'SintomasDisautonomicos');
 insert into sintomas (migranas, sintomas) values (32, 'Inestabilidad_vertigo');
 insert into sintomas (migranas, sintomas) values (34, 'Sono_foto_osmofobia');
 insert into sintomas (migranas, sintomas) values (8, 'Confusion_crisisComiciales_fiebre');
@@ -1609,8 +1609,8 @@ insert into sintomas (migranas, sintomas) values (67, 'Hemiparesia_hemidisestesi
 insert into sintomas (migranas, sintomas) values (14, 'Inestabilidad_vertigo');
 insert into sintomas (migranas, sintomas) values (46, 'Confusion_crisisComiciales_fiebre');
 insert into sintomas (migranas, sintomas) values (41, 'Hemiparesia_hemidisestesia');
-insert into sintomas (migranas, sintomas) values (73, 'SíntomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (43, 'SíntomasDisautonomicos');
+insert into sintomas (migranas, sintomas) values (73, 'SintomasDisautonomicos');
+insert into sintomas (migranas, sintomas) values (43, 'SintomasDisautonomicos');
 insert into sintomas (migranas, sintomas) values (59, 'Nauseas_Vomitos');
 insert into sintomas (migranas, sintomas) values (27, 'Fotopsias_escotomas_hemianopsia_diplopia');
 insert into sintomas (migranas, sintomas) values (7, 'Confusion_crisisComiciales_fiebre');
@@ -1625,11 +1625,11 @@ insert into sintomas (migranas, sintomas) values (56, 'Confusion_crisisComiciale
 insert into sintomas (migranas, sintomas) values (96, 'Hemiparesia_hemidisestesia');
 insert into sintomas (migranas, sintomas) values (8, 'Inestabilidad_vertigo');
 insert into sintomas (migranas, sintomas) values (94, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (89, 'SíntomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (60, 'SíntomasDisautonomicos');
+insert into sintomas (migranas, sintomas) values (89, 'SintomasDisautonomicos');
+insert into sintomas (migranas, sintomas) values (60, 'SintomasDisautonomicos');
 insert into sintomas (migranas, sintomas) values (11, 'Sono_foto_osmofobia');
 insert into sintomas (migranas, sintomas) values (38, 'Fotopsias_escotomas_hemianopsia_diplopia');
-insert into sintomas (migranas, sintomas) values (35, 'SíntomasDisautonomicos');
+insert into sintomas (migranas, sintomas) values (35, 'SintomasDisautonomicos');
 insert into sintomas (migranas, sintomas) values (40, 'Afasia');
 insert into sintomas (migranas, sintomas) values (25, 'Afasia');
 insert into sintomas (migranas, sintomas) values (17, 'Afasia');

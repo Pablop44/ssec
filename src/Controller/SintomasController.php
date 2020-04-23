@@ -2,6 +2,9 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
+use Cake\Event\Event;
+use Cake\I18n\FrozenTime;
 
 /**
  * Sintomas Controller
@@ -17,6 +20,19 @@ class SintomasController extends AppController
      *
      * @return \Cake\Http\Response|null
      */
+    public function initialize()
+    {
+        parent::initialize();
+        $this->Auth->allow(['add']);
+        $this->loadComponent('Csrf');
+    }
+
+    public function beforeFilter(Event $event) {
+        
+        $this->eventManager()->off($this->Csrf);   
+    }
+
+
     public function index()
     {
         $sintomas = $this->paginate($this->Sintomas);
@@ -47,17 +63,22 @@ class SintomasController extends AppController
      */
     public function add()
     {
+        $this->autoRender = false;
+        $data = $this->request->getData();
         $sintoma = $this->Sintomas->newEntity();
-        if ($this->request->is('post')) {
-            $sintoma = $this->Sintomas->patchEntity($sintoma, $this->request->getData());
-            if ($this->Sintomas->save($sintoma)) {
-                $this->Flash->success(__('The sintoma has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The sintoma could not be saved. Please, try again.'));
-        }
-        $this->set(compact('sintoma'));
+        $sintoma = $this->Sintomas->patchEntity($sintoma, $data);
+        if($this->Sintomas->save($sintoma)){
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($sintoma);
+            $this->response->body($json);
+        }else{
+            header('Access-Control-Allow-Origin: *');
+            $this->response->statusCode(500);
+            header('Content-Type: application/json');
+            $this->set('problema', 'Error al crear la consulta');    
+            $this->set('_serialize', ['problema']); 
+        } 
     }
 
     /**

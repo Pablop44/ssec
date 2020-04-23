@@ -2,6 +2,9 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
+use Cake\Event\Event;
+use Cake\I18n\FrozenTime;
 
 /**
  * Factores Controller
@@ -12,6 +15,18 @@ use App\Controller\AppController;
  */
 class FactoresController extends AppController
 {
+
+    public function initialize()
+    {
+        parent::initialize();
+        $this->Auth->allow(['add']);
+        $this->loadComponent('Csrf');
+    }
+
+    public function beforeFilter(Event $event) {
+        
+        $this->eventManager()->off($this->Csrf);   
+    }
     /**
      * Index method
      *
@@ -47,17 +62,22 @@ class FactoresController extends AppController
      */
     public function add()
     {
-        $factore = $this->Factores->newEntity();
-        if ($this->request->is('post')) {
-            $factore = $this->Factores->patchEntity($factore, $this->request->getData());
-            if ($this->Factores->save($factore)) {
-                $this->Flash->success(__('The factore has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The factore could not be saved. Please, try again.'));
-        }
-        $this->set(compact('factore'));
+        $this->autoRender = false;
+        $data = $this->request->getData();
+        $factor = $this->Factores->newEntity();
+        $factor = $this->Factores->patchEntity($factor, $data);
+        if($this->Factores->save($factor)){
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($factor);
+            $this->response->body($json);
+        }else{
+            header('Access-Control-Allow-Origin: *');
+            $this->response->statusCode(500);
+            header('Content-Type: application/json');
+            $this->set('problema', 'Error al crear la consulta');    
+            $this->set('_serialize', ['problema']); 
+        } 
     }
 
     /**

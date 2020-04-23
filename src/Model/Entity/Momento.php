@@ -21,8 +21,6 @@ class Momento extends Entity
      * @var array
      */
     protected $_accessible = [
-        '*' => true,
-        'diabetes' => false,
-        'momento' => false,
+        '*' => true
     ];
 }

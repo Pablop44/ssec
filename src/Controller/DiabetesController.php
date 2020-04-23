@@ -41,7 +41,7 @@ class DiabetesController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['diabetesFichas', 'numeroInformesDiabetes', 'view', 'todosDiabetesFichas', 'getCubierto']);
+        $this->Auth->allow(['diabetesFichas', 'numeroInformesDiabetes', 'view', 'todosDiabetesFichas', 'getCubierto', 'add']);
         $this->loadComponent('Csrf');
     }
 
@@ -181,26 +181,6 @@ class DiabetesController extends AppController
     }
 
     /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
-     */
-    public function add()
-    {
-        $diabetes = $this->Diabetes->newEntity();
-        if ($this->request->is('post')) {
-            $diabetes = $this->Diabetes->patchEntity($diabetes, $this->request->getData());
-            if ($this->Diabetes->save($diabetes)) {
-                $this->Flash->success(__('The diabetes has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The diabetes could not be saved. Please, try again.'));
-        }
-        $this->set(compact('diabetes'));
-    }
-
-    /**
      * Edit method
      *
      * @param string|null $id Diabetes id.
@@ -264,5 +244,30 @@ class DiabetesController extends AppController
         $json = json_encode($cubierto);
         $this->response->body($json);
 
+    }
+
+    public function add()
+    {
+        $this->autoRender = false;
+        $fecha = FrozenTime::now();
+        $fecha =  $fecha->i18nFormat('YYYY-MM-dd HH:MM:ss');
+        $data = $this->request->getData();
+        $data['fecha'] = $fecha;
+        $diabetes = $this->Diabetes->newEntity();
+        $diabetes = $this->Diabetes->patchEntity($diabetes, $data);
+        $result = $this->Diabetes->save($diabetes);
+        if($result){
+            $diabetes['id'] = $result->id;
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($diabetes);
+            $this->response->body($json);
+        }else{
+            header('Access-Control-Allow-Origin: *');
+            $this->response->statusCode(500);
+            header('Content-Type: application/json');
+            $this->set('problema', 'Error al crear la consulta');    
+            $this->set('_serialize', ['problema']); 
+        } 
     }
 }

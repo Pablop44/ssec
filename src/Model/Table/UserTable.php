@@ -58,7 +58,8 @@ class UserTable extends Table
             ->scalar('username')
             ->maxLength('username', 255)
             ->requirePresence('username', 'create')
-            ->notEmptyString('username');
+            ->notEmptyString('username')
+            ->add('username', 'unique', ['rule' => 'validateUnique', 'provider' => 'table']);
 
         $validator
             ->scalar('password')
@@ -69,7 +70,8 @@ class UserTable extends Table
         $validator
             ->email('email')
             ->requirePresence('email', 'create')
-            ->notEmptyString('email');
+            ->notEmptyString('email')
+            ->add('email', 'unique', ['rule' => 'validateUnique', 'provider' => 'table']);
 
         $validator
             ->scalar('nombre')
@@ -97,7 +99,8 @@ class UserTable extends Table
 
         $validator
             ->integer('colegiado')
-            ->allowEmptyString('colegiado');
+            ->allowEmptyString('colegiado')
+            ->add('colegiado', 'unique', ['rule' => 'validateUnique', 'provider' => 'table']);
 
         $validator
             ->scalar('cargo')
@@ -115,8 +118,8 @@ class UserTable extends Table
             ->allowEmptyString('genero');
 
         $validator
-            ->dateTime('nacimiento')
-            ->allowEmptyDateTime('nacimiento');
+            ->date('nacimiento')
+            ->allowEmptyDate('nacimiento');
 
         return $validator;
     }
@@ -133,6 +136,7 @@ class UserTable extends Table
         $rules->add($rules->isUnique(['username']));
         $rules->add($rules->isUnique(['email']));
         $rules->add($rules->isUnique(['dni']));
+        $rules->add($rules->isUnique(['colegiado']));
 
         return $rules;
     }

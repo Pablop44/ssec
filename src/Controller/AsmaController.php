@@ -41,7 +41,7 @@ class AsmaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['asmaFichas', 'numeroInformesAsma', 'view', 'todosAsmaFichas', 'getCubierto']);
+        $this->Auth->allow(['asmaFichas', 'numeroInformesAsma', 'view', 'todosAsmaFichas', 'getCubierto', 'add']);
         $this->loadComponent('Csrf');
     }
 
@@ -153,26 +153,6 @@ class AsmaController extends AppController
     }
 
     /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
-     */
-    public function add()
-    {
-        $asma = $this->Asma->newEntity();
-        if ($this->request->is('post')) {
-            $asma = $this->Asma->patchEntity($asma, $this->request->getData());
-            if ($this->Asma->save($asma)) {
-                $this->Flash->success(__('The asma has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The asma could not be saved. Please, try again.'));
-        }
-        $this->set(compact('asma'));
-    }
-
-    /**
      * Edit method
      *
      * @param string|null $id Asma id.
@@ -237,5 +217,30 @@ class AsmaController extends AppController
         $json = json_encode($cubierto);
         $this->response->body($json);
 
+    }
+
+
+    public function add()
+    {
+        $this->autoRender = false;
+        $fecha = FrozenTime::now();
+        $fecha =  $fecha->i18nFormat('YYYY-MM-dd HH:MM:ss');
+        $data = $this->request->getData();
+        $data['fecha'] = $fecha;
+        $asma = $this->Asma->newEntity();
+        $asma = $this->Asma->patchEntity($asma, $data);
+        if($this->Asma->save($asma)){
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($asma);
+            $this->response->body($json);
+        }else{
+            header('Access-Control-Allow-Origin: *');
+            $this->response->statusCode(500);
+            header('Content-Type: application/json');
+            $this->set('problema', 'Error al crear la consulta');    
+            $this->set('_serialize', ['problema']); 
+        }
+        
     }
 }

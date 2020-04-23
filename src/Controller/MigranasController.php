@@ -41,7 +41,7 @@ class MigranasController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['migranasFichas', 'numeroInformesMigranas', 'view', 'todosMigranasFichas', 'getCubierto']);
+        $this->Auth->allow(['migranasFichas', 'numeroInformesMigranas', 'view', 'todosMigranasFichas', 'getCubierto', 'add']);
         $this->loadComponent('Csrf');
     }
 
@@ -208,22 +208,6 @@ class MigranasController extends AppController
         $this->response->body($json);
     }
 
-
-    public function add()
-    {
-        $migrana = $this->Migranas->newEntity();
-        if ($this->request->is('post')) {
-            $migrana = $this->Migranas->patchEntity($migrana, $this->request->getData());
-            if ($this->Migranas->save($migrana)) {
-                $this->Flash->success(__('The migrana has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The migrana could not be saved. Please, try again.'));
-        }
-        $this->set(compact('migrana'));
-    }
-
     /**
      * Edit method
      *
@@ -287,6 +271,30 @@ class MigranasController extends AppController
         $this->response->type('json');
         $json = json_encode($cubierto);
         $this->response->body($json);
+    }
 
+    public function add()
+    {
+        $this->autoRender = false;
+        $fecha = FrozenTime::now();
+        $fecha =  $fecha->i18nFormat('YYYY-MM-dd HH:MM:ss');
+        $data = $this->request->getData();
+        $data['fecha'] = $fecha;
+        $migranas = $this->Migranas->newEntity();
+        $migranas = $this->Migranas->patchEntity($migranas, $data);
+        $result = $this->Migranas->save($migranas);
+        if($result){
+            $migranas['id'] = $result->id;
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($migranas);
+            $this->response->body($json);
+        }else{
+            header('Access-Control-Allow-Origin: *');
+            $this->response->statusCode(500);
+            header('Content-Type: application/json');
+            $this->set('problema', 'Error al crear la consulta');    
+            $this->set('_serialize', ['problema']); 
+        } 
     }
 }
