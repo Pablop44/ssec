@@ -22,7 +22,7 @@ class CuentaController extends AppController
     {
         parent::initialize();
         $this->Auth->allow(['delete', 
-        'view', 'edit']);
+        'view', 'edit', 'desactivar']);
         $this->loadComponent('Csrf');
     }
 
@@ -104,6 +104,29 @@ class CuentaController extends AppController
         $cuentum['estado'] = "autorizada";
             $cuentum = $this->Cuenta->patchEntity($cuentum, $this->request->getData());
             $this->Cuenta->save($cuentum);
+    }
+
+
+    public function desactivar($user = null)
+    {
+        $this->autoRender = false;
+        $cuentas = $this->Cuenta->find()->where(['user' => $user])->all();
+        foreach($cuentas as $cuenta){
+            $cuenta = $cuenta;
+        }
+        $cuentum['estado'] = "desactivada";
+        $cuentum = $this->Cuenta->patchEntity($cuenta , $cuentum);
+        if($this->Cuenta->save($cuentum)){
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($cuentum);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($cuentum->errors());
+            $this->response->body($json);
+        } 
     }
 
 

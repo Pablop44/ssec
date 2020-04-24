@@ -331,7 +331,7 @@ class UserController extends AppController
 
             $fecha = FrozenTime::parse($user->nacimiento);
             $user->nacimiento = $fecha;
-            $user->nacimiento = $user->nacimiento->i18nFormat('dd/MM/YYYY');
+            $user->nacimiento = $user->nacimiento->i18nFormat('dd-MM-YYYY');
 
             $this->response->statusCode(200);
             $this->response->type('json');
@@ -407,8 +407,7 @@ class UserController extends AppController
                 }else{
                     $this->response->statusCode(500);
                     $this->response->type('json');
-                    $error = array("error");
-                    $json = json_encode($error);
+                    $json = json_encode($user2->errors());
                     $this->response->body($json);
                 }     
     }
