@@ -482,22 +482,22 @@ class ConsultaController extends AppController
     {
         $this->autoRender = false;
         $data = $this->request->getData();
-        $consultum = $this->Consulta->get($data['id'], [
-            'contain' => [],
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $consultum = $this->Consulta->patchEntity($consultum, $data);
-            if ($this->Consulta->save($consultum)) {
-                $this->response->statusCode(200);
-                $this->response->type('json');
-                $json = json_encode($consultum);
-                $this->response->body($json);
-            }
+        $consultum = $this->Consulta->get($data['id']);
+        $consultum = $this->Consulta->patchEntity($consultum, $data);
+        if ($this->Consulta->save($consultum)) {
             $this->response->statusCode(200);
             $this->response->type('json');
+            $fecha = FrozenTime::parse($consultum['fecha']);
+            $consultum->fecha = $fecha->i18nFormat('dd/MM/YYYY HH:mm:ss');
             $json = json_encode($consultum);
             $this->response->body($json);
         }
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $fecha = FrozenTime::parse($consultum['fecha']);
+        $consultum->fecha = $fecha->i18nFormat('dd/MM/YYYY HH:mm:ss');
+        $json = json_encode($consultum);
+        $this->response->body($json);
     }
 
     /**

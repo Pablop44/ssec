@@ -678,8 +678,28 @@ class UserController extends AppController
 
             $iterador = $this->User->find()->where(['username' => $user['username']])->all();
             foreach($iterador as $usuario){
-                $idUsuario = $usuario['id'];                
+                $idUsuario = $usuario['id']; 
+                $emailUsuario =  $usuario['email'];               
             }
+
+            TransportFactory::setConfig('mailtrap', [
+                'host' => 'smtp.mailtrap.io',
+                'port' => 2525,
+                'username' => '8bf4341c41b90b',
+                'password' => '7ebfbfaa262629',
+                'className' => 'Smtp'
+              ]);
+
+                $email = new Email();
+                $email->transport('mailtrap');
+                $email->emailFormat('html');
+                $email->from('ssec@ssec.esei.es', 'SSEC');
+                $email->subject('Nueva Cuenta Asociada al usuario '. $user['username']);
+                $email->to($emailUsuario);
+                $email->send('<h3> Hola, se ha creado una nueva cuenta asociada al usuario '.$user['username'].'</h3> <br>
+                 <a href="http://localhost:8765/user/confirmar/'.$idUsuario.'.json">Haz click aquí para activarla</a> <br>
+                 Para poder usarla el administrador tendrá que aprobar la solicitud después de haber activado la cuenta <br> <br>
+                 <h4> SSEC </h4>');  
                  
                 $datosCuenta = array();
                 $datosCuenta['rol'] = "paciente";
@@ -696,9 +716,9 @@ class UserController extends AppController
                 $this->response->body($json);
 
         }else{
-                $this->response->statusCode(500);
+                $this->response->statusCode(200);
                 $this->response->type('json');
-                $json = json_encode($error);
+                $json = json_encode($user->errors());
                 $this->response->body($json);
         } 
     }

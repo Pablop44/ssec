@@ -122,7 +122,7 @@ class CuentaController extends AppController
             $json = json_encode($cuentum);
             $this->response->body($json);
         }else{
-            $this->response->statusCode(200);
+            $this->response->statusCode(500);
             $this->response->type('json');
             $json = json_encode($cuentum->errors());
             $this->response->body($json);
