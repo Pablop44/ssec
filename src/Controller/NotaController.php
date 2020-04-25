@@ -37,7 +37,6 @@ class NotaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['notasFicha', 'numeroNotas', 'add', 'delete', 'editarNota']);
         $this->loadComponent('Csrf');
         $this->loadComponent('Paginator');
     }

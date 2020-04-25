@@ -8,6 +8,9 @@ use Cake\Mailer\Email;
 use Cake\Mailer\TransportFactory;
 use Cake\I18n\FrozenTime;
 use Cake\Auth\DefaultPasswordHasher;
+use Cake\Network\Exception\UnauthorizedException;
+use Cake\Utility\Security;
+use Firebase\JWT\JWT;
 
 
 /**
@@ -36,16 +39,15 @@ class UserController extends AppController
 
     public function initialize(){
         parent::initialize();
-        $this->Auth->allow(['register', 'login','logout','loginPaciente', 'registerPaciente', 'confirmar', 'longitudUserActivados', 'getLoggedUser',
-        'getMedicos', 'getAdministradores', 'getPacientes', 'getNumeroAdministradores', 'getNumeroMedicos', 'getNumeroPacientes', 'usuarios',
-        'view', 'todosMedicos', 'autorizar', 'editarUser', 'delete', 'userActivados', 'longitudUserActivados', 'editCuentaEstado']);
+        $this->Auth->allow(['register', 'login','loginPaciente', 'registerPaciente', 'confirmar']);
     }
 
     public function getLoggedUser(){
         $this->autoRender = false;
         $this->response->statusCode(200);
         $this->response->type('json');
-        $json = json_encode($this->Auth->user());
+        $array['funciona'] = "si jdr, funciona";
+        $json = json_encode($array);
         $this->response->body($json);
     }
 
@@ -282,8 +284,8 @@ class UserController extends AppController
     Función que cierra sesión del usuario
     Accesible por el administrador, médico y paciente
     */
-    public function logout(){
-        $this->request->allowMethod(['get']);
+    public function logout($id = null){
+        $this->desactivarUser($id);
         $this->autoRender = false;
         $this->Auth->logout();
         $respuesta = array('respuesta' => "Has cerrado sesion correctamente");
@@ -412,6 +414,54 @@ class UserController extends AppController
                 }     
     }
 
+    public function activarUser($id = null)
+    {
+        $this->autoRender = false;
+            $data['active'] = true;
+            
+            $user = $this->User->get($id, [
+                'contain' => [],
+            ]);
+        
+                $user2 = $this->User->patchEntity($user, $data);
+                if ($this->User->save($user2)) {
+                    $this->response->statusCode(200);
+                    $this->response->type('json');
+                    $json = json_encode($user2);
+                    $this->response->body($json);
+                }else{
+                    $this->response->statusCode(500);
+                    $this->response->type('json');
+                    $json = json_encode($user2->errors());
+                    $this->response->body($json);
+                }     
+    }
+
+    public function desactivarUser($id = null)
+    {
+        $this->autoRender = false;
+            $data['active'] = false;
+            
+            $user = $this->User->get($id, [
+                'contain' => [],
+            ]);
+        
+                $user2 = $this->User->patchEntity($user, $data);
+                if ($this->User->save($user2)) {
+                    $this->response->statusCode(200);
+                    $this->response->type('json');
+                    $json = json_encode($user2);
+                    $this->response->body($json);
+                }else{
+                    $this->response->statusCode(500);
+                    $this->response->type('json');
+                    $json = json_encode($user2->errors());
+                    $this->response->body($json);
+                }     
+    }
+
+    
+
     /*
     Función que elimina un usuario del sistema
     Accesible por el administrador, médico y paciente
@@ -489,10 +539,15 @@ class UserController extends AppController
                 }
                 else{
                     if($rol == "administrador" || $rol == "medico" ){
-                        $user2 = $this->Auth->identify();
-                        $this->Auth->setUser($user2);
+                        $this->activarUser($user['id']);
                         $this->response->statusCode(200);
                         $this->response->type('json');
+                        $user['token'] = JWT::encode(
+                            [
+                                'sub' => $user['id'],
+                                'exp' =>  time() + 604800
+                            ],
+                        Security::salt());
                         $json = json_encode($user);
                         $this->response->body($json);
                     }else{
@@ -826,5 +881,37 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($data);
             $this->response->body($json);
+    }
+
+
+    public function token()
+    {
+        $data = $this->request->getData();
+        $userRaw = $this->User->find('all', array(
+            'conditions' => array('User.username' => $data['username']),
+        ));
+
+        foreach($userRaw as $user){
+            $user = $user;
+        }
+        if(!(new DefaultPasswordHasher)->check($data['password'], $user['password'])){
+            $this->autoRender = false;
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode($data);
+            $this->response->body($json);
+        }else{
+            $this->set([
+                'success' => true,
+                'data' => [
+                    'token' => JWT::encode([
+                        'sub' => $user['id'],
+                        'exp' =>  time() + 604800
+                    ],
+                    Security::salt())
+                ],
+                '_serialize' => ['success', 'data']
+            ]);
+        }
     }
 }

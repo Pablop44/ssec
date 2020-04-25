@@ -34,8 +34,6 @@ class FichaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['fichas', 'view', 'fichasMedico', 'numeroFichas', 'delete',
-         'getFichaPaciente', 'cambiarMedico', 'numeroFichasMedico', 'viewPaciente']);
         $this->loadComponent('Csrf');
     }
 

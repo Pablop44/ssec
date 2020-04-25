@@ -41,7 +41,6 @@ class MigranasController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['migranasFichas', 'numeroInformesMigranas', 'view', 'todosMigranasFichas', 'getCubierto', 'add']);
         $this->loadComponent('Csrf');
     }
 

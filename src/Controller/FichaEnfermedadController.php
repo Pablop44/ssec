@@ -24,7 +24,6 @@ class FichaEnfermedadController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['anadirEnfermedad', 'eliminarEnfermedad']);
         $this->loadComponent('Csrf');
     }
 

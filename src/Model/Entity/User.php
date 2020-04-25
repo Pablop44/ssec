@@ -47,6 +47,7 @@ class User extends Entity
         'especialidad' => true,
         'genero' => true,
         'nacimiento' => true,
+        'active' => true,
     ];
 
     /**

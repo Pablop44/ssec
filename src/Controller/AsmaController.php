@@ -41,7 +41,6 @@ class AsmaController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['asmaFichas', 'numeroInformesAsma', 'view', 'todosAsmaFichas', 'getCubierto', 'add']);
         $this->loadComponent('Csrf');
     }
 

@@ -40,7 +40,6 @@ class MedicamentoController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['delete','add', 'medicamentos', 'numeroMedicamentos', 'buscarMedicamento']);
         $this->loadComponent('Csrf');
     }
 

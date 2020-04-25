@@ -43,26 +43,25 @@ class AppController extends Controller
         parent::initialize();
 
         $this->loadComponent('RequestHandler');
-        $this->loadComponent('Flash');
 
         $this->loadComponent('Auth', [
-            'storage' => 'Session',
+            'storage' => 'Memory',
             'authenticate' => [
                 'Form' => [
-                    'userModel' => 'User',
-                    'fields' => [
-                        'username' => 'username',
-                        'password' => 'password'
-                    ]
+                    'scope' => ['User.active' => 1]
                 ],
+                'ADmad/JwtAuth.Jwt' => [
+                    'parameter' => 'token',
+                    'userModel' => 'User',
+                    'scope' => ['User.active' => 1],
+                    'fields' => [
+                        'username' => 'id'
+                    ],
+                    'queryDatasource' => true
+                ]
             ],
+            'unauthorizedRedirect' => false,
+            'checkAuthIn' => 'Controller.initialize'
         ]);
-
-        if (Configure::read('skipAuth')) {
-            $this->Auth->allow();
-        }
-
-        // Hacer AuthComponent accesible a las vistas
-        $this->set('Auth', $this->Auth);
     }
 }

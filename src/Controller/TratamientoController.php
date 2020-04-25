@@ -30,7 +30,6 @@ class TratamientoController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['tratramientosFicha', 'numeroTratramientosFicha', 'view', 'crearTratamiento', 'viewPaciente']);
         $this->loadComponent('Csrf');
         $this->loadComponent('Paginator');
     }

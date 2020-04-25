@@ -19,7 +19,6 @@ class TratamientoMedicamentoController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['delete', 'add']);
         $this->loadComponent('Csrf');
     }
 

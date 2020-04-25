@@ -24,7 +24,6 @@ class EstatisticsController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['estadisticasUsuario', 'estadisticasEnfermedades']);
         $this->loadComponent('Csrf');
         $this->loadComponent('Paginator');
     }

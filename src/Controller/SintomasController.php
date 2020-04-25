@@ -23,7 +23,6 @@ class SintomasController extends AppController
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['add']);
         $this->loadComponent('Csrf');
     }
 

@@ -121,6 +121,10 @@ class UserTable extends Table
             ->date('nacimiento')
             ->allowEmptyDate('nacimiento');
 
+        $validator
+            ->boolean('active')
+            ->allowEmptyString('active');
+
         return $validator;
     }
 
