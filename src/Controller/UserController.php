@@ -39,14 +39,17 @@ class UserController extends AppController
 
     public function initialize(){
         parent::initialize();
-        $this->Auth->allow(['register', 'login','loginPaciente', 'registerPaciente', 'confirmar']);
+        $this->Auth->allow(['register', 'login','loginPaciente', 'registerPaciente', 'confirmar', 'getLoggedUser']);
     }
 
-    public function getLoggedUser(){
+    public function getLoggedUser($id){
         $this->autoRender = false;
         $this->response->statusCode(200);
+        $user = $this->User->get($id, [
+            'contain' => [],
+        ]);
         $this->response->type('json');
-        $array['funciona'] = "si jdr, funciona";
+        $array['funciona'] = Security::encrypt("asdfasdfsda",  Security::salt());
         $json = json_encode($array);
         $this->response->body($json);
     }
@@ -631,8 +634,13 @@ class UserController extends AppController
                     $this->set('_serialize', ['problema']); 
                 }
                 else if($estadoCuenta == "autorizada" && $rol == "paciente" ){
-                    $user2 = $this->Auth->identify();
-                    $this->Auth->setUser($user2);
+                    $this->activarUser($user['id']);
+                    $user['token'] = JWT::encode(
+                        [
+                            'sub' => $user['id'],
+                            'exp' =>  time() + 604800
+                        ],
+                    Security::salt());
                     unset($user['colegiado']);
                     unset($user['cargo']);
                     unset($user['especialidad']);
