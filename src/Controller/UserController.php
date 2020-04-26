@@ -49,7 +49,7 @@ class UserController extends AppController
             'contain' => [],
         ]);
         $this->response->type('json');
-        $array['funciona'] = Security::encrypt("asdfasdfsda",  Security::salt());
+        $array['funciona'] = Security::encrypt("pene",  Security::salt());
         $json = json_encode($array);
         $this->response->body($json);
     }
