@@ -5,6 +5,7 @@ use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
 use Cake\Event\Event;
 use Cake\I18n\FrozenTime;
+use Cake\Utility\Security;
 
 /**
  * Asma Controller
@@ -41,6 +42,7 @@ class AsmaController extends AppController
     public function initialize()
     {
         parent::initialize();
+        $this->Auth->allow(['add', 'view']);
         $this->loadComponent('Csrf');
     }
 
@@ -142,11 +144,12 @@ class AsmaController extends AppController
         $fecha = FrozenTime::parse($asma['fecha']);
         $asma->fecha = $fecha;
         
-        $asma->fecha =  $asma->fecha->i18nFormat('dd/MM/YYYY HH:mm');
+        $asma->fecha = $asma->fecha->i18nFormat('dd/MM/YYYY HH:mm');
        
         $this->response->statusCode(200);
         $this->response->type('json');
-        $json = json_encode($asma);
+        $asma['calidadSueno'] = Security::decrypt($asma['calidadSueno'],'su0HKssPmdbwgK6LdQLqzp0YmyaTI7zO');
+        $json = json_encode($asma['calidadSueno']);
         $this->response->body($json);
 
     }
@@ -231,15 +234,13 @@ class AsmaController extends AppController
         if($this->Asma->save($asma)){
             $this->response->statusCode(200);
             $this->response->type('json');
-            $json = json_encode($asma);
+            $json = json_encode($data);
             $this->response->body($json);
         }else{
-            header('Access-Control-Allow-Origin: *');
-            $this->response->statusCode(500);
-            header('Content-Type: application/json');
-            $this->set('problema', 'Error al crear la consulta');    
-            $this->set('_serialize', ['problema']); 
-        }
-        
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($data);
+            $this->response->body($json);
+        } 
     }
 }

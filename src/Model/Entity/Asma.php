@@ -46,3 +46,5 @@ class Asma extends Entity
         'estadoGeneral' => true,
     ];
 }
+
+

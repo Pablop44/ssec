@@ -5,6 +5,8 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Cake\Utility\Security;
+use Cake\Event\Event;
 
 /**
  * Asma Model
@@ -111,5 +113,37 @@ class AsmaTable extends Table
             ->notEmptyString('estadoGeneral');
 
         return $validator;
+    }
+
+    public function beforeSave($event, $entity, $options = array()) {
+        $encrypted = Security::encrypt($entity['calidadSueno'], 'su0HKssPmdbwgK6LdQLqzp0YmyaTI7zO');
+        $entity['calidadSueno'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['dificultadRespirar'], 'su0HKssPmdbwgK6LdQLqzp0YmyaTI7zO');
+        $entity['dificultadRespirar'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['tos'], 'su0HKssPmdbwgK6LdQLqzp0YmyaTI7zO');
+        $entity['tos'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['gravedadTos'], 'su0HKssPmdbwgK6LdQLqzp0YmyaTI7zO');
+        $entity['gravedadTos'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['limitaciones'], 'su0HKssPmdbwgK6LdQLqzp0YmyaTI7zO');
+        $entity['limitaciones'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['silbidos'], 'su0HKssPmdbwgK6LdQLqzp0YmyaTI7zO');
+        $entity['silbidos'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['usoMedicacion'], 'su0HKssPmdbwgK6LdQLqzp0YmyaTI7zO');
+        $entity['usoMedicacion'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['espirometria'], 'su0HKssPmdbwgK6LdQLqzp0YmyaTI7zO');
+        $entity['espirometria'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['factoresCrisis'], 'su0HKssPmdbwgK6LdQLqzp0YmyaTI7zO');
+        $entity['factoresCrisis'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['estadoGeneral'], 'su0HKssPmdbwgK6LdQLqzp0YmyaTI7zO');
+        $entity['estadoGeneral'] = base64_encode($encrypted);
+        return true;
+    }
+
+    public function afterFind($results, $primary = false) {   
+        die();
+        foreach ($results as $indice) { 
+            $indice['calidadSueno'] = Security::decrypt(base64_decode($indice['calidadSueno']),'su0HKssPmdbwgK6LdQLqzp0YmyaTI7zO');
+        }       
+        return $results;    
     }
 }
