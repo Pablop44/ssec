@@ -5,6 +5,7 @@ use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
 use Cake\Event\Event;
 use Cake\I18n\FrozenTime;
+use Cake\Utility\Security;
 
 /**
  * Migranas Controller
@@ -81,6 +82,7 @@ class MigranasController extends AppController
 
             foreach($sintomasIterador as $sintomas){
                 unset($sintomas['migranas']);
+                $sintomas = $this->desencriptarSintomas($sintomas);
             }
 
             $migranas['sintomas'] = $sintomasIterador;
@@ -90,9 +92,11 @@ class MigranasController extends AppController
 
             foreach($factoresIterador as $factores){
                 unset($factores['migranas']);
+                $factores = $this->desencriptarFactores($factores);
             }
 
             $migranas['factores'] = $factoresIterador;
+            $migranas = $this->desencriptarInforme($migranas);
             
         }
        
@@ -124,6 +128,7 @@ class MigranasController extends AppController
 
             foreach($sintomasIterador as $sintomas){
                 unset($sintomas['migranas']);
+                $sintomas = $this->desencriptarSintomas($sintomas);
             }
 
             $migranas['sintomas'] = $sintomasIterador;
@@ -133,9 +138,11 @@ class MigranasController extends AppController
 
             foreach($factoresIterador as $factores){
                 unset($factores['migranas']);
+                $factores = $this->desencriptarFactores($factores);
             }
 
             $migranas['factores'] = $factoresIterador;
+            $migranas = $this->desencriptarInforme($migranas);
             
         }
        
@@ -188,6 +195,7 @@ class MigranasController extends AppController
 
         foreach($sintomasIterador as $sintomas){
             unset($sintomas['migranas']);
+            $sintomas = $this->desencriptarSintomas($sintomas);
         }
 
         $migranas['sintomas'] = $sintomasIterador;
@@ -197,9 +205,11 @@ class MigranasController extends AppController
 
         foreach($factoresIterador as $factores){
             unset($factores['migranas']);
+            $factores = $this->desencriptarFactores($factores);
         }
 
         $migranas['factores'] = $factoresIterador;
+        $migranas = $this->desencriptarInforme($migranas);
        
         $this->response->statusCode(200);
         $this->response->type('json');
@@ -295,5 +305,31 @@ class MigranasController extends AppController
             $this->set('problema', 'Error al crear la consulta');    
             $this->set('_serialize', ['problema']); 
         } 
+    }
+
+    public function desencriptarInforme($migranas){
+        $migranas['frecuencia'] = Security::decrypt(base64_decode($migranas['frecuencia']), Security::salt());
+        $migranas['duracion'] = Security::decrypt(base64_decode($migranas['duracion']), Security::salt());
+        $migranas['horario'] = Security::decrypt(base64_decode($migranas['horario']), Security::salt());
+        $migranas['finalizacion'] = Security::decrypt(base64_decode($migranas['finalizacion']), Security::salt());
+        $migranas['tipoEpisodio'] = Security::decrypt(base64_decode($migranas['tipoEpisodio']), Security::salt());
+        $migranas['intensidad'] = Security::decrypt(base64_decode($migranas['intensidad']), Security::salt());
+        $migranas['limitaciones'] = Security::decrypt(base64_decode($migranas['limitaciones']), Security::salt());
+        $migranas['despiertoNoche'] = Security::decrypt(base64_decode($migranas['despiertoNoche']), Security::salt());
+        $migranas['estadoGeneral'] = Security::decrypt(base64_decode($migranas['estadoGeneral']), Security::salt());
+
+        return $migranas;
+    }
+
+    public function desencriptarSintomas($sintomas){
+        $sintomas['sintomas'] = Security::decrypt(base64_decode($sintomas['sintomas']), Security::salt());
+
+        return $sintomas;
+    }
+
+    public function desencriptarFactores($factores){
+        $factores['factores'] = Security::decrypt(base64_decode($factores['factores']), Security::salt());
+
+        return $factores;
     }
 }

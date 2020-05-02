@@ -5,6 +5,8 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Cake\Utility\Security;
+use Cake\Event\Event;
 
 /**
  * Migranas Model
@@ -104,5 +106,27 @@ class MigranasTable extends Table
             ->notEmptyString('estadoGeneral');
 
         return $validator;
+    }
+
+    public function beforeSave($event, $entity, $options = array()) {
+        $encrypted = Security::encrypt($entity['frecuencia'], Security::salt());
+        $entity['frecuencia'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['duracion'], Security::salt());
+        $entity['duracion'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['horario'], Security::salt());
+        $entity['horario'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['finalizacion'], Security::salt());
+        $entity['finalizacion'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['tipoEpisodio'], Security::salt());
+        $entity['tipoEpisodio'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['intensidad'], Security::salt());
+        $entity['intensidad'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['limitaciones'], Security::salt());
+        $entity['limitaciones'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['despiertoNoche'], Security::salt());
+        $entity['despiertoNoche'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['estadoGeneral'], Security::salt());
+        $entity['estadoGeneral'] = base64_encode($encrypted);
+        return true;
     }
 }
