@@ -5,6 +5,8 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Cake\Utility\Security;
+use Cake\Event\Event;
 
 /**
  * Sintomas Model
@@ -52,5 +54,11 @@ class SintomasTable extends Table
             ->allowEmptyString('sintomas', null, 'create');
 
         return $validator;
+    }
+
+    public function beforeSave($event, $entity, $options = array()) {
+        $encrypted = Security::encrypt($entity['sintomas'], Security::salt());
+        $entity['sintomas'] = base64_encode($encrypted);
+        return true;
     }
 }

@@ -6,6 +6,7 @@ use Cake\ORM\TableRegistry;
 use Cake\I18n\FrozenTime;
 use Cake\Event\Event;
 use Cake\I18n\Time;
+use Cake\Utility\Security;
 
 /**
  * Consulta Controller
@@ -38,6 +39,7 @@ class ConsultaController extends AppController
     {
         parent::initialize();
         $this->loadComponent('Csrf');
+        $this->Auth->allow(['view']);
         $this->loadComponent('Paginator');
     }
 
@@ -66,6 +68,7 @@ class ConsultaController extends AppController
             $fecha = FrozenTime::parse($consulta['fecha']);
             $consulta->fecha = $fecha;
             $consulta->fecha =  $consulta->fecha->i18nFormat('dd/MM/YYYY HH:mm');
+            $consulta = $this->desencriptarConsulta($consulta);
         }
         $json = json_encode($paginador);
         $this->response->body($json);
@@ -110,6 +113,7 @@ class ConsultaController extends AppController
             
         $consultum->fecha =  $consultum->fecha->i18nFormat('dd-MM-YYYY HH:mm');
 
+        $consultum = $this->desencriptarConsulta($consultum);
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($consultum);
@@ -172,7 +176,7 @@ class ConsultaController extends AppController
             $fecha = FrozenTime::parse($consulta['fecha']);
             $consulta->fecha = $fecha;
             $consulta->fecha =  $consulta->fecha->i18nFormat('dd/MM/YYYY HH:mm');
-
+            $consulta = $this->desencriptarConsulta($consulta);
         }
     
         $this->response->statusCode(200);
@@ -314,7 +318,7 @@ class ConsultaController extends AppController
         $this->autoRender = false;
         $data = $this->request->getData();
         
-            $fechaPrueba = FrozenTime::parse($data['fecha']);
+        $fechaPrueba = FrozenTime::parse($data['fecha']);
 
         if(!$fechaPrueba->isPast()){
 
@@ -481,21 +485,35 @@ class ConsultaController extends AppController
         $this->autoRender = false;
         $data = $this->request->getData();
         $consultum = $this->Consulta->get($data['id']);
+        if(isset($consultum['fecha'])){
+            $fecha = FrozenTime::parse($consultum['fecha']);
+            $fecha = $fecha->i18nFormat('dd/MM/YYYY HH:mm');
+        }
+        $consultum = $this->desencriptarConsulta($consultum);
         $consultum = $this->Consulta->patchEntity($consultum, $data);
+        $consultum = $this->desencriptarConsulta($consultum);
         if ($this->Consulta->save($consultum)) {
             $this->response->statusCode(200);
             $this->response->type('json');
-            $fecha = FrozenTime::parse($consultum['fecha']);
-            $consultum->fecha = $fecha->i18nFormat('dd/MM/YYYY HH:mm:ss');
+            $consultum = $this->desencriptarConsulta($consultum);
+            $consultum['fecha'] = $fecha;
             $json = json_encode($consultum);
             $this->response->body($json);
         }
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $fecha = FrozenTime::parse($consultum['fecha']);
-        $consultum->fecha = $fecha->i18nFormat('dd/MM/YYYY HH:mm:ss');
-        $json = json_encode($consultum);
-        $this->response->body($json);
+        if(empty($consultum->errors())){
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $consultum = $this->desencriptarConsulta($consultum);
+            $consultum['fecha'] = $fecha;
+            $json = json_encode($consultum);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(500);
+            $this->response->type('json');
+            $json = json_encode($consultum->errors());
+            $this->response->body($json);
+        }
+       
     }
 
     /**
@@ -537,6 +555,7 @@ class ConsultaController extends AppController
             $fecha = FrozenTime::parse($consulta['fecha']);
             $consulta->fecha = $fecha;
             $consulta->fecha =  $consulta->fecha->i18nFormat('HH:mm');
+            $consulta = $this->desencriptarConsulta($consulta);
         }
 
         $this->response->statusCode(200);
@@ -600,6 +619,7 @@ class ConsultaController extends AppController
             $fecha = FrozenTime::parse($consulta['fecha']);
             $consulta->fecha = $fecha;
             $consulta->fecha =  $consulta->fecha->i18nFormat('dd/MM/YYYY HH:mm');
+            $consulta = $this->desencriptarConsulta($consulta);
 
         }
     
@@ -668,6 +688,15 @@ class ConsultaController extends AppController
         $this->response->body($json);
     }
 
-
+    public function desencriptarConsulta($consulta){
+        $consulta['motivo'] = Security::decrypt(base64_decode($consulta['motivo']), Security::salt());
+        if($consulta['diagnostico'] != null){
+            $consulta['diagnostico'] = Security::decrypt(base64_decode($consulta['diagnostico']), Security::salt());
+        }
+        if($consulta['observaciones']){
+            $consulta['observaciones'] = Security::decrypt(base64_decode($consulta['observaciones']), Security::salt());
+        }
+        return $consulta;
+    }
     
 }

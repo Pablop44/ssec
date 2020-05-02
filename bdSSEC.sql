@@ -127,8 +127,8 @@ CREATE TABLE IF NOT EXISTS `mydb`.`consulta` (
   `lugar` VARCHAR(50) NULL,
   `motivo` VARCHAR(255) NOT NULL,
   `fecha` DATETIME NOT NULL,
-  `diagnostico` VARCHAR(511),
-  `observaciones` VARCHAR(511),
+  `diagnostico` VARCHAR(255),
+  `observaciones` VARCHAR(255),
   `medico` INT NOT NULL,
   `paciente` INT NOT NULL,
   `ficha` INT NOT NULL,
@@ -239,15 +239,15 @@ CREATE TABLE IF NOT EXISTS `mydb`.`migranas` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `fecha` DATETIME NOT NULL,
   `ficha` INT NOT NULL,
-  `frecuencia` ENUM('Diaria', 'Semanal', 'Mensual') NOT NULL,
-  `duracion` ENUM('Segundos', 'Minutos', 'Horas', 'Dias') NOT NULL,
-  `horario` ENUM('Manana', 'Mediodia', 'Tarde', 'MediaTarde', 'Noche') NOT NULL,
-  `finalizacion` ENUM('Brusca', 'Progresiva', 'Remitente') NOT NULL,
-  `tipoEpisodio` ENUM('Pulsatil', 'Tenebrante', 'Urente', 'Lancinante', 'Opresivo') NOT NULL,
-  `intensidad` ENUM('Intenso', 'Medio', 'Leve') NOT NULL,
-  `limitaciones` ENUM('Si', 'No') NOT NULL,
-  `despiertoNoche` ENUM('Si', 'No') NOT NULL,
-  `estadoGeneral` VARCHAR(256) NOT NULL,
+  `frecuencia` VARCHAR(255) NOT NULL,
+  `duracion` VARCHAR(255) NOT NULL,
+  `horario` VARCHAR(255) NOT NULL,
+  `finalizacion` VARCHAR(255) NOT NULL,
+  `tipoEpisodio` VARCHAR(255) NOT NULL,
+  `intensidad` VARCHAR(255) NOT NULL,
+  `limitaciones` VARCHAR(255) NOT NULL,
+  `despiertoNoche` VARCHAR(255) NOT NULL,
+  `estadoGeneral` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fkFicha_idx` (`ficha` ASC),
   CONSTRAINT `fkFichaMigranas`
@@ -264,8 +264,7 @@ DROP TABLE IF EXISTS `mydb`.`sintomas` ;
 
 CREATE TABLE IF NOT EXISTS `mydb`.`sintomas` (
   `migranas` INT NOT NULL,
-  `sintomas` ENUM('Nauseas_Vomitos', 'Sono_foto_osmofobia', 'Fotopsias_escotomas_hemianopsia_diplopia', 'Hemiparesia_hemidisestesia',
-   'Inestabilidad_vertigo', 'SintomasDisautonomicos', 'Afasia', 'Confusion_crisisComiciales_fiebre') NOT NULL,
+  `sintomas` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`migranas`,  `sintomas`),
   CONSTRAINT `fkMigranasSintomas`
     FOREIGN KEY (`migranas`)
@@ -281,8 +280,7 @@ DROP TABLE IF EXISTS `mydb`.`factores` ;
 
 CREATE TABLE IF NOT EXISTS `mydb`.`factores` (
   `migranas` INT NOT NULL,
-  `factores` ENUM('Estres', 'EjercicioFisico', 'FactoresHormonales', 'Dietas_alcohol',
-   'CambiosAtmosferico', 'SintomasDisautonomicos', 'CambiosPosturales', 'MovimientoCefalicos', 'ManiobrasValsalva') NOT NULL,
+  `factores` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`migranas`,  `factores`),
   CONSTRAINT `fkMigranasFactores`
     FOREIGN KEY (`migranas`)
@@ -642,23 +640,6 @@ insert into CUENTA (id, rol, estado, user) values (100, 'medico', 'autorizada', 
 
 
 INSERT INTO `ficha`(`id`, `fechaCreacion`, `paciente`, `medico`) VALUES (null,'1000-01-01 00:00:00',2,5);
-
-INSERT INTO `consulta`(`id`, `lugar`, `motivo`, `fecha`, `diagnostico`, `observaciones`, `medico`, `paciente`, `ficha`, `estado`) VALUES (null,'ourense','el paciente se encontraba mal','2020-02-24 09:00:00',null, null,5,2, 1, 'realizada');
-INSERT INTO `consulta`(`id`, `lugar`, `motivo`, `fecha`, `diagnostico`, `observaciones`, `medico`, `paciente`, `ficha`, `estado`) VALUES (null,'ourense','el paciente se encontraba mal','1000-01-01',null, null,5,2, 1, 'cancelada');
-INSERT INTO `consulta`(`id`, `lugar`, `motivo`, `fecha`, `diagnostico`, `observaciones`, `medico`, `paciente`, `ficha`, `estado`) VALUES (null,'ourense','el paciente se encontraba mal','1000-01-01',null, null,5,2, 1, 'realizada');
-INSERT INTO `consulta`(`id`, `lugar`, `motivo`, `fecha`, `diagnostico`, `observaciones`, `medico`, `paciente`, `ficha`, `estado`) VALUES (null,'ourense','el paciente se encontraba mal','1000-01-01',null, null,5,2, 1, 'en tiempo');
-INSERT INTO `consulta`(`id`, `lugar`, `motivo`, `fecha`, `diagnostico`, `observaciones`, `medico`, `paciente`, `ficha`, `estado`) VALUES (null,'ourense','el paciente se encontraba mal','1000-01-01',null, null,5,2, 1, 'aplazada');
-INSERT INTO `consulta`(`id`, `lugar`, `motivo`, `fecha`, `diagnostico`, `observaciones`, `medico`, `paciente`, `ficha`, `estado`) VALUES (null,'ourense','el paciente se encontraba mal','1000-01-01 14:00:00',null, null,5,2, 1, 'aplazada');
-INSERT INTO `consulta`(`id`, `lugar`, `motivo`, `fecha`, `diagnostico`, `observaciones`, `medico`, `paciente`, `ficha`, `estado`) VALUES (null,'ourense','el paciente se encontraba mal','1000-01-01',null, null,5,2, 1, 'realizada');
-INSERT INTO `consulta`(`id`, `lugar`, `motivo`, `fecha`, `diagnostico`, `observaciones`, `medico`, `paciente`, `ficha`, `estado`) VALUES (null,'ourense','el paciente se encontraba mal','1000-01-01',null, null,5,2, 1, 'aplazada');
-INSERT INTO `consulta`(`id`, `lugar`, `motivo`, `fecha`, `diagnostico`, `observaciones`, `medico`, `paciente`, `ficha`, `estado`) VALUES (null,'ourense','el paciente se encontraba mal','1000-01-01',null, null,5,2, 1, 'realizada');
-INSERT INTO `consulta`(`id`, `lugar`, `motivo`, `fecha`, `diagnostico`, `observaciones`, `medico`, `paciente`, `ficha`, `estado`) VALUES (null,'ourense','el paciente se encontraba mal','1000-01-01',null, null,5,2, 1, 'en tiempo');
-INSERT INTO `consulta`(`id`, `lugar`, `motivo`, `fecha`, `diagnostico`, `observaciones`, `medico`, `paciente`, `ficha`, `estado`) VALUES (null,'ourense','el paciente se encontraba mal','1000-01-01',null, null,5,2, 1, 'realizada');
-INSERT INTO `consulta`(`id`, `lugar`, `motivo`, `fecha`, `diagnostico`, `observaciones`, `medico`, `paciente`, `ficha`, `estado`) VALUES (null,'ourense','el paciente se encontraba mal','1000-01-01',null, null,5,2, 1, 'cancelada');
-INSERT INTO `consulta`(`id`, `lugar`, `motivo`, `fecha`, `diagnostico`, `observaciones`, `medico`, `paciente`, `ficha`, `estado`) VALUES (null,'ourense','el paciente se encontraba mal','1000-01-01',null, null,5,2, 1, 'en tiempo');
-INSERT INTO `consulta`(`id`, `lugar`, `motivo`, `fecha`, `diagnostico`, `observaciones`, `medico`, `paciente`, `ficha`, `estado`) VALUES (null,'ourense','el paciente se encontraba mal','1000-01-01',null, null,5,2, 1, 'realizada');
-INSERT INTO `consulta`(`id`, `lugar`, `motivo`, `fecha`, `diagnostico`, `observaciones`, `medico`, `paciente`, `ficha`, `estado`) VALUES (null,'ourense','el paciente se encontraba mal','1000-01-01',null, null,5,2, 1, 'cancelada');
-INSERT INTO `consulta`(`id`, `lugar`, `motivo`, `fecha`, `diagnostico`, `observaciones`, `medico`, `paciente`, `ficha`, `estado`) VALUES (null,'ourense','el paciente se encontraba mal','1000-01-01',null, null,5,2, 1, 'aplazada');
 
 INSERT INTO `enfermedad`(`nombre`) VALUES ('diabetes');
 INSERT INTO `enfermedad`(`nombre`) VALUES ('asma');
@@ -1060,392 +1041,6 @@ insert into tratamiento_medicamento (id, medicamento, tratamiento) values (98, '
 insert into tratamiento_medicamento (id, medicamento, tratamiento) values (99, 'methylprednisolone acetate', 91);
 insert into tratamiento_medicamento (id, medicamento, tratamiento) values (100, 'Glyburide and Metformin', 9);
 
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (1, '2020-03-13 03:37:42', 15, 'Diaria', 'Dias', 'Media Tarde', 'Remitente', 'Tenebrante', 'Leve', 'Si', 'Si', 'Aenean fermentum. Donec ut mauris eget massa tempor convallis. Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh. Quisque id justo sit amet sapien dignissim vestibulum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nulla dapibus dolor vel est. Donec odio justo, sollicitudin ut, suscipit a, feugiat et, eros. Vestibulum ac est lacinia nisi venenatis tristique.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (2, '2020-01-13 02:41:15', 9, 'Semanal', 'Segundos', 'Tarde', 'Brusca', 'Urente', 'Leve', 'Si', 'Si', 'Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis. Fusce posuere felis sed lacus. Morbi sem mauris, laoreet ut, rhoncus aliquet, pulvinar sed, nisl. Nunc rhoncus dui vel sem. Sed sagittis. Nam congue, risus semper porta volutpat, quam pede lobortis ligula, sit amet eleifend pede libero quis orci. Nullam molestie nibh in lectus.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (3, '2020-03-02 05:09:26', 2, 'Mensual', 'Dias', 'Mediodia', 'Progresiva', 'Pulsatil', 'Intenso', 'No', 'No', 'Cras pellentesque volutpat dui. Maecenas tristique, est et tempus semper, est quam pharetra magna, ac consequat metus sapien ut nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris viverra diam vitae quam. Suspendisse potenti. Nullam porttitor lacus at turpis. Donec posuere metus vitae ipsum. Aliquam non mauris. Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (4, '2019-10-13 19:33:07', 9, 'Diaria', 'Segundos', 'Noche', 'Brusca', 'Pulsatil', 'Intenso', 'Si', 'Si', 'Nullam varius.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (5, '2019-11-21 13:28:15', 2, 'Diaria', 'Dias', 'Tarde', 'Brusca', 'Pulsatil', 'Leve', 'Si', 'No', 'In congue. Etiam justo.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (6, '2020-03-14 08:26:13', 13, 'Diaria', 'Dias', 'Noche', 'Remitente', 'Urente', 'Leve', 'No', 'No', 'Nulla suscipit ligula in lacus. Curabitur at ipsum ac tellus semper interdum. Mauris ullamcorper purus sit amet nulla. Quisque arcu libero, rutrum ac, lobortis vel, dapibus at, diam.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (7, '2019-07-20 10:59:30', 11, 'Mensual', 'Horas', 'Media Tarde', 'Brusca', 'Opresivo', 'Leve', 'No', 'No', 'Duis consequat dui nec nisi volutpat eleifend. Donec ut dolor. Morbi vel lectus in quam fringilla rhoncus. Mauris enim leo, rhoncus sed, vestibulum sit amet, cursus id, turpis. Integer aliquet, massa id lobortis convallis, tortor risus dapibus augue, vel accumsan tellus nisi eu orci. Mauris lacinia sapien quis libero. Nullam sit amet turpis elementum ligula vehicula consequat. Morbi a ipsum. Integer a nibh. In quis justo.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (8, '2019-04-25 22:24:05', 14, 'Semanal', 'Segundos', 'Media Tarde', 'Progresiva', 'Opresivo', 'Medio', 'No', 'No', 'Pellentesque eget nunc. Donec quis orci eget orci vehicula condimentum. Curabitur in libero ut massa volutpat convallis. Morbi odio odio, elementum eu, interdum eu, tincidunt in, leo. Maecenas pulvinar lobortis est. Phasellus sit amet erat. Nulla tempus. Vivamus in felis eu sapien cursus vestibulum.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (9, '2019-05-11 00:55:02', 13, 'Mensual', 'Horas', 'Noche', 'Progresiva', 'Opresivo', 'Leve', 'Si', 'Si', 'Morbi sem mauris, laoreet ut, rhoncus aliquet, pulvinar sed, nisl. Nunc rhoncus dui vel sem. Sed sagittis. Nam congue, risus semper porta volutpat, quam pede lobortis ligula, sit amet eleifend pede libero quis orci. Nullam molestie nibh in lectus. Pellentesque at nulla. Suspendisse potenti.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (10, '2019-04-18 18:58:14', 23, 'Diaria', 'Dias', 'Mediodia', 'Progresiva', 'Tenebrante', 'Medio', 'No', 'Si', 'Nullam varius. Nulla facilisi. Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit. Vivamus vel nulla eget eros elementum pellentesque. Quisque porta volutpat erat. Quisque erat eros, viverra eget, congue eget, semper rutrum, nulla. Nunc purus. Phasellus in felis. Donec semper sapien a libero.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (11, '2019-05-23 07:51:58', 16, 'Diaria', 'Minutos', 'Noche', 'Progresiva', 'Tenebrante', 'Leve', 'Si', 'Si', 'Nullam sit amet turpis elementum ligula vehicula consequat. Morbi a ipsum. Integer a nibh.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (12, '2019-10-27 06:53:32', 17, 'Semanal', 'Segundos', 'Manana', 'Brusca', 'Pulsatil', 'Intenso', 'No', 'Si', 'Aliquam non mauris. Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet. Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (13, '2019-06-14 12:13:05', 1, 'Diaria', 'Horas', 'Noche', 'Progresiva', 'Opresivo', 'Leve', 'Si', 'No', 'Morbi odio odio, elementum eu, interdum eu, tincidunt in, leo. Maecenas pulvinar lobortis est. Phasellus sit amet erat. Nulla tempus. Vivamus in felis eu sapien cursus vestibulum. Proin eu mi. Nulla ac enim.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (14, '2019-08-30 21:34:15', 3, 'Mensual', 'Minutos', 'Manana', 'Remitente', 'Opresivo', 'Intenso', 'No', 'No', 'Phasellus sit amet erat. Nulla tempus. Vivamus in felis eu sapien cursus vestibulum. Proin eu mi. Nulla ac enim. In tempor, turpis nec euismod scelerisque, quam turpis adipiscing lorem, vitae mattis nibh ligula nec sem. Duis aliquam convallis nunc. Proin at turpis a pede posuere nonummy. Integer non velit.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (15, '2019-12-13 18:39:51', 9, 'Semanal', 'Minutos', 'Tarde', 'Brusca', 'Opresivo', 'Leve', 'Si', 'No', 'Morbi quis tortor id nulla ultrices aliquet.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (16, '2019-05-13 20:29:44', 16, 'Diaria', 'Segundos', 'Manana', 'Remitente', 'Tenebrante', 'Medio', 'No', 'No', 'Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (17, '2019-12-27 06:11:39', 12, 'Diaria', 'Minutos', 'Media Tarde', 'Progresiva', 'Lancinante', 'Medio', 'Si', 'No', 'Morbi odio odio, elementum eu, interdum eu, tincidunt in, leo. Maecenas pulvinar lobortis est. Phasellus sit amet erat. Nulla tempus. Vivamus in felis eu sapien cursus vestibulum. Proin eu mi. Nulla ac enim.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (18, '2019-07-01 14:24:15', 5, 'Diaria', 'Dias', 'Media Tarde', 'Brusca', 'Pulsatil', 'Intenso', 'Si', 'No', 'Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (19, '2019-12-16 10:43:40', 19, 'Semanal', 'Segundos', 'Mediodia', 'Progresiva', 'Urente', 'Medio', 'No', 'Si', 'Proin interdum mauris non ligula pellentesque ultrices. Phasellus id sapien in sapien iaculis congue. Vivamus metus arcu, adipiscing molestie, hendrerit at, vulputate vitae, nisl. Aenean lectus. Pellentesque eget nunc. Donec quis orci eget orci vehicula condimentum. Curabitur in libero ut massa volutpat convallis. Morbi odio odio, elementum eu, interdum eu, tincidunt in, leo.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (20, '2020-01-05 07:08:29', 12, 'Mensual', 'Horas', 'Mediodia', 'Remitente', 'Tenebrante', 'Intenso', 'Si', 'Si', 'Ut tellus. Nulla ut erat id mauris vulputate elementum. Nullam varius. Nulla facilisi. Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit. Vivamus vel nulla eget eros elementum pellentesque.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (21, '2020-01-17 01:02:50', 3, 'Diaria', 'Segundos', 'Manana', 'Brusca', 'Urente', 'Leve', 'No', 'No', 'Pellentesque viverra pede ac diam. Cras pellentesque volutpat dui. Maecenas tristique, est et tempus semper, est quam pharetra magna, ac consequat metus sapien ut nunc.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (22, '2020-03-01 00:58:52', 14, 'Diaria', 'Segundos', 'Noche', 'Remitente', 'Opresivo', 'Leve', 'Si', 'Si', 'Donec odio justo, sollicitudin ut, suscipit a, feugiat et, eros. Vestibulum ac est lacinia nisi venenatis tristique. Fusce congue, diam id ornare imperdiet, sapien urna pretium nisl, ut volutpat sapien arcu sed augue. Aliquam erat volutpat. In congue. Etiam justo. Etiam pretium iaculis justo. In hac habitasse platea dictumst. Etiam faucibus cursus urna. Ut tellus.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (23, '2019-07-17 03:54:43', 7, 'Mensual', 'Dias', 'Mediodia', 'Remitente', 'Urente', 'Medio', 'No', 'No', 'Duis at velit eu est congue elementum.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (24, '2020-03-20 02:35:51', 22, 'Mensual', 'Minutos', 'Manana', 'Remitente', 'Tenebrante', 'Intenso', 'Si', 'No', 'Aenean auctor gravida sem. Praesent id massa id nisl venenatis lacinia. Aenean sit amet justo. Morbi ut odio. Cras mi pede, malesuada in, imperdiet et, commodo vulputate, justo. In blandit ultrices enim. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin interdum mauris non ligula pellentesque ultrices.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (25, '2019-11-08 06:14:28', 9, 'Mensual', 'Dias', 'Media Tarde', 'Progresiva', 'Urente', 'Medio', 'No', 'No', 'Duis bibendum, felis sed interdum venenatis, turpis enim blandit mi, in porttitor pede justo eu massa. Donec dapibus. Duis at velit eu est congue elementum. In hac habitasse platea dictumst. Morbi vestibulum, velit id pretium iaculis, diam erat fermentum justo, nec condimentum neque sapien placerat ante. Nulla justo.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (26, '2019-08-22 10:36:46', 20, 'Semanal', 'Horas', 'Tarde', 'Brusca', 'Tenebrante', 'Medio', 'Si', 'Si', 'Vestibulum ac est lacinia nisi venenatis tristique. Fusce congue, diam id ornare imperdiet, sapien urna pretium nisl, ut volutpat sapien arcu sed augue.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (27, '2020-03-12 19:13:11', 16, 'Semanal', 'Minutos', 'Noche', 'Progresiva', 'Opresivo', 'Medio', 'Si', 'No', 'Curabitur at ipsum ac tellus semper interdum. Mauris ullamcorper purus sit amet nulla. Quisque arcu libero, rutrum ac, lobortis vel, dapibus at, diam.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (28, '2019-10-10 11:14:24', 13, 'Diaria', 'Horas', 'Media Tarde', 'Remitente', 'Urente', 'Leve', 'Si', 'No', 'Vivamus vel nulla eget eros elementum pellentesque. Quisque porta volutpat erat. Quisque erat eros, viverra eget, congue eget, semper rutrum, nulla. Nunc purus. Phasellus in felis. Donec semper sapien a libero.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (29, '2019-10-03 18:09:30', 19, 'Mensual', 'Horas', 'Noche', 'Brusca', 'Lancinante', 'Intenso', 'Si', 'No', 'Nam congue, risus semper porta volutpat, quam pede lobortis ligula, sit amet eleifend pede libero quis orci. Nullam molestie nibh in lectus. Pellentesque at nulla.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (30, '2019-07-30 05:07:45', 15, 'Semanal', 'Dias', 'Media Tarde', 'Brusca', 'Urente', 'Leve', 'No', 'Si', 'Cras pellentesque volutpat dui. Maecenas tristique, est et tempus semper, est quam pharetra magna, ac consequat metus sapien ut nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris viverra diam vitae quam. Suspendisse potenti. Nullam porttitor lacus at turpis. Donec posuere metus vitae ipsum. Aliquam non mauris. Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet. Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (31, '2019-07-14 15:06:58', 11, 'Mensual', 'Horas', 'Manana', 'Progresiva', 'Urente', 'Medio', 'Si', 'Si', 'Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris viverra diam vitae quam. Suspendisse potenti. Nullam porttitor lacus at turpis. Donec posuere metus vitae ipsum. Aliquam non mauris. Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet. Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis. Fusce posuere felis sed lacus. Morbi sem mauris, laoreet ut, rhoncus aliquet, pulvinar sed, nisl.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (32, '2020-01-30 18:44:01', 22, 'Mensual', 'Minutos', 'Media Tarde', 'Progresiva', 'Urente', 'Leve', 'Si', 'Si', 'Donec vitae nisi. Nam ultrices, libero non mattis pulvinar, nulla pede ullamcorper augue, a suscipit nulla elit ac nulla. Sed vel enim sit amet nunc viverra dapibus.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (33, '2019-05-22 01:39:14', 15, 'Diaria', 'Dias', 'Media Tarde', 'Progresiva', 'Tenebrante', 'Leve', 'No', 'No', 'Suspendisse potenti. Cras in purus eu magna vulputate luctus.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (34, '2019-12-11 04:09:05', 4, 'Mensual', 'Minutos', 'Manana', 'Remitente', 'Pulsatil', 'Intenso', 'Si', 'No', 'Praesent blandit. Nam nulla.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (35, '2019-11-09 16:35:01', 19, 'Mensual', 'Horas', 'Manana', 'Progresiva', 'Pulsatil', 'Medio', 'No', 'No', 'Fusce posuere felis sed lacus. Morbi sem mauris, laoreet ut, rhoncus aliquet, pulvinar sed, nisl. Nunc rhoncus dui vel sem.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (36, '2019-08-18 23:17:16', 5, 'Diaria', 'Segundos', 'Tarde', 'Brusca', 'Tenebrante', 'Medio', 'Si', 'No', 'Proin at turpis a pede posuere nonummy. Integer non velit. Donec diam neque, vestibulum eget, vulputate ut, ultrices vel, augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (37, '2019-04-16 09:37:07', 15, 'Mensual', 'Minutos', 'Media Tarde', 'Remitente', 'Opresivo', 'Medio', 'No', 'Si', 'Nulla suscipit ligula in lacus. Curabitur at ipsum ac tellus semper interdum.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (38, '2020-03-08 02:38:12', 21, 'Diaria', 'Dias', 'Manana', 'Remitente', 'Tenebrante', 'Intenso', 'Si', 'Si', 'Fusce consequat. Nulla nisl. Nunc nisl. Duis bibendum, felis sed interdum venenatis, turpis enim blandit mi, in porttitor pede justo eu massa.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (39, '2019-06-25 02:55:06', 19, 'Semanal', 'Segundos', 'Media Tarde', 'Brusca', 'Lancinante', 'Intenso', 'No', 'Si', 'Etiam justo. Etiam pretium iaculis justo. In hac habitasse platea dictumst. Etiam faucibus cursus urna. Ut tellus. Nulla ut erat id mauris vulputate elementum.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (40, '2019-09-28 15:53:49', 5, 'Mensual', 'Segundos', 'Mediodia', 'Brusca', 'Opresivo', 'Intenso', 'Si', 'Si', 'Maecenas pulvinar lobortis est. Phasellus sit amet erat. Nulla tempus. Vivamus in felis eu sapien cursus vestibulum. Proin eu mi. Nulla ac enim. In tempor, turpis nec euismod scelerisque, quam turpis adipiscing lorem, vitae mattis nibh ligula nec sem. Duis aliquam convallis nunc. Proin at turpis a pede posuere nonummy. Integer non velit.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (41, '2019-09-22 01:07:35', 5, 'Mensual', 'Minutos', 'Manana', 'Progresiva', 'Pulsatil', 'Medio', 'No', 'Si', 'Duis bibendum, felis sed interdum venenatis, turpis enim blandit mi, in porttitor pede justo eu massa. Donec dapibus. Duis at velit eu est congue elementum. In hac habitasse platea dictumst. Morbi vestibulum, velit id pretium iaculis, diam erat fermentum justo, nec condimentum neque sapien placerat ante. Nulla justo. Aliquam quis turpis eget elit sodales scelerisque. Mauris sit amet eros.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (42, '2019-12-06 19:04:47', 12, 'Diaria', 'Horas', 'Tarde', 'Brusca', 'Tenebrante', 'Medio', 'No', 'Si', 'Nulla facilisi. Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit. Vivamus vel nulla eget eros elementum pellentesque. Quisque porta volutpat erat. Quisque erat eros, viverra eget, congue eget, semper rutrum, nulla. Nunc purus.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (43, '2020-02-18 22:08:11', 16, 'Mensual', 'Segundos', 'Manana', 'Remitente', 'Opresivo', 'Medio', 'Si', 'Si', 'Nunc rhoncus dui vel sem. Sed sagittis. Nam congue, risus semper porta volutpat, quam pede lobortis ligula, sit amet eleifend pede libero quis orci. Nullam molestie nibh in lectus. Pellentesque at nulla. Suspendisse potenti. Cras in purus eu magna vulputate luctus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus vestibulum sagittis sapien. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (44, '2019-05-05 14:09:21', 15, 'Diaria', 'Horas', 'Mediodia', 'Remitente', 'Opresivo', 'Medio', 'No', 'Si', 'Aliquam non mauris. Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet. Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (45, '2020-03-17 18:47:24', 22, 'Mensual', 'Dias', 'Media Tarde', 'Brusca', 'Pulsatil', 'Medio', 'Si', 'Si', 'Nullam sit amet turpis elementum ligula vehicula consequat. Morbi a ipsum. Integer a nibh.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (46, '2019-07-23 12:36:46', 15, 'Semanal', 'Horas', 'Media Tarde', 'Progresiva', 'Lancinante', 'Intenso', 'Si', 'No', 'Morbi a ipsum.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (47, '2019-07-04 04:00:18', 20, 'Semanal', 'Horas', 'Manana', 'Progresiva', 'Urente', 'Medio', 'Si', 'Si', 'Morbi ut odio. Cras mi pede, malesuada in, imperdiet et, commodo vulputate, justo. In blandit ultrices enim. Lorem ipsum dolor sit amet, consectetuer adipiscing elit.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (48, '2019-11-25 06:36:19', 6, 'Semanal', 'Horas', 'Manana', 'Remitente', 'Urente', 'Intenso', 'No', 'Si', 'Nullam varius. Nulla facilisi. Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit. Vivamus vel nulla eget eros elementum pellentesque. Quisque porta volutpat erat.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (49, '2020-01-19 08:53:09', 16, 'Diaria', 'Dias', 'Mediodia', 'Brusca', 'Opresivo', 'Intenso', 'No', 'No', 'Ut at dolor quis odio consequat varius. Integer ac leo. Pellentesque ultrices mattis odio. Donec vitae nisi.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (50, '2019-10-05 01:01:48', 12, 'Mensual', 'Dias', 'Mediodia', 'Brusca', 'Tenebrante', 'Leve', 'No', 'No', 'Curabitur convallis. Duis consequat dui nec nisi volutpat eleifend. Donec ut dolor. Morbi vel lectus in quam fringilla rhoncus. Mauris enim leo, rhoncus sed, vestibulum sit amet, cursus id, turpis. Integer aliquet, massa id lobortis convallis, tortor risus dapibus augue, vel accumsan tellus nisi eu orci. Mauris lacinia sapien quis libero.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (51, '2019-10-20 00:25:34', 21, 'Mensual', 'Segundos', 'Tarde', 'Remitente', 'Lancinante', 'Leve', 'Si', 'Si', 'Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis. Fusce posuere felis sed lacus. Morbi sem mauris, laoreet ut, rhoncus aliquet, pulvinar sed, nisl. Nunc rhoncus dui vel sem.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (52, '2019-09-07 22:38:49', 10, 'Semanal', 'Segundos', 'Manana', 'Brusca', 'Tenebrante', 'Leve', 'Si', 'No', 'Nullam sit amet turpis elementum ligula vehicula consequat. Morbi a ipsum. Integer a nibh. In quis justo. Maecenas rhoncus aliquam lacus. Morbi quis tortor id nulla ultrices aliquet. Maecenas leo odio, condimentum id, luctus nec, molestie sed, justo. Pellentesque viverra pede ac diam. Cras pellentesque volutpat dui. Maecenas tristique, est et tempus semper, est quam pharetra magna, ac consequat metus sapien ut nunc.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (53, '2019-07-01 10:56:57', 21, 'Semanal', 'Horas', 'Manana', 'Progresiva', 'Opresivo', 'Intenso', 'No', 'No', 'Nullam varius.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (54, '2019-08-24 12:05:49', 6, 'Diaria', 'Dias', 'Noche', 'Brusca', 'Urente', 'Medio', 'No', 'No', 'Aliquam non mauris. Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet. Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (55, '2019-12-26 13:39:37', 23, 'Diaria', 'Minutos', 'Media Tarde', 'Brusca', 'Tenebrante', 'Medio', 'No', 'No', 'Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (56, '2020-01-10 03:28:01', 1, 'Semanal', 'Minutos', 'Tarde', 'Remitente', 'Tenebrante', 'Medio', 'No', 'Si', 'Pellentesque at nulla.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (57, '2019-06-29 21:20:04', 21, 'Mensual', 'Horas', 'Tarde', 'Progresiva', 'Lancinante', 'Medio', 'Si', 'No', 'Nulla ut erat id mauris vulputate elementum. Nullam varius. Nulla facilisi. Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (58, '2020-02-21 00:01:59', 19, 'Semanal', 'Dias', 'Manana', 'Remitente', 'Urente', 'Intenso', 'No', 'No', 'Quisque erat eros, viverra eget, congue eget, semper rutrum, nulla. Nunc purus. Phasellus in felis. Donec semper sapien a libero.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (59, '2019-10-08 01:35:30', 2, 'Semanal', 'Horas', 'Manana', 'Brusca', 'Lancinante', 'Intenso', 'No', 'Si', 'Vivamus vestibulum sagittis sapien. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam vel augue.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (60, '2019-10-29 07:12:54', 6, 'Diaria', 'Dias', 'Media Tarde', 'Remitente', 'Lancinante', 'Intenso', 'Si', 'No', 'In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem. Quisque ut erat. Curabitur gravida nisi at nibh. In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (61, '2020-01-01 23:55:18', 20, 'Diaria', 'Dias', 'Manana', 'Progresiva', 'Opresivo', 'Intenso', 'Si', 'No', 'Aliquam sit amet diam in magna bibendum imperdiet. Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis. Fusce posuere felis sed lacus.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (62, '2019-06-09 03:04:49', 6, 'Diaria', 'Segundos', 'Tarde', 'Brusca', 'Opresivo', 'Leve', 'No', 'Si', 'Proin eu mi. Nulla ac enim. In tempor, turpis nec euismod scelerisque, quam turpis adipiscing lorem, vitae mattis nibh ligula nec sem.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (63, '2020-01-25 08:35:53', 21, 'Mensual', 'Segundos', 'Mediodia', 'Brusca', 'Opresivo', 'Medio', 'Si', 'Si', 'Morbi vestibulum, velit id pretium iaculis, diam erat fermentum justo, nec condimentum neque sapien placerat ante. Nulla justo. Aliquam quis turpis eget elit sodales scelerisque. Mauris sit amet eros. Suspendisse accumsan tortor quis turpis. Sed ante. Vivamus tortor. Duis mattis egestas metus. Aenean fermentum.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (64, '2019-06-26 13:30:21', 10, 'Diaria', 'Dias', 'Mediodia', 'Progresiva', 'Urente', 'Leve', 'No', 'No', 'Morbi vestibulum, velit id pretium iaculis, diam erat fermentum justo, nec condimentum neque sapien placerat ante. Nulla justo. Aliquam quis turpis eget elit sodales scelerisque. Mauris sit amet eros. Suspendisse accumsan tortor quis turpis. Sed ante. Vivamus tortor. Duis mattis egestas metus.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (65, '2020-03-14 13:55:20', 6, 'Mensual', 'Dias', 'Noche', 'Progresiva', 'Opresivo', 'Leve', 'Si', 'Si', 'Aliquam non mauris. Morbi non lectus.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (66, '2019-04-26 09:27:11', 3, 'Semanal', 'Segundos', 'Manana', 'Progresiva', 'Pulsatil', 'Medio', 'No', 'Si', 'Vestibulum rutrum rutrum neque.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (67, '2019-04-14 10:14:30', 17, 'Semanal', 'Minutos', 'Mediodia', 'Progresiva', 'Tenebrante', 'Intenso', 'No', 'No', 'Donec diam neque, vestibulum eget, vulputate ut, ultrices vel, augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (68, '2019-09-18 20:27:51', 5, 'Mensual', 'Dias', 'Media Tarde', 'Progresiva', 'Opresivo', 'Medio', 'No', 'Si', 'Quisque erat eros, viverra eget, congue eget, semper rutrum, nulla. Nunc purus. Phasellus in felis. Donec semper sapien a libero. Nam dui.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (69, '2019-12-19 00:49:59', 6, 'Diaria', 'Horas', 'Mediodia', 'Progresiva', 'Lancinante', 'Intenso', 'Si', 'No', 'Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (70, '2019-04-10 20:44:51', 8, 'Mensual', 'Minutos', 'Mediodia', 'Remitente', 'Urente', 'Medio', 'Si', 'No', 'Proin interdum mauris non ligula pellentesque ultrices. Phasellus id sapien in sapien iaculis congue. Vivamus metus arcu, adipiscing molestie, hendrerit at, vulputate vitae, nisl.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (71, '2019-10-20 16:14:45', 21, 'Mensual', 'Dias', 'Mediodia', 'Brusca', 'Urente', 'Medio', 'Si', 'No', 'Cras in purus eu magna vulputate luctus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus vestibulum sagittis sapien. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam vel augue. Vestibulum rutrum rutrum neque. Aenean auctor gravida sem. Praesent id massa id nisl venenatis lacinia. Aenean sit amet justo.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (72, '2019-06-05 05:46:53', 22, 'Mensual', 'Horas', 'Manana', 'Brusca', 'Tenebrante', 'Intenso', 'Si', 'Si', 'Morbi sem mauris, laoreet ut, rhoncus aliquet, pulvinar sed, nisl. Nunc rhoncus dui vel sem. Sed sagittis. Nam congue, risus semper porta volutpat, quam pede lobortis ligula, sit amet eleifend pede libero quis orci. Nullam molestie nibh in lectus. Pellentesque at nulla. Suspendisse potenti. Cras in purus eu magna vulputate luctus.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (73, '2019-12-15 19:24:26', 18, 'Semanal', 'Dias', 'Noche', 'Progresiva', 'Pulsatil', 'Intenso', 'No', 'No', 'Aliquam quis turpis eget elit sodales scelerisque. Mauris sit amet eros. Suspendisse accumsan tortor quis turpis. Sed ante. Vivamus tortor. Duis mattis egestas metus. Aenean fermentum. Donec ut mauris eget massa tempor convallis. Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (74, '2019-04-10 09:12:44', 14, 'Semanal', 'Segundos', 'Media Tarde', 'Brusca', 'Urente', 'Leve', 'Si', 'No', 'Duis consequat dui nec nisi volutpat eleifend. Donec ut dolor. Morbi vel lectus in quam fringilla rhoncus. Mauris enim leo, rhoncus sed, vestibulum sit amet, cursus id, turpis.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (75, '2019-08-11 09:50:34', 11, 'Diaria', 'Minutos', 'Manana', 'Remitente', 'Urente', 'Medio', 'Si', 'Si', 'Morbi ut odio. Cras mi pede, malesuada in, imperdiet et, commodo vulputate, justo. In blandit ultrices enim.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (76, '2019-08-26 16:20:24', 13, 'Diaria', 'Horas', 'Mediodia', 'Brusca', 'Tenebrante', 'Medio', 'No', 'Si', 'In hac habitasse platea dictumst.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (77, '2020-01-07 00:15:08', 14, 'Diaria', 'Segundos', 'Media Tarde', 'Remitente', 'Lancinante', 'Intenso', 'No', 'No', 'Maecenas leo odio, condimentum id, luctus nec, molestie sed, justo. Pellentesque viverra pede ac diam. Cras pellentesque volutpat dui. Maecenas tristique, est et tempus semper, est quam pharetra magna, ac consequat metus sapien ut nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris viverra diam vitae quam. Suspendisse potenti.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (78, '2020-03-01 22:18:19', 2, 'Diaria', 'Dias', 'Media Tarde', 'Brusca', 'Tenebrante', 'Medio', 'No', 'Si', 'Morbi vel lectus in quam fringilla rhoncus. Mauris enim leo, rhoncus sed, vestibulum sit amet, cursus id, turpis. Integer aliquet, massa id lobortis convallis, tortor risus dapibus augue, vel accumsan tellus nisi eu orci. Mauris lacinia sapien quis libero. Nullam sit amet turpis elementum ligula vehicula consequat.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (79, '2019-04-24 07:15:34', 17, 'Semanal', 'Minutos', 'Manana', 'Brusca', 'Pulsatil', 'Intenso', 'No', 'Si', 'Proin eu mi. Nulla ac enim. In tempor, turpis nec euismod scelerisque, quam turpis adipiscing lorem, vitae mattis nibh ligula nec sem. Duis aliquam convallis nunc. Proin at turpis a pede posuere nonummy. Integer non velit.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (80, '2019-04-18 21:10:29', 21, 'Diaria', 'Horas', 'Media Tarde', 'Brusca', 'Opresivo', 'Leve', 'Si', 'No', 'Praesent lectus. Vestibulum quam sapien, varius ut, blandit non, interdum in, ante. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Duis faucibus accumsan odio.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (81, '2019-09-17 12:15:13', 3, 'Mensual', 'Minutos', 'Tarde', 'Progresiva', 'Opresivo', 'Intenso', 'No', 'No', 'Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem. Fusce consequat.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (82, '2019-10-01 20:09:49', 1, 'Semanal', 'Minutos', 'Tarde', 'Remitente', 'Pulsatil', 'Leve', 'Si', 'No', 'Nullam varius. Nulla facilisi.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (83, '2019-10-28 18:34:39', 4, 'Diaria', 'Dias', 'Tarde', 'Brusca', 'Opresivo', 'Leve', 'Si', 'Si', 'Morbi quis tortor id nulla ultrices aliquet. Maecenas leo odio, condimentum id, luctus nec, molestie sed, justo. Pellentesque viverra pede ac diam. Cras pellentesque volutpat dui. Maecenas tristique, est et tempus semper, est quam pharetra magna, ac consequat metus sapien ut nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris viverra diam vitae quam. Suspendisse potenti. Nullam porttitor lacus at turpis. Donec posuere metus vitae ipsum.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (84, '2019-12-03 12:45:01', 18, 'Semanal', 'Minutos', 'Mediodia', 'Remitente', 'Lancinante', 'Intenso', 'No', 'Si', 'Aliquam erat volutpat. In congue. Etiam justo. Etiam pretium iaculis justo. In hac habitasse platea dictumst. Etiam faucibus cursus urna. Ut tellus. Nulla ut erat id mauris vulputate elementum.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (85, '2019-08-29 14:20:03', 10, 'Semanal', 'Segundos', 'Manana', 'Brusca', 'Tenebrante', 'Medio', 'Si', 'No', 'Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (86, '2019-04-15 04:16:13', 4, 'Diaria', 'Horas', 'Noche', 'Progresiva', 'Opresivo', 'Leve', 'No', 'No', 'Mauris enim leo, rhoncus sed, vestibulum sit amet, cursus id, turpis. Integer aliquet, massa id lobortis convallis, tortor risus dapibus augue, vel accumsan tellus nisi eu orci. Mauris lacinia sapien quis libero. Nullam sit amet turpis elementum ligula vehicula consequat. Morbi a ipsum. Integer a nibh. In quis justo. Maecenas rhoncus aliquam lacus.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (87, '2019-04-09 03:36:30', 10, 'Semanal', 'Horas', 'Manana', 'Progresiva', 'Pulsatil', 'Leve', 'Si', 'Si', 'Integer aliquet, massa id lobortis convallis, tortor risus dapibus augue, vel accumsan tellus nisi eu orci. Mauris lacinia sapien quis libero. Nullam sit amet turpis elementum ligula vehicula consequat. Morbi a ipsum. Integer a nibh. In quis justo. Maecenas rhoncus aliquam lacus. Morbi quis tortor id nulla ultrices aliquet. Maecenas leo odio, condimentum id, luctus nec, molestie sed, justo. Pellentesque viverra pede ac diam.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (88, '2020-02-26 20:50:56', 13, 'Mensual', 'Horas', 'Manana', 'Progresiva', 'Tenebrante', 'Leve', 'Si', 'Si', 'Maecenas pulvinar lobortis est. Phasellus sit amet erat. Nulla tempus. Vivamus in felis eu sapien cursus vestibulum. Proin eu mi. Nulla ac enim. In tempor, turpis nec euismod scelerisque, quam turpis adipiscing lorem, vitae mattis nibh ligula nec sem.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (89, '2019-05-18 00:40:59', 5, 'Mensual', 'Dias', 'Noche', 'Remitente', 'Opresivo', 'Medio', 'No', 'No', 'Vestibulum quam sapien, varius ut, blandit non, interdum in, ante. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Duis faucibus accumsan odio. Curabitur convallis. Duis consequat dui nec nisi volutpat eleifend. Donec ut dolor. Morbi vel lectus in quam fringilla rhoncus. Mauris enim leo, rhoncus sed, vestibulum sit amet, cursus id, turpis. Integer aliquet, massa id lobortis convallis, tortor risus dapibus augue, vel accumsan tellus nisi eu orci. Mauris lacinia sapien quis libero. Nullam sit amet turpis elementum ligula vehicula consequat.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (90, '2019-07-01 05:58:07', 23, 'Mensual', 'Dias', 'Media Tarde', 'Remitente', 'Urente', 'Medio', 'No', 'Si', 'Integer non velit. Donec diam neque, vestibulum eget, vulputate ut, ultrices vel, augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (91, '2020-01-03 18:11:39', 17, 'Diaria', 'Dias', 'Tarde', 'Progresiva', 'Opresivo', 'Intenso', 'Si', 'Si', 'Aliquam erat volutpat. In congue.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (92, '2020-02-22 02:27:39', 4, 'Mensual', 'Minutos', 'Tarde', 'Brusca', 'Lancinante', 'Medio', 'No', 'No', 'Cras mi pede, malesuada in, imperdiet et, commodo vulputate, justo. In blandit ultrices enim. Lorem ipsum dolor sit amet, consectetuer adipiscing elit.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (93, '2019-06-29 18:44:15', 14, 'Mensual', 'Segundos', 'Mediodia', 'Progresiva', 'Lancinante', 'Leve', 'Si', 'No', 'Cras in purus eu magna vulputate luctus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus vestibulum sagittis sapien. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam vel augue. Vestibulum rutrum rutrum neque. Aenean auctor gravida sem. Praesent id massa id nisl venenatis lacinia. Aenean sit amet justo.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (94, '2019-07-21 15:55:57', 16, 'Diaria', 'Minutos', 'Manana', 'Brusca', 'Urente', 'Intenso', 'No', 'Si', 'Morbi ut odio. Cras mi pede, malesuada in, imperdiet et, commodo vulputate, justo. In blandit ultrices enim. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin interdum mauris non ligula pellentesque ultrices. Phasellus id sapien in sapien iaculis congue. Vivamus metus arcu, adipiscing molestie, hendrerit at, vulputate vitae, nisl. Aenean lectus. Pellentesque eget nunc. Donec quis orci eget orci vehicula condimentum.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (95, '2019-04-06 22:22:03', 14, 'Semanal', 'Segundos', 'Tarde', 'Brusca', 'Opresivo', 'Leve', 'No', 'No', 'Vivamus in felis eu sapien cursus vestibulum. Proin eu mi. Nulla ac enim. In tempor, turpis nec euismod scelerisque, quam turpis adipiscing lorem, vitae mattis nibh ligula nec sem. Duis aliquam convallis nunc. Proin at turpis a pede posuere nonummy. Integer non velit. Donec diam neque, vestibulum eget, vulputate ut, ultrices vel, augue.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (96, '2020-01-30 04:34:47', 3, 'Semanal', 'Horas', 'Media Tarde', 'Remitente', 'Lancinante', 'Leve', 'Si', 'No', 'Integer ac leo.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (97, '2019-11-25 12:59:09', 8, 'Diaria', 'Minutos', 'Manana', 'Progresiva', 'Lancinante', 'Intenso', 'No', 'Si', 'Morbi vel lectus in quam fringilla rhoncus. Mauris enim leo, rhoncus sed, vestibulum sit amet, cursus id, turpis. Integer aliquet, massa id lobortis convallis, tortor risus dapibus augue, vel accumsan tellus nisi eu orci. Mauris lacinia sapien quis libero. Nullam sit amet turpis elementum ligula vehicula consequat. Morbi a ipsum. Integer a nibh. In quis justo. Maecenas rhoncus aliquam lacus. Morbi quis tortor id nulla ultrices aliquet.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (98, '2020-03-02 22:37:13', 18, 'Mensual', 'Dias', 'Noche', 'Brusca', 'Tenebrante', 'Leve', 'No', 'No', 'Nam dui. Proin leo odio, porttitor id, consequat in, consequat ut, nulla. Sed accumsan felis. Ut at dolor quis odio consequat varius.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (99, '2019-04-19 02:53:12', 14, 'Mensual', 'Minutos', 'Mediodia', 'Progresiva', 'Tenebrante', 'Medio', 'No', 'Si', 'Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus vestibulum sagittis sapien. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam vel augue.');
-insert into migranas (id, fecha, ficha, frecuencia, duracion, horario, finalizacion, tipoEpisodio, intensidad, limitaciones, despiertoNoche, estadoGeneral) values (100, '2019-10-22 02:05:23', 7, 'Semanal', 'Dias', 'Mediodia', 'Brusca', 'Tenebrante', 'Leve', 'Si', 'Si', 'Vestibulum rutrum rutrum neque. Aenean auctor gravida sem. Praesent id massa id nisl venenatis lacinia. Aenean sit amet justo. Morbi ut odio.');
-
-
-insert into sintomas (migranas, sintomas) values (36, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (30, 'Nauseas_Vomitos');
-insert into sintomas (migranas, sintomas) values (26, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (87, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (75, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (83, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (7, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (78, 'Fotopsias_escotomas_hemianopsia_diplopia');
-insert into sintomas (migranas, sintomas) values (93, 'Nauseas_Vomitos');
-insert into sintomas (migranas, sintomas) values (73, 'Nauseas_Vomitos');
-insert into sintomas (migranas, sintomas) values (62, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (85, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (62, 'SintomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (47, 'SintomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (67, 'Fotopsias_escotomas_hemianopsia_diplopia');
-insert into sintomas (migranas, sintomas) values (16, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (38, 'Afasia');
-insert into sintomas (migranas, sintomas) values (85, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (73, 'Hemiparesia_hemidisestesia');
-insert into sintomas (migranas, sintomas) values (88, 'Hemiparesia_hemidisestesia');
-insert into sintomas (migranas, sintomas) values (88, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (42, 'SintomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (29, 'Afasia');
-insert into sintomas (migranas, sintomas) values (64, 'Fotopsias_escotomas_hemianopsia_diplopia');
-insert into sintomas (migranas, sintomas) values (36, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (57, 'Afasia');
-insert into sintomas (migranas, sintomas) values (55, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (27, 'Nauseas_Vomitos');
-insert into sintomas (migranas, sintomas) values (20, 'Afasia');
-insert into sintomas (migranas, sintomas) values (18, 'Afasia');
-insert into sintomas (migranas, sintomas) values (48, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (48, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (24, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (10, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (63, 'SintomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (95, 'Hemiparesia_hemidisestesia');
-insert into sintomas (migranas, sintomas) values (81, 'Fotopsias_escotomas_hemianopsia_diplopia');
-insert into sintomas (migranas, sintomas) values (21, 'Nauseas_Vomitos');
-insert into sintomas (migranas, sintomas) values (84, 'Hemiparesia_hemidisestesia');
-insert into sintomas (migranas, sintomas) values (93, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (56, 'Afasia');
-insert into sintomas (migranas, sintomas) values (90, 'Nauseas_Vomitos');
-insert into sintomas (migranas, sintomas) values (39, 'Hemiparesia_hemidisestesia');
-insert into sintomas (migranas, sintomas) values (90, 'Afasia');
-insert into sintomas (migranas, sintomas) values (75, 'Nauseas_Vomitos');
-insert into sintomas (migranas, sintomas) values (65, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (43, 'Afasia');
-insert into sintomas (migranas, sintomas) values (17, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (95, 'Fotopsias_escotomas_hemianopsia_diplopia');
-insert into sintomas (migranas, sintomas) values (97, 'Afasia');
-insert into sintomas (migranas, sintomas) values (15, 'SintomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (79, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (15, 'Nauseas_Vomitos');
-insert into sintomas (migranas, sintomas) values (54, 'Nauseas_Vomitos');
-insert into sintomas (migranas, sintomas) values (89, 'Nauseas_Vomitos');
-insert into sintomas (migranas, sintomas) values (28, 'Fotopsias_escotomas_hemianopsia_diplopia');
-insert into sintomas (migranas, sintomas) values (5, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (4, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (4, 'SintomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (49, 'SintomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (47, 'Fotopsias_escotomas_hemianopsia_diplopia');
-insert into sintomas (migranas, sintomas) values (10, 'Afasia');
-insert into sintomas (migranas, sintomas) values (7, 'Hemiparesia_hemidisestesia');
-insert into sintomas (migranas, sintomas) values (57, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (65, 'SintomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (36, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (6, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (56, 'Fotopsias_escotomas_hemianopsia_diplopia');
-insert into sintomas (migranas, sintomas) values (10, 'Nauseas_Vomitos');
-insert into sintomas (migranas, sintomas) values (58, 'Hemiparesia_hemidisestesia');
-insert into sintomas (migranas, sintomas) values (15, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (58, 'SintomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (50, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (75, 'Hemiparesia_hemidisestesia');
-insert into sintomas (migranas, sintomas) values (60, 'Nauseas_Vomitos');
-insert into sintomas (migranas, sintomas) values (24, 'Fotopsias_escotomas_hemianopsia_diplopia');
-insert into sintomas (migranas, sintomas) values (34, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (12, 'SintomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (81, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (83, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (84, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (3, 'Fotopsias_escotomas_hemianopsia_diplopia');
-insert into sintomas (migranas, sintomas) values (53, 'Nauseas_Vomitos');
-insert into sintomas (migranas, sintomas) values (13, 'Afasia');
-insert into sintomas (migranas, sintomas) values (7, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (53, 'Fotopsias_escotomas_hemianopsia_diplopia');
-insert into sintomas (migranas, sintomas) values (96, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (76, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (62, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (99, 'Hemiparesia_hemidisestesia');
-insert into sintomas (migranas, sintomas) values (69, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (94, 'Afasia');
-insert into sintomas (migranas, sintomas) values (10, 'Fotopsias_escotomas_hemianopsia_diplopia');
-insert into sintomas (migranas, sintomas) values (40, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (95, 'Afasia');
-insert into sintomas (migranas, sintomas) values (24, 'Afasia');
-insert into sintomas (migranas, sintomas) values (70, 'Afasia');
-insert into sintomas (migranas, sintomas) values (30, 'Hemiparesia_hemidisestesia');
-insert into sintomas (migranas, sintomas) values (21, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (96, 'Nauseas_Vomitos');
-insert into sintomas (migranas, sintomas) values (69, 'Nauseas_Vomitos');
-insert into sintomas (migranas, sintomas) values (26, 'Hemiparesia_hemidisestesia');
-insert into sintomas (migranas, sintomas) values (66, 'SintomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (32, 'Afasia');
-insert into sintomas (migranas, sintomas) values (28, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (70, 'SintomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (32, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (34, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (8, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (99, 'Fotopsias_escotomas_hemianopsia_diplopia');
-insert into sintomas (migranas, sintomas) values (64, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (87, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (88, 'Fotopsias_escotomas_hemianopsia_diplopia');
-insert into sintomas (migranas, sintomas) values (6, 'Afasia');
-insert into sintomas (migranas, sintomas) values (58, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (67, 'Afasia');
-insert into sintomas (migranas, sintomas) values (67, 'Hemiparesia_hemidisestesia');
-insert into sintomas (migranas, sintomas) values (14, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (46, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (41, 'Hemiparesia_hemidisestesia');
-insert into sintomas (migranas, sintomas) values (73, 'SintomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (43, 'SintomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (59, 'Nauseas_Vomitos');
-insert into sintomas (migranas, sintomas) values (27, 'Fotopsias_escotomas_hemianopsia_diplopia');
-insert into sintomas (migranas, sintomas) values (7, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (38, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (92, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (96, 'Fotopsias_escotomas_hemianopsia_diplopia');
-insert into sintomas (migranas, sintomas) values (17, 'Nauseas_Vomitos');
-insert into sintomas (migranas, sintomas) values (78, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (20, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (74, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (56, 'Confusion_crisisComiciales_fiebre');
-insert into sintomas (migranas, sintomas) values (96, 'Hemiparesia_hemidisestesia');
-insert into sintomas (migranas, sintomas) values (8, 'Inestabilidad_vertigo');
-insert into sintomas (migranas, sintomas) values (94, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (89, 'SintomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (60, 'SintomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (11, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (38, 'Fotopsias_escotomas_hemianopsia_diplopia');
-insert into sintomas (migranas, sintomas) values (35, 'SintomasDisautonomicos');
-insert into sintomas (migranas, sintomas) values (40, 'Afasia');
-insert into sintomas (migranas, sintomas) values (25, 'Afasia');
-insert into sintomas (migranas, sintomas) values (17, 'Afasia');
-insert into sintomas (migranas, sintomas) values (53, 'Hemiparesia_hemidisestesia');
-insert into sintomas (migranas, sintomas) values (22, 'Afasia');
-insert into sintomas (migranas, sintomas) values (3, 'Afasia');
-insert into sintomas (migranas, sintomas) values (91, 'Sono_foto_osmofobia');
-insert into sintomas (migranas, sintomas) values (61, 'Hemiparesia_hemidisestesia');
-insert into sintomas (migranas, sintomas) values (5, 'Nauseas_Vomitos');
-
-
-insert into factores (migranas, factores) values (98, 'FactoresHormonales');
-insert into factores (migranas, factores) values (59, 'Dietas_alcohol');
-insert into factores (migranas, factores) values (55, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (20, 'CambiosAtmosferico');
-insert into factores (migranas, factores) values (22, 'Dietas_alcohol');
-insert into factores (migranas, factores) values (68, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (63, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (71, 'Dietas_alcohol');
-insert into factores (migranas, factores) values (12, 'CambiosPosturales');
-insert into factores (migranas, factores) values (79, 'FactoresHormonales');
-insert into factores (migranas, factores) values (50, 'Dietas_alcohol');
-insert into factores (migranas, factores) values (92, 'MovimientoCefalicos');
-insert into factores (migranas, factores) values (15, 'Estres');
-insert into factores (migranas, factores) values (26, 'CambiosPosturales');
-insert into factores (migranas, factores) values (34, 'EjercicioFisico');
-insert into factores (migranas, factores) values (41, 'MovimientoCefalicos');
-insert into factores (migranas, factores) values (74, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (84, 'MovimientoCefalicos');
-insert into factores (migranas, factores) values (72, 'EjercicioFisico');
-insert into factores (migranas, factores) values (8, 'CambiosAtmosferico');
-insert into factores (migranas, factores) values (15, 'MovimientoCefalicos');
-insert into factores (migranas, factores) values (97, 'CambiosAtmosferico');
-insert into factores (migranas, factores) values (83, 'FactoresHormonales');
-insert into factores (migranas, factores) values (11, 'FactoresHormonales');
-insert into factores (migranas, factores) values (59, 'EjercicioFisico');
-insert into factores (migranas, factores) values (18, 'MovimientoCefalicos');
-insert into factores (migranas, factores) values (95, 'MovimientoCefalicos');
-insert into factores (migranas, factores) values (72, 'FactoresHormonales');
-insert into factores (migranas, factores) values (44, 'Dietas_alcohol');
-insert into factores (migranas, factores) values (24, 'CambiosAtmosferico');
-insert into factores (migranas, factores) values (65, 'EjercicioFisico');
-insert into factores (migranas, factores) values (92, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (49, 'FactoresHormonales');
-insert into factores (migranas, factores) values (91, 'Dietas_alcohol');
-insert into factores (migranas, factores) values (48, 'Estres');
-insert into factores (migranas, factores) values (51, 'MovimientoCefalicos');
-insert into factores (migranas, factores) values (99, 'MovimientoCefalicos');
-insert into factores (migranas, factores) values (14, 'CambiosAtmosferico');
-insert into factores (migranas, factores) values (66, 'MovimientoCefalicos');
-insert into factores (migranas, factores) values (69, 'CambiosAtmosferico');
-insert into factores (migranas, factores) values (45, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (49, 'Dietas_alcohol');
-insert into factores (migranas, factores) values (65, 'CambiosPosturales');
-insert into factores (migranas, factores) values (87, 'EjercicioFisico');
-insert into factores (migranas, factores) values (42, 'EjercicioFisico');
-insert into factores (migranas, factores) values (84, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (80, 'EjercicioFisico');
-insert into factores (migranas, factores) values (80, 'CambiosPosturales');
-insert into factores (migranas, factores) values (77, 'CambiosAtmosferico');
-insert into factores (migranas, factores) values (6, 'FactoresHormonales');
-insert into factores (migranas, factores) values (78, 'Dietas_alcohol');
-insert into factores (migranas, factores) values (8, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (81, 'MovimientoCefalicos');
-insert into factores (migranas, factores) values (73, 'EjercicioFisico');
-insert into factores (migranas, factores) values (30, 'CambiosPosturales');
-insert into factores (migranas, factores) values (47, 'EjercicioFisico');
-insert into factores (migranas, factores) values (32, 'CambiosAtmosferico');
-insert into factores (migranas, factores) values (61, 'CambiosAtmosferico');
-insert into factores (migranas, factores) values (94, 'CambiosAtmosferico');
-insert into factores (migranas, factores) values (71, 'EjercicioFisico');
-insert into factores (migranas, factores) values (3, 'Estres');
-insert into factores (migranas, factores) values (62, 'Estres');
-insert into factores (migranas, factores) values (71, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (5, 'EjercicioFisico');
-insert into factores (migranas, factores) values (57, 'MovimientoCefalicos');
-insert into factores (migranas, factores) values (74, 'EjercicioFisico');
-insert into factores (migranas, factores) values (76, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (92, 'CambiosAtmosferico');
-insert into factores (migranas, factores) values (93, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (94, 'FactoresHormonales');
-insert into factores (migranas, factores) values (71, 'FactoresHormonales');
-insert into factores (migranas, factores) values (25, 'Dietas_alcohol');
-
-insert into factores (migranas, factores) values (95, 'CambiosPosturales');
-insert into factores (migranas, factores) values (51, 'CambiosAtmosferico');
-insert into factores (migranas, factores) values (38, 'EjercicioFisico');
-insert into factores (migranas, factores) values (40, 'EjercicioFisico');
-insert into factores (migranas, factores) values (83, 'Dietas_alcohol');
-insert into factores (migranas, factores) values (45, 'FactoresHormonales');
-insert into factores (migranas, factores) values (51, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (56, 'Dietas_alcohol');
-insert into factores (migranas, factores) values (92, 'FactoresHormonales');
-insert into factores (migranas, factores) values (48, 'FactoresHormonales');
-insert into factores (migranas, factores) values (20, 'EjercicioFisico');
-insert into factores (migranas, factores) values (75, 'CambiosAtmosferico');
-insert into factores (migranas, factores) values (60, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (10, 'MovimientoCefalicos');
-insert into factores (migranas, factores) values (18, 'Estres');
-insert into factores (migranas, factores) values (63, 'Estres');
-insert into factores (migranas, factores) values (4, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (35, 'EjercicioFisico');
-insert into factores (migranas, factores) values (95, 'Estres');
-insert into factores (migranas, factores) values (89, 'FactoresHormonales');
-insert into factores (migranas, factores) values (4, 'FactoresHormonales');
-insert into factores (migranas, factores) values (53, 'MovimientoCefalicos');
-insert into factores (migranas, factores) values (42, 'Estres');
-insert into factores (migranas, factores) values (22, 'EjercicioFisico');
-insert into factores (migranas, factores) values (19, 'FactoresHormonales');
-insert into factores (migranas, factores) values (9, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (93, 'CambiosPosturales');
-insert into factores (migranas, factores) values (78, 'MovimientoCefalicos');
-insert into factores (migranas, factores) values (21, 'CambiosAtmosferico');
-insert into factores (migranas, factores) values (21, 'Dietas_alcohol');
-insert into factores (migranas, factores) values (19, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (12, 'Estres');
-insert into factores (migranas, factores) values (44, 'EjercicioFisico');
-insert into factores (migranas, factores) values (28, 'CambiosPosturales');
-insert into factores (migranas, factores) values (42, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (38, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (48, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (96, 'MovimientoCefalicos');
-insert into factores (migranas, factores) values (87, 'Dietas_alcohol');
-insert into factores (migranas, factores) values (40, 'CambiosAtmosferico');
-insert into factores (migranas, factores) values (62, 'CambiosPosturales');
-insert into factores (migranas, factores) values (75, 'Estres');
-insert into factores (migranas, factores) values (66, 'FactoresHormonales');
-insert into factores (migranas, factores) values (20, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (21, 'Estres');
-insert into factores (migranas, factores) values (81, 'FactoresHormonales');
-insert into factores (migranas, factores) values (87, 'CambiosAtmosferico');
-insert into factores (migranas, factores) values (85, 'Estres');
-insert into factores (migranas, factores) values (83, 'CambiosPosturales');
-insert into factores (migranas, factores) values (25, 'CambiosAtmosferico');
-insert into factores (migranas, factores) values (69, 'Dietas_alcohol');
-insert into factores (migranas, factores) values (82, 'CambiosAtmosferico');
-insert into factores (migranas, factores) values (16, 'CambiosPosturales');
-insert into factores (migranas, factores) values (23, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (75, 'ManiobrasValsalva');
-insert into factores (migranas, factores) values (75, 'Dietas_alcohol');
-insert into factores (migranas, factores) values (43, 'MovimientoCefalicos');
-
-
 INSERT INTO `diabetes` (`id`, `fecha`, `ficha`, `numeroControles`, `nivelBajo`, `frecuenciaBajo`, `horarioBajo`, `perdidaConocimiento`, `nivelAlto`, `frecuenciaAlto`, `horarioAlto`, `actividadFisica`, `problemaDieta`, `estadoGeneral`) VALUES
 (1, '2020-05-02 15:05:16', 1, 'ZjBmNzAyY2NmNGYxYmVhZDc5MzZiMTU4ZmIxMGJkNjlhOGI3MTAwODcwMTk1NGVjOWNmNTdlZmNmODExMzg5ZIYIegc+/rmbGzyC6RStl9XxBOYvCCOiNUC+CNbSGvx0', 'MzY4NGNmMDY5MmFhOGYxMmZlZDk5OGM3OGMxOWNmNTkxOTE2MWMyNjNlMzRkMTc4ZGRlNjRjYmQ3YWVhNzllOSBJsYAOvVtLcE4EjU695ULP51u7JutvupEA7QWqO5Wu', 'YmE4MGU5NzgyYTg3NjgyMWM4NmJmNzEwN2RlOWI0ODEyYjEyZmI0MjU3MWU5MDIzYTZiZWZmYjg4N2VkMGMzM6mQicO0NWoylXgfQRtlc1KxfeGeA7tlRsx+rb1sB3cB', 'YzEzM2FhNDE1NGM4MDNmNTE2ZjczZjc5ZDdiYzJlOWRlN2Q0NjE2N2RmODBiNjQ1N2E0NzI5Y2QxNWEzN2I1Mip8967tapJEBKCwjh9mxaWTKZgtnSN3HOZuzl86lXnc', 'ZjQxOGRmYmIzNTdkZTgzODk4OGJjN2ViMTU0ZDQ5NWNiMjA3NTYzZWY1OGE1ZGVmNDMwZTRmMmNhZWYwNWMxOXrRDJya8SpJ/50d7XworF1/zElWO+6ZKDa6VFSK17d2', 'NTZmZTQ4MmVlYTU3ODM3OTA3YmZhNWE1Y2Q5N2Q0MWFiMmI1N2E2NjA5Y2Q1ZTRlODc0ZjZjNzA0ZTNmYjM3YjqPQkmNxld3OrZj5JcZwCDjJpWpJRD0UEldM41WODvR', 'YWViOGFlYzBjMDk4MGVhNTRkOGMxMDM4YWM3ZmEzZjQ4MDJmNTJkOTA0ZGE5ZjE3ZjgyYjYyMTJjOWE2ZmFkZNNY//0giC/S/JCNKXn14Y5r4Drk8qy0qNTHiAKQEWLq', 'OTJhZGJkMzg4ZDgxNzVkMzk5MzQwMmVjZjE0NGYyOWU4NWE5YTkwNTlmOWZkMzY3NmUzNTQ3ZGE0MDI5NjhhZunbjI6Jyh2OpfgVYXmQ3jCfhEK07KCppNGqW7v/yxxT', 'N2QyNTg3NzI5OTA0ZTQ2NTIyZTY4YTc3YzZmZWVlYmNmZmMzNDM2ZjUwYWUxMjFhODQ1NDE0ZDU5Mjg0MGZhN5PdbF6Bs7A2jxB9DcJVwHWKiD5mntebr7QkJSWffbb0', 'ZDc3OTRhMGU3M2E3ODg2NjJiMjNmMmNjMDc5YWZiZmQ4NmZjYTAwY2U1ZGUzOGY4OTMwYTVjNTIyM2VlNGYxZlvZ00D+6MVuk/izexPWsnQBWvQz3FLp131zAb0X3yfy', 'ZmUyMTIxMmMyMmJlNWIwOTgxODM2MTQyYWIyZmNkZTM3YWU3YTk5ZDU0ODcyOTE1YjQzNjg1NTM0ZDUxMmZhNB6aebsvYYsBB46YkXsOhf9YrsewgNxz0gznarihDCVG6Xz6WbmtwFP/L7dowI4xYg=='),
 (2, '2020-05-02 15:05:31', 1, 'YTIwODRmNTRiODc3NGU1OTU0ODk1ZDY2ZGVlNDczMzE5YWM1N2JjN2RmODIyYzU0OGVjZjMzOTY4NzE4M2U1Zl7swhSaqUd0e58I9wK/vG9vUc23dL78V7TeoxiAje6g', 'MjQ2YjAzOGM4MWU5OTBlYmMxYmUwMWY1NWI2YmZkMmQzMTE0MWFlMjE0ZDQ3M2VhYjI1NzIxNGQ4MmMxNmQyNd/fnW+PBZRblHr+RE3lDxd/qNLC4Gz2yDlk+ybImOBZ', 'ZWYyYmVkNTcwZTQ4ZThlZWY3MTJhMmM2ZDVkMjQ4NzkwNGE0ZjY3YzAyYTllODhlZmNlNTNkOWVkOGUxNjE3Nvrw0zjVxgwNZzkv/p87y8czmC1bfPIVtq5AReIflcIN', 'MDQyZGI3ODBmOWM3ZjY5ZWQ4MDhkOGM0MGI5ZjhkZTYwZmM2ODJmYjYxMzU3YjQ3MDgyNThmMjBiZjViOWQ3NTZg+OVRmsLYFF4I2CfuQ14G9kNAGbVwvJvX6dJzcD93', 'ZDJmNDA5MjFhY2QzNmQ3NzNmYTkzZTZhNzk2N2ZmNTk2YTZlMzUxOGFlNjA5M2RkNWEyNGYxYzZkMjc1YmExND4xm2BmbFqP96yzFc6t+1U/pI9j9Y/cLul6CjgdK8F7', 'NWVmNDI5NGI1NmFkZmM4Yjg5Y2Q1YmE2NGI4Y2VkMGIxMmJmM2UxYzdhMTZiY2Q4YzRiMDRhMDY3YTg3MmI1OW2x5L96qmahkBtjRsCnHdnz/EFfgTigEztctJaPas4e', 'NjA2YzRhMWRkMWMyZDk5OTE4OTcwNjBlMjk3MWI5MTQ2NTQ2M2RhNTFiNWQ2ZjA2MWYxMTgzODJhNmIxMTdkMtpbXYRHF3E/L4BxXEPs6L7MCWH0ZsPdoJguK8/v98DR', 'ODU0YTY3NGNhMWMzNjlkMTBiNzEwZjM4MWQ5YWJiNzdlNjY3YjExZWU5NTQ2YWVhMWMyM2NmYzhkNjI4OWEzNr2qO4mKJ2AxXHMwiutOC9UOglqo+2N4xs7rlqPA9+yP', 'N2FjY2MyODU1NmM3NjVlMTA4ZTFjODlhYmMxNTI5ZDExZDZhYTY4Y2FkMmUzYzA0NWZiNDcwYjdjMTExN2NjNE8IfaB4wJdxOY3Ni4KfN9q/UBUkTqKWu7kNmvPC8ILq', 'NmZiMWQ0ZWFlZDVhYmQyYmU3ZWJhZjVhZTAzZDc3ZTkzNWM1YTM1M2Y5NmM4NjZhM2VkNWQyZTEyNDk2MDdkMGOeTT1KOrbmoD/jE8L1v87KSNsyNPp0UndGk096/sZD', 'NzllMDYzZGQ1NTkxMzVkMGU2NGNiZDE2MjFhOGQ5M2ZkNzFiMjIwZDExZDNlODEzNmIyMWI5OWEzZWVjZThjMa6dJKKMr7eRpP8in8ZxTaSQrmx5U4gh4f8uEq3imLywE748ZcpatNdC5P3Y74wACA=='),
@@ -1458,3 +1053,16 @@ INSERT INTO `momentos` (`diabetes`, `momento`) VALUES
 (1, 'Y2RkOTA3NjVmZjBlZTVlMWJlNWJmMDNiOWJmYzcwY2Q2MDRmZDM0OTFkNmMxYjk4MWNjNzY0NGQ0NjYwNWRjOeH3hYKtp2+Tt2Yx4vDnUrVB4RNEyD5sPo7blakl2x76'),
 (2, 'Y2RkOTA3NjVmZjBlZTVlMWJlNWJmMDNiOWJmYzcwY2Q2MDRmZDM0OTFkNmMxYjk4MWNjNzY0NGQ0NjYwNWRjOeH3hYKtp2+Tt2Yx4vDnUrVB4RNEyD5sPo7blakl2x76'),
 (4, 'Y2RkOTA3NjVmZjBlZTVlMWJlNWJmMDNiOWJmYzcwY2Q2MDRmZDM0OTFkNmMxYjk4MWNjNzY0NGQ0NjYwNWRjOeH3hYKtp2+Tt2Yx4vDnUrVB4RNEyD5sPo7blakl2x76');
+
+
+INSERT INTO `migranas` (`id`, `fecha`, `ficha`, `frecuencia`, `duracion`, `horario`, `finalizacion`, `tipoEpisodio`, `intensidad`, `limitaciones`, `despiertoNoche`, `estadoGeneral`) VALUES
+(1, '2020-05-02 16:05:36', 1, 'MzM5YTc4MzBkOTc3MTk2ZjY1MTU1ZDFkMTk2MDVlY2YxZjE0ZTQ4OWRkMzA4N2NmOGQyYjBjMDBkZDhlYjQ1Yjd5hn5TjGEOadg6AjgHiHKf+ZjVDiGqVHWdymOdpwUj', 'MzE0MDdmYmY0ZWZjOTY4YTE3Yjc5MjM1ZmU5NTc3YzFhZTJjNzNlM2MwZTQ0NWVhMWYwN2Q1MGIwMzExMzViOPEZ7eq53R7qaAHiT5pBwPIYzGs65WtiOALWv1cnijtP', 'NWEzOTA0NDhmMzA0MzQ4MGU1YjQ1ZWVlZjI3N2U0NjYxMjczZGZiZDliM2UxNTVkZGYwNjEyODMwN2UyMmQ4ZUhRpHXl45MU2z5LTqa6D3hghKZG93+OPBg65vN8BLLC', 'N2UwNmEzMGJmZDRjMzZjYjU0NDNmNmJmZWY0MTY1YzViNThlZWE3MTdjZTBjYWRmYWEzNzU1ZmZlZmIyZjM4N+554Wrtad6d2QJwOiJSwkcJErVHav1j8CN9BW03trBp', 'NjVhMjAxOWJkNTdjMTk4NjQ2ZmZmMjRmOWIxNmIxZDVmZjllMDM2MDc5YTU0M2VmOTU4MDUwMGY4ODMzYzNlYsXHVOBzB8UJsEA+PFd03NJTN33W680alI/bHELSwuGs', 'YTE4OWFjZTA2NzVmMzE3YmJjYmE2YmEyMTM5YmE1YmZlMmQzOTgzMmJjNTg1OTIyMzk0ZGI5MTgwZWYwMjBiMFdyZxr4LCSvGu245n244YvcvZYU8NvjKnp2vrMWrvTg', 'YmM4MmJkOTgyMTAxZDY1MzNlOGQwMzA2MTRjMjAzZjc2OWI2NDMzZTQ5ZWUyNjk5NTcyMDE1MjYzYmVlMzQ2YqBiUnAXcPCknPImHsKfh2cBsEWVvHKZ0NBJr2fluKAB', 'ZjhlMDkzOGVhZTZmOTkwZTJkMzA5NDNkZWFiM2Y3NGIxNjY4OWRlOGM2YmRkZDNmMTg4YmVhMjE4YzkzZTNkMEP+ZJfmWzgnVr1onw7LcXxp1VnkxCJpXFoLzQOWAvKq', 'ZDk4NzRlNGY2ODAwZTM0MjljNWU5NzBkZjM0ZWJmYTNhMjZkMjJiZWM4OWRiMWY3MGUzYjM1NWJhZDBhMmYxNiV1laGP1Vpaw5Odxn9geOSn9Vkk/l6sZYkchA287IkT');
+
+
+INSERT INTO `sintomas` (`migranas`, `sintomas`) VALUES
+(1, 'NDg0MjE5MWIwYjc5ODY2OTNmMzg4NjJjYTg5MDcxNGQ1Y2FmNmY5Y2JlMmQyOGQ4MTliNDc3YzkwZTNhNjdmMESfkkScofZQPtjBa4eVntd0Dqb/5bGjsIoLRS7erBJviEp81PgxHQR80u+BzwxjzJotuWcJmwFJMTktoxatFlY='),
+(1, 'ZDE4Y2JjOTA2NTliZWFkYmNlMWI2ZWUzNjQ1YjY3MGQyZWJhYmE0ZWZjN2ZjM2EwOWFlMjllNWQyOWMzN2NlZJoqX+bJBBln+TA6Nq36Pv2VFiG/XOyaooEJB+P3SgvVDRVPxMc4IvCknVY8RvXOBg==');
+
+INSERT INTO `factores` (`migranas`, `factores`) VALUES
+(1, 'M2MwNWYzMGM5MzgzN2U5Mjk3YzVmOTNjYTY1ZjdiNThhMzk1NjhmY2RjZTFkZDNiY2FmNzdlM2VhZjg3NjhmZFI/GPG8Nq+rMNDRuaBpvpVxdTyu6nuGU1m8CGSRdsFORDDb3LHqHvUVOI55DFVj5A=='),
+(1, 'ZGI4YTNhMWQ1NzUyNDFlMzVjZjk1Y2UyYjMyOTJkOTEwZDUxYTg2MWNjNGRmYjljNTViNmM1YmQxOTA2YTljNjtZnegWA6ZfieZLlFe1HZdPVWXulO0FDAbXyp41yz3UnqguV+4LEFkof9VBQdSHig==');

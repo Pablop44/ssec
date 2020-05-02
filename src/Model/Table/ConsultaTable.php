@@ -5,6 +5,8 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Cake\Utility\Security;
+use Cake\Event\Event;
 
 /**
  * Consulta Model
@@ -50,8 +52,7 @@ class ConsultaTable extends Table
         $validator
             ->scalar('lugar')
             ->maxLength('lugar', 50)
-            ->requirePresence('lugar', 'create')
-            ->notEmptyString('lugar');
+            ->allowEmptyString('lugar');
 
         $validator
             ->scalar('motivo')
@@ -95,5 +96,20 @@ class ConsultaTable extends Table
             ->notEmptyString('estado');
 
         return $validator;
+    }
+
+    public function beforeSave($event, $entity, $options = array()) {
+        $encrypted = Security::encrypt($entity['motivo'], Security::salt());
+        $entity['motivo'] = base64_encode($encrypted);
+            
+        if(isset($entity['diagnostico'])){
+            $encrypted = Security::encrypt($entity['diagnostico'], Security::salt());
+            $entity['diagnostico'] = base64_encode($encrypted);
+        }
+        if(isset($entity['observaciones'])){
+            $encrypted = Security::encrypt($entity['observaciones'], Security::salt());
+            $entity['observaciones'] = base64_encode($encrypted);
+        }
+        return true;
     }
 }
