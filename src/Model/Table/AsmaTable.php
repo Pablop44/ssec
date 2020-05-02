@@ -5,6 +5,8 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Cake\Utility\Security;
+use Cake\Event\Event;
 
 /**
  * Asma Model
@@ -111,5 +113,29 @@ class AsmaTable extends Table
             ->notEmptyString('estadoGeneral');
 
         return $validator;
+    }
+
+    public function beforeSave($event, $entity, $options = array()) {
+        $encrypted = Security::encrypt($entity['calidadSueno'], Security::salt());
+        $entity['calidadSueno'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['dificultadRespirar'], Security::salt());
+        $entity['dificultadRespirar'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['tos'], Security::salt());
+        $entity['tos'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['gravedadTos'], Security::salt());
+        $entity['gravedadTos'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['limitaciones'], Security::salt());
+        $entity['limitaciones'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['silbidos'], Security::salt());
+        $entity['silbidos'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['usoMedicacion'], Security::salt());
+        $entity['usoMedicacion'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['espirometria'], Security::salt());
+        $entity['espirometria'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['factoresCrisis'], Security::salt());
+        $entity['factoresCrisis'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['estadoGeneral'], Security::salt());
+        $entity['estadoGeneral'] = base64_encode($encrypted);
+        return true;
     }
 }

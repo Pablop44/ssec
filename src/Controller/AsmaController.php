@@ -5,6 +5,7 @@ use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
 use Cake\Event\Event;
 use Cake\I18n\FrozenTime;
+use Cake\Utility\Security;
 
 /**
  * Asma Controller
@@ -69,6 +70,8 @@ class AsmaController extends AppController
             
             $asma->fecha =  $asma->fecha->i18nFormat('dd/MM/YYYY HH:mm');
 
+            $asma = $this->desencriptarInforme($asma);
+
         }
        
         $this->response->statusCode(200);
@@ -91,6 +94,8 @@ class AsmaController extends AppController
             $asmaFicha->fecha = $fecha;
             
             $asmaFicha->fecha =  $asmaFicha->fecha->i18nFormat('dd/MM/YYYY HH:mm');
+
+            $asmaFicha = $this->desencriptarInforme($asmaFicha);
 
         }
        
@@ -142,7 +147,9 @@ class AsmaController extends AppController
         $fecha = FrozenTime::parse($asma['fecha']);
         $asma->fecha = $fecha;
         
-        $asma->fecha =  $asma->fecha->i18nFormat('dd/MM/YYYY HH:mm');
+        $asma->fecha = $asma->fecha->i18nFormat('dd/MM/YYYY HH:mm');
+
+        $asma = $this->desencriptarInforme($asma);
        
         $this->response->statusCode(200);
         $this->response->type('json');
@@ -231,15 +238,29 @@ class AsmaController extends AppController
         if($this->Asma->save($asma)){
             $this->response->statusCode(200);
             $this->response->type('json');
-            $json = json_encode($asma);
+            $json = json_encode($data);
             $this->response->body($json);
         }else{
-            header('Access-Control-Allow-Origin: *');
-            $this->response->statusCode(500);
-            header('Content-Type: application/json');
-            $this->set('problema', 'Error al crear la consulta');    
-            $this->set('_serialize', ['problema']); 
-        }
-        
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($data);
+            $this->response->body($json);
+        } 
+    }
+
+
+    public function desencriptarInforme($asma){
+        $asma['calidadSueno'] = Security::decrypt(base64_decode($asma['calidadSueno']), Security::salt());
+        $asma['dificultadRespirar'] = Security::decrypt(base64_decode($asma['dificultadRespirar']), Security::salt());
+        $asma['tos'] = Security::decrypt(base64_decode($asma['tos']), Security::salt());
+        $asma['gravedadTos'] = Security::decrypt(base64_decode($asma['gravedadTos']), Security::salt());
+        $asma['limitaciones'] = Security::decrypt(base64_decode($asma['limitaciones']), Security::salt());
+        $asma['silbidos'] = Security::decrypt(base64_decode($asma['silbidos']), Security::salt());
+        $asma['usoMedicacion'] = Security::decrypt(base64_decode($asma['usoMedicacion']), Security::salt());
+        $asma['espirometria'] = Security::decrypt(base64_decode($asma['espirometria']), Security::salt());
+        $asma['factoresCrisis'] = Security::decrypt(base64_decode($asma['factoresCrisis']), Security::salt());
+        $asma['estadoGeneral'] = Security::decrypt(base64_decode($asma['estadoGeneral']), Security::salt());
+
+        return $asma;
     }
 }
