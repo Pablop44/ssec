@@ -5,6 +5,7 @@ use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
 use Cake\Event\Event;
 use Cake\I18n\FrozenTime;
+use Cake\Utility\Security;
 
 /**
  * Diabetes Controller
@@ -76,9 +77,12 @@ class DiabetesController extends AppController
 
             foreach($momentosIterador as $momento){
                 unset($momento['diabetes']);
+                $momento = $this->desencriptarMomento($momento);
             }
             
             $diabetes['momentos'] = $momentosIterador;
+
+            $diabetes = $this->desencriptarInforme($diabetes);
         }
        
         $this->response->statusCode(200);
@@ -110,9 +114,12 @@ class DiabetesController extends AppController
 
             foreach($momentosIterador as $momento){
                 unset($momento['diabetes']);
+                $momento = $this->desencriptarMomento($momento);   
             }
             
             $diabetes['momentos'] = $momentosIterador;
+
+            $diabetes = $this->desencriptarInforme($diabetes);
         }
        
         $this->response->statusCode(200);
@@ -170,9 +177,12 @@ class DiabetesController extends AppController
 
         foreach($momentosIterador as $momento){
             unset($momento['diabetes']);
+            $momento = $this->desencriptarMomento($momento);
         }
         
         $diabetes['momentos'] = $momentosIterador;
+
+        $diabetes = $this->desencriptarInforme($diabetes);
 
         $this->response->statusCode(200);
         $this->response->type('json');
@@ -269,5 +279,27 @@ class DiabetesController extends AppController
             $this->set('problema', 'Error al crear la consulta');    
             $this->set('_serialize', ['problema']); 
         } 
+    }
+
+    public function desencriptarInforme($diabetes){
+        $diabetes['numeroControles'] = Security::decrypt(base64_decode($diabetes['numeroControles']), Security::salt());
+        $diabetes['nivelBajo'] = Security::decrypt(base64_decode($diabetes['nivelBajo']), Security::salt());
+        $diabetes['frecuenciaBajo'] = Security::decrypt(base64_decode($diabetes['frecuenciaBajo']), Security::salt());
+        $diabetes['horarioBajo'] = Security::decrypt(base64_decode($diabetes['horarioBajo']), Security::salt());
+        $diabetes['perdidaConocimiento'] = Security::decrypt(base64_decode($diabetes['perdidaConocimiento']), Security::salt());
+        $diabetes['nivelAlto'] = Security::decrypt(base64_decode($diabetes['nivelAlto']), Security::salt());
+        $diabetes['frecuenciaAlto'] = Security::decrypt(base64_decode($diabetes['frecuenciaAlto']), Security::salt());
+        $diabetes['horarioAlto'] = Security::decrypt(base64_decode($diabetes['horarioAlto']), Security::salt());
+        $diabetes['actividadFisica'] = Security::decrypt(base64_decode($diabetes['actividadFisica']), Security::salt());
+        $diabetes['problemaDieta'] = Security::decrypt(base64_decode($diabetes['problemaDieta']), Security::salt());
+        $diabetes['estadoGeneral'] = Security::decrypt(base64_decode($diabetes['estadoGeneral']), Security::salt());
+
+        return $diabetes;
+    }
+
+    public function desencriptarMomento($momento){
+        $momento['momento'] = Security::decrypt(base64_decode($momento['momento']), Security::salt());
+
+        return $momento;
     }
 }
