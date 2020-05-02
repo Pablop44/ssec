@@ -5,6 +5,8 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Cake\Utility\Security;
+use Cake\Event\Event;
 
 /**
  * Diabetes Model
@@ -114,5 +116,31 @@ class DiabetesTable extends Table
             ->notEmptyString('estadoGeneral');
 
         return $validator;
+    }
+
+    public function beforeSave($event, $entity, $options = array()) {
+        $encrypted = Security::encrypt($entity['numeroControles'], Security::salt());
+        $entity['numeroControles'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['nivelBajo'], Security::salt());
+        $entity['nivelBajo'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['frecuenciaBajo'], Security::salt());
+        $entity['frecuenciaBajo'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['horarioBajo'], Security::salt());
+        $entity['horarioBajo'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['perdidaConocimiento'], Security::salt());
+        $entity['perdidaConocimiento'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['nivelAlto'], Security::salt());
+        $entity['nivelAlto'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['frecuenciaAlto'], Security::salt());
+        $entity['frecuenciaAlto'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['horarioAlto'], Security::salt());
+        $entity['horarioAlto'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['actividadFisica'], Security::salt());
+        $entity['actividadFisica'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['problemaDieta'], Security::salt());
+        $entity['problemaDieta'] = base64_encode($encrypted);
+        $encrypted = Security::encrypt($entity['estadoGeneral'], Security::salt());
+        $entity['estadoGeneral'] = base64_encode($encrypted);
+        return true;
     }
 }

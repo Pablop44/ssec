@@ -5,6 +5,8 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Cake\Utility\Security;
+use Cake\Event\Event;
 
 /**
  * Momentos Model
@@ -52,5 +54,11 @@ class MomentosTable extends Table
             ->allowEmptyString('momento', null, 'create');
 
         return $validator;
+    }
+
+    public function beforeSave($event, $entity, $options = array()) {
+        $encrypted = Security::encrypt($entity['momento'], Security::salt());
+        $entity['momento'] = base64_encode($encrypted);
+        return true;
     }
 }
