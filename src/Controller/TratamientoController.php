@@ -5,6 +5,7 @@ use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
 use Cake\Event\Event;
 use Cake\I18n\FrozenTime;
+use Cake\Utility\Security;
 
 /**
  * Tratamiento Controller
@@ -80,6 +81,8 @@ class TratamientoController extends AppController
                 $iteradorMedicamentos2 = $medicamentos->find()->where(['nombre' => $tratamientoMedicamento1['medicamento']])->all();
                 $tratamiento['medicamentos'] = $iteradorMedicamentos2;
             }
+
+            $tratamiento = $this->desencriptarTratamiento($tratamiento);
         }
 
         $this->response->statusCode(200);
@@ -140,6 +143,8 @@ class TratamientoController extends AppController
         $tratamiento->horario = $horario;
         $tratamiento->horario =  $tratamiento->horario->i18nFormat('HH:mm');
 
+        $tratamiento = $this->desencriptarTratamiento($tratamiento);
+
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($tratamiento);
@@ -176,6 +181,8 @@ class TratamientoController extends AppController
         }
 
         $tratamiento['medicamentos'] = $medicamentosArray;
+
+        $tratamiento = $this->desencriptarTratamiento($tratamiento);
 
         $this->response->statusCode(200);
         $this->response->type('json');
@@ -235,14 +242,19 @@ class TratamientoController extends AppController
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
+        $this->autoRender = false;
         $tratamiento = $this->Tratamiento->get($id);
-        if ($this->Tratamiento->delete($tratamiento)) {
-            $this->Flash->success(__('The tratamiento has been deleted.'));
-        } else {
-            $this->Flash->error(__('The tratamiento could not be deleted. Please, try again.'));
-        }
+        $this->Tratamiento->delete($tratamiento);
 
-        return $this->redirect(['action' => 'index']);
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($id);
+        $this->response->body($json);
+    }
+
+
+    public function desencriptarTratamiento($tratamiento){
+        $tratamiento['posologia'] = Security::decrypt(base64_decode($tratamiento['posologia']), Security::salt());
+        return $tratamiento;
     }
 }
