@@ -39,7 +39,6 @@ class ConsultaController extends AppController
     {
         parent::initialize();
         $this->loadComponent('Csrf');
-        $this->Auth->allow(['view', 'editarConsulta', 'getHorasPaciente', 'add']);
         $this->loadComponent('Paginator');
     }
 

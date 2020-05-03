@@ -6,6 +6,7 @@ use Cake\ORM\TableRegistry;
 use Cake\I18n\FrozenTime;
 use Cake\Event\Event;
 use Cake\I18n\Time;
+use Cake\Utility\Security;
 
 /**
  * Nota Controller
@@ -42,9 +43,7 @@ class NotaController extends AppController
     }
 
     public function beforeFilter(Event $event) {
-        
         $this->eventManager()->off($this->Csrf);
-    
     }
 
 
@@ -90,6 +89,7 @@ class NotaController extends AppController
             $nota->fecha = $fecha;
             
             $nota->fecha =  $nota->fecha->i18nFormat('dd/MM/YYYY HH:mm:ss');
+            $nota = $this->desencriptarNota($nota);
         }
 
         $this->response->statusCode(200);
@@ -187,6 +187,7 @@ class NotaController extends AppController
         $data = $this->request->getData();
         
         $nota = $this->Nota->get($data['id']);
+        $nota = $this->desencriptarNota($nota);
 
         $x = array();
         $x['datos'] = $data['datos'];
@@ -218,5 +219,10 @@ class NotaController extends AppController
         $json = json_encode($id);
         $this->response->body($json);
         
+    }
+
+    public function desencriptarNota($nota){
+        $nota['datos'] = Security::decrypt(base64_decode($nota['datos']), Security::salt());
+        return $nota;
     }
 }
