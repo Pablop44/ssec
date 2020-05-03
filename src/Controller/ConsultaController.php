@@ -39,7 +39,7 @@ class ConsultaController extends AppController
     {
         parent::initialize();
         $this->loadComponent('Csrf');
-        $this->Auth->allow(['view']);
+        $this->Auth->allow(['view', 'editarConsulta', 'getHorasPaciente', 'add']);
         $this->loadComponent('Paginator');
     }
 
@@ -48,7 +48,6 @@ class ConsultaController extends AppController
         $this->eventManager()->off($this->Csrf);
     
     }
-    
 
     public function consultas()
     {
@@ -485,13 +484,12 @@ class ConsultaController extends AppController
         $this->autoRender = false;
         $data = $this->request->getData();
         $consultum = $this->Consulta->get($data['id']);
+        $consultum = $this->desencriptarConsulta($consultum);
         if(isset($consultum['fecha'])){
             $fecha = FrozenTime::parse($consultum['fecha']);
             $fecha = $fecha->i18nFormat('dd/MM/YYYY HH:mm');
         }
-        $consultum = $this->desencriptarConsulta($consultum);
         $consultum = $this->Consulta->patchEntity($consultum, $data);
-        $consultum = $this->desencriptarConsulta($consultum);
         if ($this->Consulta->save($consultum)) {
             $this->response->statusCode(200);
             $this->response->type('json');
@@ -513,7 +511,6 @@ class ConsultaController extends AppController
             $json = json_encode($consultum->errors());
             $this->response->body($json);
         }
-       
     }
 
     /**
