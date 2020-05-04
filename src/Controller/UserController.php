@@ -782,7 +782,7 @@ class UserController extends AppController
                 $this->response->body($json);
 
         }else{
-                $this->response->statusCode(200);
+                $this->response->statusCode(500);
                 $this->response->type('json');
                 $json = json_encode($user->errors());
                 $this->response->body($json);
