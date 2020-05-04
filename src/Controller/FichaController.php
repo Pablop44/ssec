@@ -360,20 +360,15 @@ class FichaController extends AppController
      *
      * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
      */
-    public function add()
+    public function add($idUsuario)
     {
+        $data['paciente'] = $idUsuario;
+        $fecha = FrozenTime::now();
+        $data['fechaCreacion'] = $fecha;
+        $data['fechaCreacion'] =   $data['fechaCreacion']->i18nFormat('YYYY-mm-dd HH:mm:ss');
         $ficha = $this->Ficha->newEntity();
-        if ($this->request->is('post')) {
-            $ficha = $this->Ficha->patchEntity($ficha, $this->request->getData());
-            if ($this->Ficha->save($ficha)) {
-                $this->Flash->success(__('The ficha has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The ficha could not be saved. Please, try again.'));
-        }
-        $enfermedad = $this->Ficha->Enfermedad->find('list', ['limit' => 200]);
-        $this->set(compact('ficha', 'enfermedad'));
+        $ficha = $this->Ficha->patchEntity($ficha, $data);
+        $this->Ficha->save($ficha);
     }
 
     /**

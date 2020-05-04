@@ -63,8 +63,8 @@ class CuentaController extends AppController
     public function add($datos)
     {
         $cuentum = $this->Cuenta->newEntity();
-            $cuentum = $this->Cuenta->patchEntity($cuentum, $datos);
-           $this->Cuenta->save($cuentum);
+        $cuentum = $this->Cuenta->patchEntity($cuentum, $datos);
+        $this->Cuenta->save($cuentum);
     }
 
     /**

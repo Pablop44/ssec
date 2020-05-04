@@ -773,6 +773,9 @@ class UserController extends AppController
                 $cuenta = (new CuentaController());
                 $cuenta->add($datosCuenta);
 
+                $ficha = (new FichaController());
+                $ficha->add($idUsuario);
+
                 $this->response->statusCode(200);
                 $this->response->type('json');
                 $json = json_encode($user);
