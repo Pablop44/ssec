@@ -210,15 +210,18 @@ class NotaController extends AppController
     public function delete($id = null)
     {
         $this->autoRender = false;
-        $this->request->allowMethod(['post', 'delete']);
         $notum = $this->Nota->get($id);
-        $this->Nota->delete($notum);
-
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($id);
-        $this->response->body($json);
-        
+        if($this->Nota->delete($notum)){
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($id);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(500);
+            $this->response->type('json');
+            $json = json_encode($id);
+            $this->response->body($json);
+        }
     }
 
     public function desencriptarNota($nota){

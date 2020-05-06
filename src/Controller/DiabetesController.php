@@ -222,15 +222,20 @@ class DiabetesController extends AppController
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
-        $diabetes = $this->Diabetes->get($id);
-        if ($this->Diabetes->delete($diabetes)) {
-            $this->Flash->success(__('The diabetes has been deleted.'));
-        } else {
-            $this->Flash->error(__('The diabetes could not be deleted. Please, try again.'));
-        }
+        $this->autoRender = false;
+        $informe = $this->Diabetes->get($id);
 
-        return $this->redirect(['action' => 'index']);
+        if($this->Diabetes->delete($informe)){
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($id);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(500);
+            $this->response->type('json');
+            $json = json_encode($id);
+            $this->response->body($json);
+        }
     }
 
     public function getCubierto($id = null)

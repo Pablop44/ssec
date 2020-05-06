@@ -191,15 +191,14 @@ class AsmaController extends AppController
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
-        $asma = $this->Asma->get($id);
-        if ($this->Asma->delete($asma)) {
-            $this->Flash->success(__('The asma has been deleted.'));
-        } else {
-            $this->Flash->error(__('The asma could not be deleted. Please, try again.'));
-        }
+        $this->autoRender = false;
+        $informe = $this->Asma->get($id);
+        $this->Asma->delete($informe);
 
-        return $this->redirect(['action' => 'index']);
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($id);
+        $this->response->body($json);
     }
 
 

@@ -34,6 +34,7 @@ class FichaController extends AppController
     public function initialize()
     {
         parent::initialize();
+        $this->Auth->allow(['fichas']);
         $this->loadComponent('Csrf');
     }
 
@@ -41,6 +42,7 @@ class FichaController extends AppController
         
             $this->eventManager()->off($this->Csrf);   
     }
+
 
     public function fichas()
     {
@@ -58,6 +60,7 @@ class FichaController extends AppController
         if(!isset($data['filtro'])){
             $conditions = array();
         }else{
+
             if(isset($data['filtro']['fechaInicio'])){
                 $fechaInicio =  array('fechaCreacion >' => $data['filtro']['fechaInicio']);
             }else{
@@ -68,15 +71,33 @@ class FichaController extends AppController
             }else{
                 $fechaFin = "";
             }
-            
             if(isset($data['filtro']['id'])){
                 $conditions = array('id' => $data['filtro']['id'],$fechaFin, $fechaFin);
             }else{
                 $conditions = array($fechaInicio, $fechaFin);
             }  
+
+            $condicionesPaciente = array();
+            if(isset($data['filtro']['nombrePaciente'])){
+                $nombre = array("u.nombre LIKE" => "%".$data['filtro']['nombrePaciente']."%");
+            }else{
+                $nombre = "";
+            }  
+            if(isset($data['filtro']['apellidosPaciente'])){
+                $apellidos = array("u.apellidos LIKE" => "%".$data['filtro']['apellidosPaciente']."%");
+            }else{
+                $apellidos = "";
+            }  
+            if(isset($data['filtro']['dniPaciente'])){
+                $dniPaciente = array("u.dni LIKE" => "%".$data['filtro']['dniPaciente']."%");
+            }else{
+                $dniPaciente = "";
+            } 
+            $condicionesPaciente = array($nombre, $apellidos, $dniPaciente);
         } 
 
         $fichas = $this->Ficha->find('all', array('conditions' => $conditions));
+
         $paginador = $this->paginate($fichas);
 
         foreach($paginador as $ficha){
