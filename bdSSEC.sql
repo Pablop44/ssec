@@ -63,33 +63,6 @@ CREATE TABLE IF NOT EXISTS `mydb`.`cuenta` (
     ON UPDATE CASCADE);
 
 
-
--- -----------------------------------------------------
--- Table `mydb`.`consejo`
--- -----------------------------------------------------
-
-DROP TABLE IF EXISTS `mydb`.`consejo` ;
-
-CREATE TABLE IF NOT EXISTS `mydb`.`consejo` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `recomendacion` VARCHAR(511) NOT NULL,
-  `paciente` INT NOT NULL,
-  `medico` INT NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fkPaciente_idx` (`paciente` ASC),
-  INDEX `fkMedico_idx` (`medico` ASC),
-  CONSTRAINT `fkPacienteConsejo`
-    FOREIGN KEY (`paciente`)
-    REFERENCES `mydb`.`user` (`id`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `fkMedicoConsejo`
-    FOREIGN KEY (`medico`)
-    REFERENCES `mydb`.`user` (`id`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE);
-
-
 -- -----------------------------------------------------
 -- Table `mydb`.`ficha`
 -- -----------------------------------------------------
