@@ -611,7 +611,15 @@ class UserController extends AppController
             }
 
             $user['rol'] = $rol;
-            $user['ficha'] = $idFicha;
+            if(!isset($idFicha)){
+                header('Access-Control-Allow-Origin: *');
+                $this->response->statusCode(403);
+                header('Content-Type: application/json');
+                $this->set('problema', 'Las credenciales son incorrectas');    
+                $this->set('_serialize', ['problema']); 
+            }else{
+                $user['ficha'] = $idFicha;
+            }
     
             if($estadoCuenta == "desactivada"){
                 header('Access-Control-Allow-Origin: *');
