@@ -701,7 +701,7 @@ class UserController extends AppController
                 $email->subject('Nueva Cuenta Asociada al usuario '. $user['username']);
                 $email->to($emailUsuario);
                 $email->send('<h3> Hola, se ha creado una nueva cuenta asociada al usuario '.$user['username'].'</h3> <br>
-                 <a href="http://localhost:8765/user/confirmar/'.$idUsuario.'.json">Haz click aquí para activarla</a> <br>
+                 <a href="http://localhost:4200/activatedUser/'.$idUsuario.'">Haz click aquí para activarla</a> <br>
                  Para poder usarla el administrador tendrá que aprobar la solicitud después de haber activado la cuenta <br> <br>
                  <h4> SSEC </h4>');  
                  
@@ -768,7 +768,7 @@ class UserController extends AppController
                 $email->subject('Nueva Cuenta Asociada al usuario '. $user['username']);
                 $email->to($emailUsuario);
                 $email->send('<h3> Hola, se ha creado una nueva cuenta asociada al usuario '.$user['username'].'</h3> <br>
-                 <a href="http://localhost:8765/user/confirmar/'.$idUsuario.'.json">Haz click aquí para activarla</a> <br>
+                <a href="http://localhost:4200/activatedUser/'.$idUsuario.'">Haz click aquí para activarla</a> <br>
                  Para poder usarla el administrador tendrá que aprobar la solicitud después de haber activado la cuenta <br> <br>
                  <h4> SSEC </h4>');  
                  
