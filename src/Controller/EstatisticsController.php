@@ -74,85 +74,192 @@ class EstatisticsController extends AppController
         $this->response->body($json);
     }
 
-
-
-    /**
-     * View method
-     *
-     * @param string|null $id Estatistic id.
-     * @return \Cake\Http\Response|null
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function view($id = null)
+    public function estadisticasEnfermedadesPorSexo()
     {
-        $estatistic = $this->Estatistics->get($id, [
-            'contain' => [],
-        ]);
-
-        $this->set('estatistic', $estatistic);
-    }
-
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
-     */
-    public function add()
-    {
-        $estatistic = $this->Estatistics->newEntity();
-        if ($this->request->is('post')) {
-            $estatistic = $this->Estatistics->patchEntity($estatistic, $this->request->getData());
-            if ($this->Estatistics->save($estatistic)) {
-                $this->Flash->success(__('The estatistic has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
+        $this->autoRender = false;
+        $enfermedades = TableRegistry::getTableLocator()->get('FichaEnfermedad');
+        $iteradorEnfermedadAsma = $enfermedades->find()->where(['enfermedad' => 'asma'])->all();
+        $ficha = TableRegistry::getTableLocator()->get('Ficha');
+        $user = TableRegistry::getTableLocator()->get('User');
+        $masculinoAsma = 0;
+        $femeninoAsma = 0;
+        foreach($iteradorEnfermedadAsma as $iterador){
+            $iteradorFicha = $ficha->find()->where(['id' => $iterador['ficha']])->all();
+            foreach($iteradorFicha as $iterador2){
+                $iteradorUser = $user->find()->where(['id' => $iterador2['paciente']])->all();
+                foreach($iteradorUser as $iterador3){
+                    if($iterador3['genero'] == "Male"){
+                        $masculinoAsma++;
+                    }else{
+                        $femeninoAsma++; 
+                    }
+                }
             }
-            $this->Flash->error(__('The estatistic could not be saved. Please, try again.'));
         }
-        $this->set(compact('estatistic'));
-    }
-
-    /**
-     * Edit method
-     *
-     * @param string|null $id Estatistic id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $estatistic = $this->Estatistics->get($id, [
-            'contain' => [],
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $estatistic = $this->Estatistics->patchEntity($estatistic, $this->request->getData());
-            if ($this->Estatistics->save($estatistic)) {
-                $this->Flash->success(__('The estatistic has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
+        $masculinoMigranas = 0;
+        $femeninoMigranas = 0;
+        $iteradorEnfermedadMigranas = $enfermedades->find()->where(['enfermedad' => 'migranas'])->all();
+        foreach($iteradorEnfermedadMigranas as $iterador){
+            $iteradorFicha = $ficha->find()->where(['id' => $iterador['ficha']])->all();
+            foreach($iteradorFicha as $iterador2){
+                $iteradorUser = $user->find()->where(['id' => $iterador2['paciente']])->all();
+                foreach($iteradorUser as $iterador3){
+                    if($iterador3['genero'] == "Male"){
+                        $masculinoMigranas++;
+                    }else{
+                        $femeninoMigranas++; 
+                    }
+                }
             }
-            $this->Flash->error(__('The estatistic could not be saved. Please, try again.'));
         }
-        $this->set(compact('estatistic'));
+
+        $masculinoDiabetes = 0;
+        $femeninoDiabetes = 0;
+        $iteradorEnfermedadDiabetes = $enfermedades->find()->where(['enfermedad' => 'diabetes'])->all();
+        foreach($iteradorEnfermedadDiabetes as $iterador){
+            $iteradorFicha = $ficha->find()->where(['id' => $iterador['ficha']])->all();
+            foreach($iteradorFicha as $iterador2){
+                $iteradorUser = $user->find()->where(['id' => $iterador2['paciente']])->all();
+                foreach($iteradorUser as $iterador3){
+                    if($iterador3['genero'] == "Male"){
+                        $masculinoDiabetes++;
+                    }else{
+                        $femeninoDiabetes++; 
+                    }
+                }
+            }
+        }
+
+        $array = array();
+        $array['masculinoAsma'] = $masculinoAsma;
+        $array['femeninoAsma'] = $femeninoAsma;
+
+        $array['masculinoMigranas'] = $masculinoMigranas;
+        $array['femeninoMigranas'] = $femeninoMigranas;
+
+        $array['masculinoDiabetes'] = $masculinoDiabetes;
+        $array['femeninoDiabetes'] = $femeninoDiabetes;
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($array);
+        $this->response->body($json);
     }
 
-    /**
-     * Delete method
-     *
-     * @param string|null $id Estatistic id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function delete($id = null)
+    public function estadisticasEnfermedadesPorEdad()
     {
-        $this->request->allowMethod(['post', 'delete']);
-        $estatistic = $this->Estatistics->get($id);
-        if ($this->Estatistics->delete($estatistic)) {
-            $this->Flash->success(__('The estatistic has been deleted.'));
-        } else {
-            $this->Flash->error(__('The estatistic could not be deleted. Please, try again.'));
+        $this->autoRender = false;
+        $enfermedades = TableRegistry::getTableLocator()->get('FichaEnfermedad');
+        $iteradorEnfermedadAsma = $enfermedades->find()->where(['enfermedad' => 'asma'])->all();
+        $ficha = TableRegistry::getTableLocator()->get('Ficha');
+        $user = TableRegistry::getTableLocator()->get('User');
+        $menores20Asma = 0;
+        $menores40Asma = 0;
+        $menores60Asma = 0;
+        $menores80Asma = 0;
+        $menores100Asma = 0;
+        foreach($iteradorEnfermedadAsma as $iterador){
+            $iteradorFicha = $ficha->find()->where(['id' => $iterador['ficha']])->all();
+            foreach($iteradorFicha as $iterador2){
+                $iteradorUser = $user->find()->where(['id' => $iterador2['paciente']])->all();
+                foreach($iteradorUser as $iterador3){
+                    $fecha = FrozenTime::parse($iterador3->nacimiento);
+                    $time = FrozenTime::now();
+                    $diff = $time->diff($fecha);
+                    if((int)$diff->y < 20){
+                        $menores20Asma++;
+                    }else if((int)$diff->y < 40){
+                        $menores40Asma++;
+                    }else if((int)$diff->y < 60){
+                        $menores60Asma++;
+                    }else if((int)$diff->y < 80){
+                        $menores80Asma++;
+                    }else{
+                        $menores100Asma++;
+                    }
+                }
+            }
         }
 
-        return $this->redirect(['action' => 'index']);
+        
+        $menores20Migranas = 0;
+        $menores40Migranas = 0;
+        $menores60Migranas = 0;
+        $menores80Migranas = 0;
+        $menores100Migranas = 0;
+        $iteradorEnfermedadMigranas = $enfermedades->find()->where(['enfermedad' => 'migranas'])->all();
+        foreach($iteradorEnfermedadMigranas as $iterador){
+            $iteradorFicha = $ficha->find()->where(['id' => $iterador['ficha']])->all();
+            foreach($iteradorFicha as $iterador2){
+                $iteradorUser = $user->find()->where(['id' => $iterador2['paciente']])->all();
+                foreach($iteradorUser as $iterador3){
+                    $fecha = FrozenTime::parse($iterador3->nacimiento);
+                    $time = FrozenTime::now();
+                    $diff = $time->diff($fecha);
+                    if((int)$diff->y < 20){
+                        $menores20Migranas++;
+                    }else if((int)$diff->y < 40){
+                        $menores40Migranas++;
+                    }else if((int)$diff->y < 60){
+                        $menores60Migranas++;
+                    }else if((int)$diff->y < 80){
+                        $menores80Migranas++;
+                    }else{
+                        $menores100Migranas++;
+                    }
+                }
+            }
+        }
+
+        $menores20Diabetes = 0;
+        $menores40Diabetes = 0;
+        $menores60Diabetes = 0;
+        $menores80Diabetes = 0;
+        $menores100Diabetes = 0;
+        $iteradorEnfermedadDiabetes = $enfermedades->find()->where(['enfermedad' => 'diabetes'])->all();
+        foreach($iteradorEnfermedadDiabetes as $iterador){
+            $iteradorFicha = $ficha->find()->where(['id' => $iterador['ficha']])->all();
+            foreach($iteradorFicha as $iterador2){
+                $iteradorUser = $user->find()->where(['id' => $iterador2['paciente']])->all();
+                foreach($iteradorUser as $iterador3){
+                    $fecha = FrozenTime::parse($iterador3->nacimiento);
+                    $time = FrozenTime::now();
+                    $diff = $time->diff($fecha);
+                    if((int)$diff->y < 20){
+                        $menores20Diabetes++;
+                    }else if((int)$diff->y < 40){
+                        $menores40Diabetes++;
+                    }else if((int)$diff->y < 60){
+                        $menores60Diabetes++;
+                    }else if((int)$diff->y < 80){
+                        $menores80Diabetes++;
+                    }else{
+                        $menores100Diabetes++;
+                    }
+                }
+            }
+        }
+
+        $array = array();
+        $array['menores20Asma'] = $menores20Asma;
+        $array['menores40Asma'] = $menores40Asma;
+        $array['menores60Asma'] = $menores60Asma;
+        $array['menores80Asma'] = $menores80Asma;
+        $array['menores100Asma'] = $menores100Asma;
+        $array['menores20Migranas'] = $menores20Migranas;
+        $array['menores40Migranas'] = $menores40Migranas;
+        $array['menores60Migranas'] = $menores60Migranas;
+        $array['menores80Migranas'] = $menores80Migranas;
+        $array['menores100Migranas'] = $menores100Migranas;
+        $array['menores20Diabetes'] = $menores20Diabetes;
+        $array['menores40Diabetes'] = $menores40Diabetes;
+        $array['menores60Diabetes'] = $menores60Diabetes;
+        $array['menores80Diabetes'] = $menores80Diabetes;
+        $array['menores100Diabetes'] = $menores100Diabetes;
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($array);
+        $this->response->body($json);
     }
 }
