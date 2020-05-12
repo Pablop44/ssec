@@ -6,6 +6,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Event\Event;
 use Cake\I18n\FrozenTime;
 use Cake\Utility\Security;
+use Google\Cloud\Language\LanguageClient;
 
 /**
  * Migranas Controller
@@ -57,6 +58,32 @@ class MigranasController extends AppController
      * @return \Cake\Http\Response|null
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
+
+    public function analisisDeSentimientos($id = null)
+    {
+        $this->autoRender = false;
+        $language = new LanguageClient([
+            'projectId' => 'ssec-277009',
+            'keyFilePath' => '/Users/pablopazosdominguez/Desktop/google-cloud-sdk/key.json'
+        ]);
+
+        $migranas = $this->Migranas->get($id);
+        $migranas = $this->desencriptarInforme($migranas);
+
+        $text = $migranas->estadoGeneral;
+
+        $annotation = $language->analyzeSentiment($text);
+        $sentiment = $annotation->sentiment();
+
+        $array = array();
+        $array['sentimiento'] = $sentiment['score'];
+       
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($array);
+        $this->response->body($json);
+    }
+
     public function migranasFichas()
     {
 

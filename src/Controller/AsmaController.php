@@ -44,7 +44,6 @@ class AsmaController extends AppController
     {
         parent::initialize();
         $this->loadComponent('Csrf');
-        $this->Auth->allow(['probarAnalisisDeSentimientos']);
     }
 
     public function beforeFilter(Event $event) {
@@ -84,7 +83,7 @@ class AsmaController extends AppController
     }
 
 
-    public function probarAnalisisDeSentimientos()
+    public function analisisDeSentimientos($id = null)
     {
         $this->autoRender = false;
         $language = new LanguageClient([
@@ -92,17 +91,20 @@ class AsmaController extends AppController
             'keyFilePath' => '/Users/pablopazosdominguez/Desktop/google-cloud-sdk/key.json'
         ]);
 
-        $text = 'Menuda mierda';
+        $asma = $this->Asma->get($id);
+        $asma = $this->desencriptarInforme($asma);
+
+        $text = $asma->estadoGeneral;
 
         $annotation = $language->analyzeSentiment($text);
         $sentiment = $annotation->sentiment();
 
-        $var = 'Text: ' . $text . '
-        Sentiment: ' . $sentiment['score'] . ', ' . $sentiment['magnitude'];
+        $array = array();
+        $array['sentimiento'] = $sentiment['score'];
        
         $this->response->statusCode(200);
         $this->response->type('json');
-        $json = json_encode($var);
+        $json = json_encode($array);
         $this->response->body($json);
     }
 

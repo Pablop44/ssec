@@ -6,6 +6,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Event\Event;
 use Cake\I18n\FrozenTime;
 use Cake\Utility\Security;
+use Google\Cloud\Language\LanguageClient;
 
 /**
  * Diabetes Controller
@@ -48,6 +49,32 @@ class DiabetesController extends AppController
     public function beforeFilter(Event $event) {
         
         $this->eventManager()->off($this->Csrf);   
+    }
+
+
+    public function analisisDeSentimientos($id = null)
+    {
+        $this->autoRender = false;
+        $language = new LanguageClient([
+            'projectId' => 'ssec-277009',
+            'keyFilePath' => '/Users/pablopazosdominguez/Desktop/google-cloud-sdk/key.json'
+        ]);
+
+        $diabetes = $this->Diabetes->get($id);
+        $diabetes = $this->desencriptarInforme($diabetes);
+
+        $text = $diabetes->estadoGeneral;
+
+        $annotation = $language->analyzeSentiment($text);
+        $sentiment = $annotation->sentiment();
+
+        $array = array();
+        $array['sentimiento'] = $sentiment['score'];
+       
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($array);
+        $this->response->body($json);
     }
 
 
