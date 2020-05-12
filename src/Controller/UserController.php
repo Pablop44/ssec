@@ -42,6 +42,23 @@ class UserController extends AppController
         $this->Auth->allow(['register', 'login','loginPaciente', 'registerPaciente', 'confirmar', 'getLoggedUser']);
     }
 
+    function checkToken(){
+        $this->autoRender = false;
+        $token = $this->request->header('Authorization');
+        $token = str_replace("Bearer ", "",$token);
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $id = JWT::decode(
+            $token,
+            Security::getSalt(),
+            array('HS256')
+        );
+
+        $array['id'] = $id;
+        $json = json_encode($array);
+        $this->response->body($json);
+    }
+
     public function getLoggedUser($id){
         $this->autoRender = false;
         $this->response->statusCode(200);
