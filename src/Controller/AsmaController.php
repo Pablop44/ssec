@@ -6,6 +6,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Event\Event;
 use Cake\I18n\FrozenTime;
 use Cake\Utility\Security;
+use Google\Cloud\Language\LanguageClient;
 
 /**
  * Asma Controller
@@ -43,11 +44,13 @@ class AsmaController extends AppController
     {
         parent::initialize();
         $this->loadComponent('Csrf');
+        $this->Auth->allow(['probarAnalisisDeSentimientos']);
     }
 
     public function beforeFilter(Event $event) {
         
-        $this->eventManager()->off($this->Csrf);   
+        $this->eventManager()->off($this->Csrf); 
+          
     }
 
     
@@ -77,6 +80,29 @@ class AsmaController extends AppController
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($paginador);
+        $this->response->body($json);
+    }
+
+
+    public function probarAnalisisDeSentimientos()
+    {
+        $this->autoRender = false;
+        $language = new LanguageClient([
+            'projectId' => 'ssec-277009',
+            'keyFilePath' => '/Users/pablopazosdominguez/Desktop/google-cloud-sdk/key.json'
+        ]);
+
+        $text = 'Menuda mierda';
+
+        $annotation = $language->analyzeSentiment($text);
+        $sentiment = $annotation->sentiment();
+
+        $var = 'Text: ' . $text . '
+        Sentiment: ' . $sentiment['score'] . ', ' . $sentiment['magnitude'];
+       
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($var);
         $this->response->body($json);
     }
 

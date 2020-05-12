@@ -25,6 +25,7 @@ class EstatisticsController extends AppController
     {
         parent::initialize();
         $this->loadComponent('Csrf');
+        $this->Auth->allow(['estadisticasMedicamentosMasUtilizados']);
         $this->loadComponent('Paginator');
     }
 
@@ -260,6 +261,38 @@ class EstatisticsController extends AppController
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($array);
+        $this->response->body($json);
+    }
+
+    public function estadisticasMedicamentosMasUtilizados()
+    {
+        $this->autoRender = false;
+        $medicamentos = TableRegistry::getTableLocator()->get('Medicamento');
+        $medicamentoTratamientos = TableRegistry::getTableLocator()->get('TratamientoMedicamento');
+        $iteradorMedicamento = $medicamentos->find()->all();
+
+        $array = array();
+
+        foreach($iteradorMedicamento as $iterador){
+            $i = 0;
+            $iteradorMedicamentoTratamiento = $medicamentoTratamientos->find()->where(['medicamento' => $iterador['nombre']])->all();
+            foreach($iteradorMedicamentoTratamiento as $iterador2){
+                $i++;
+            }
+            $array[$iterador['nombre']] = $i;
+        }
+
+        $arrayAEnviar = array();
+        for ($i = 0; $i < 5; $i++){
+            $value = max($array);
+            $key = array_search($value, $array);
+            unset($array[$key]);
+            $arrayAEnviar[$key] = $value;
+        }
+
+        $this->response->statusCode(200);
+        $this->response->type('json');
+        $json = json_encode($arrayAEnviar);
         $this->response->body($json);
     }
 }
