@@ -5,6 +5,9 @@ use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
 use Cake\Event\Event;
 use Cake\I18n\FrozenTime;
+use Cake\Utility\Security;
+use Firebase\JWT\JWT;
+
 /**
  * Ficha Controller
  *
@@ -14,11 +17,6 @@ use Cake\I18n\FrozenTime;
  */
 class FichaController extends AppController
 {
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null
-     */
     public $paginate = [
         'page' => 1,
         'limit' => 10,
@@ -39,348 +37,442 @@ class FichaController extends AppController
     }
 
     public function beforeFilter(Event $event) {
-        
             $this->eventManager()->off($this->Csrf);   
     }
 
+    /*
+    Función que controla el token del header de autroización y controla el acceso a las funciones restringidas del controlador
+    */
+    public function checkToken(){
+        $this->autoRender = false;
+        $token = $this->request->header('Authorization');
+        $action = $this->getRequest()->getParam('action');
+        $token = str_replace("Bearer ", "",$token);
+        $id = JWT::decode(
+            $token,
+            Security::getSalt(),
+            array('HS256')
+        );
+        $array['id'] = $id;
 
+        $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+        $iteradorCuentas = $cuenta->find()->where(['user' => $array['id']->sub])->all();
+
+        foreach($iteradorCuentas as $iterador){
+            $rol = $iterador['rol'];
+        }
+
+        if(($action == "fichas" || $action == "numeroFichas" || $action == "fichasMedico" || $action == "numeroFichasMedico" ||
+         $action == "view"  || $action == "getFichaPaciente" || $action == "cambiarMedico" || $action == "delete") && $rol == "administrador"){
+            return true;    
+        }else if(($action == "fichasMedico" || $action == "numeroFichasMedico" || $action == "view"  || $action == "getFichaPaciente") && $rol == "medico"){
+            return true;
+        }else if(($action == "viewPaciente") && $rol == "paciente"){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    /* 
+    Devuelve una lista con todas las fichas del sistema paginadas
+    Solo accesible por el administrador
+    */
     public function fichas()
     {
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $data = $this->request->getData();
+            $this->paginate['page'] = $data['page']+1;
+            $this->paginate['limit'] = $data['limit'];
 
-        $this->autoRender = false;
-        $data = $this->request->getData();
-        $this->paginate['page'] = $data['page']+1;
-        $this->paginate['limit'] = $data['limit'];
-
-        if(isset($data['tipo'])){
-            $this->paginate['order'] = [$data['tipo'] => 'desc'];
-        }
-
-
-        if(!isset($data['filtro'])){
-            $conditions = array();
-        }else{
-
-            if(isset($data['filtro']['fechaInicio'])){
-                $fechaInicio =  array('fechaCreacion >' => $data['filtro']['fechaInicio']);
-            }else{
-                $fechaInicio = "";
+            if(isset($data['tipo'])){
+                $this->paginate['order'] = [$data['tipo'] => 'desc'];
             }
-            if(isset($data['filtro']['fechaFin'])){
-                $fechaFin =  array('fechaCreacion <' => $data['filtro']['fechaFin']);
-            }else{
-                $fechaFin = "";
-            }
-            if(isset($data['filtro']['id'])){
-                $conditions = array('id' => $data['filtro']['id'],$fechaFin, $fechaFin);
-            }else{
-                $conditions = array($fechaInicio, $fechaFin);
-            }  
 
-            $condicionesPaciente = array();
-            if(isset($data['filtro']['nombrePaciente'])){
-                $nombre = array("u.nombre LIKE" => "%".$data['filtro']['nombrePaciente']."%");
+
+            if(!isset($data['filtro'])){
+                $conditions = array();
             }else{
-                $nombre = "";
-            }  
-            if(isset($data['filtro']['apellidosPaciente'])){
-                $apellidos = array("u.apellidos LIKE" => "%".$data['filtro']['apellidosPaciente']."%");
-            }else{
-                $apellidos = "";
-            }  
-            if(isset($data['filtro']['dniPaciente'])){
-                $dniPaciente = array("u.dni LIKE" => "%".$data['filtro']['dniPaciente']."%");
-            }else{
-                $dniPaciente = "";
+
+                if(isset($data['filtro']['fechaInicio'])){
+                    $fechaInicio =  array('fechaCreacion >' => $data['filtro']['fechaInicio']);
+                }else{
+                    $fechaInicio = "";
+                }
+                if(isset($data['filtro']['fechaFin'])){
+                    $fechaFin =  array('fechaCreacion <' => $data['filtro']['fechaFin']);
+                }else{
+                    $fechaFin = "";
+                }
+                if(isset($data['filtro']['id'])){
+                    $conditions = array('id' => $data['filtro']['id'],$fechaFin, $fechaFin);
+                }else{
+                    $conditions = array($fechaInicio, $fechaFin);
+                }  
+
+                $condicionesPaciente = array();
+                if(isset($data['filtro']['nombrePaciente'])){
+                    $nombre = array("u.nombre LIKE" => "%".$data['filtro']['nombrePaciente']."%");
+                }else{
+                    $nombre = "";
+                }  
+                if(isset($data['filtro']['apellidosPaciente'])){
+                    $apellidos = array("u.apellidos LIKE" => "%".$data['filtro']['apellidosPaciente']."%");
+                }else{
+                    $apellidos = "";
+                }  
+                if(isset($data['filtro']['dniPaciente'])){
+                    $dniPaciente = array("u.dni LIKE" => "%".$data['filtro']['dniPaciente']."%");
+                }else{
+                    $dniPaciente = "";
+                } 
+                $condicionesPaciente = array($nombre, $apellidos, $dniPaciente);
             } 
-            $condicionesPaciente = array($nombre, $apellidos, $dniPaciente);
-        } 
 
-        $fichas = $this->Ficha->find('all', array('conditions' => $conditions));
+            $fichas = $this->Ficha->find('all', array('conditions' => $conditions));
 
-        $paginador = $this->paginate($fichas);
+            $paginador = $this->paginate($fichas);
 
-        foreach($paginador as $ficha){
-            
-            $usuarios = TableRegistry::getTableLocator()->get('User');
-            $iteradorUsuarios = $usuarios->find()->where(['id' => $ficha['paciente']])->all();
-            foreach($iteradorUsuarios as $usuario){
-                $ficha['dniPaciente'] = $usuario['dni'];
-                $ficha['nombrePaciente'] = $usuario['nombre']." ".$usuario['apellidos'];
+            foreach($paginador as $ficha){
+                
+                $usuarios = TableRegistry::getTableLocator()->get('User');
+                $iteradorUsuarios = $usuarios->find()->where(['id' => $ficha['paciente']])->all();
+                foreach($iteradorUsuarios as $usuario){
+                    $ficha['dniPaciente'] = $usuario['dni'];
+                    $ficha['nombrePaciente'] = $usuario['nombre']." ".$usuario['apellidos'];
+                }
+                $iteradorUsuarios2 = $usuarios->find()->where(['id' => $ficha['medico']])->all();
+                foreach($iteradorUsuarios2 as $usuario2){
+                    $ficha['dniMedico'] = $usuario2['dni'];
+                    $ficha['nombreMedico'] = $usuario2['nombre']." ".$usuario2['apellidos'];
+                    $ficha['colegiado'] = $usuario2['colegiado'];
+                }
+                $enfermedad = TableRegistry::getTableLocator()->get('FichaEnfermedad');
+                $iteradorEnfermedad = $enfermedad->find()->where(['ficha' => $ficha['id']])->all();
+
+                foreach($iteradorEnfermedad as $enfermedad){
+                    $ficha['enfermedad'] = $enfermedad['enfermedad'];
+                }
+                $fecha = FrozenTime::parse($ficha->fechaCreacion);
+                $ficha->fechaCreacion = $fecha;
+                $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('dd/MM/YYYY');
             }
-            $iteradorUsuarios2 = $usuarios->find()->where(['id' => $ficha['medico']])->all();
-            foreach($iteradorUsuarios2 as $usuario2){
-                $ficha['dniMedico'] = $usuario2['dni'];
-                $ficha['nombreMedico'] = $usuario2['nombre']." ".$usuario2['apellidos'];
-                $ficha['colegiado'] = $usuario2['colegiado'];
-            }
-            $enfermedad = TableRegistry::getTableLocator()->get('FichaEnfermedad');
-            $iteradorEnfermedad = $enfermedad->find()->where(['ficha' => $ficha['id']])->all();
-
-            foreach($iteradorEnfermedad as $enfermedad){
-                $ficha['enfermedad'] = $enfermedad['enfermedad'];
-            }
-            $fecha = FrozenTime::parse($ficha->fechaCreacion);
-            $ficha->fechaCreacion = $fecha;
-            $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('dd/MM/YYYY');
-        }
-       
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($paginador);
-        $this->response->body($json);
-    }
-
-
-    public function numeroFichas()
-    {
-
-        $this->autoRender = false;
-        $conditions = array();
-        $fichas = $this->Ficha->find('all', array('conditions' => $conditions));
-
-        $i = 0;
-
-        foreach($fichas as $ficha){
-            $i++;
-        }
-
-        $myobj = array();
-        $myobj['numero'] = $i;
-
-       
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($myobj);
-        $this->response->body($json);
-    }
-
-    
-
-    public function fichasMedico()
-    {
-        $this->autoRender = false;
-        $data = $this->request->getData();
-        $this->paginate['page'] = $data['page']+1;
-        $this->paginate['limit'] = $data['limit'];
-
-        if(isset($data['tipo'])){
-            $this->paginate['order'] = [$data['tipo'] => 'desc'];
-        }
-
-        $usuarios2 = TableRegistry::getTableLocator()->get('User');
-        $iteradorUsuarios = $usuarios2->find()->where(['username' => $data['medico']])->all();
-        foreach($iteradorUsuarios as $user){
-                $idUsuario = $user['id'];
-        }
-
-
-        if(!isset($data['filtro'])){
-            $conditions = array('medico' => $idUsuario);
-        }else{
-            if(isset($data['filtro']['fechaInicio'])){
-                $fechaInicio =  array('fechaCreacion >' => $data['filtro']['fechaInicio']);
-            }else{
-                $fechaInicio = "";
-            }
-            if(isset($data['filtro']['fechaFin'])){
-                $fechaFin =  array('fechaCreacion <' => $data['filtro']['fechaFin']);
-            }else{
-                $fechaFin = "";
-            }
-            if(isset($data['filtro']['id'])){
-                $conditions = array('medico' => $idUsuario,'id' => $data['filtro']['id'],$fechaFin, $fechaFin);
-            }else{
-                $conditions = array('medico' => $idUsuario,$fechaInicio, $fechaFin);
-            }  
-        } 
-
-        $fichas = $this->Ficha->find('all', array('conditions' => $conditions));
-        $paginador = $this->paginate($fichas);
-
-        foreach($paginador as $ficha){
-            
-            $usuarios = TableRegistry::getTableLocator()->get('User');
-            $iteradorUsuarios = $usuarios->find()->where(['id' => $ficha['paciente']])->all();
-            foreach($iteradorUsuarios as $usuario){
-                $ficha['dniPaciente'] = $usuario['dni'];
-                $ficha['nombrePaciente'] = $usuario['nombre']." ".$usuario['apellidos'];
-            }
-            $iteradorUsuarios2 = $usuarios->find()->where(['id' => $ficha['medico']])->all();
-            foreach($iteradorUsuarios2 as $usuario2){
-                $ficha['dniMedico'] = $usuario2['dni'];
-                $ficha['nombreMedico'] = $usuario2['nombre']." ".$usuario2['apellidos'];
-                $ficha['colegiado'] = $usuario2['colegiado'];
-            }
-            $enfermedad = TableRegistry::getTableLocator()->get('FichaEnfermedad');
-            $iteradorEnfermedad = $enfermedad->find()->where(['ficha' => $ficha['id']])->all();
-
-            foreach($iteradorEnfermedad as $enfermedad){
-                $ficha['enfermedad'] = $enfermedad['enfermedad'];
-            }
-            $fecha = FrozenTime::parse($ficha->fechaCreacion);
-            $ficha->fechaCreacion = $fecha;
-            $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('dd/MM/YYYY');
-        }
-       
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($paginador);
-        $this->response->body($json);
-    }
-
-    public function numeroFichasMedico()
-    {
-        $this->autoRender = false;
-        $data = $this->request->getData();
-
-        if(isset($data['tipo'])){
-            $this->paginate['order'] = [$data['tipo'] => 'desc'];
-        }
-
-        $usuarios2 = TableRegistry::getTableLocator()->get('User');
-        $iteradorUsuarios = $usuarios2->find()->where(['username' => $data['medico']])->all();
-        foreach($iteradorUsuarios as $user){
-                $idUsuario = $user['id'];
-        }
-
-
-        if(!isset($data['filtro'])){
-            $conditions = array('medico' => $idUsuario);
-        }else{
-            if(isset($data['filtro']['fechaInicio'])){
-                $fechaInicio =  array('fechaCreacion >' => $data['filtro']['fechaInicio']);
-            }else{
-                $fechaInicio = "";
-            }
-            if(isset($data['filtro']['fechaFin'])){
-                $fechaFin =  array('fechaCreacion <' => $data['filtro']['fechaFin']);
-            }else{
-                $fechaFin = "";
-            }
-            if(isset($data['filtro']['id'])){
-                $conditions = array('medico' => $idUsuario,'id' => $data['filtro']['id'],$fechaFin, $fechaFin);
-            }else{
-                $conditions = array('medico' => $idUsuario,$fechaInicio, $fechaFin);
-            }  
-        } 
-
-        $fichas = $this->Ficha->find('all', array('conditions' => $conditions));
-        $i = 0;
-        foreach($fichas as $ficha){
-            $i++;
-        }
-
-        $myobj = array();
-        $myobj['numero'] = $i;
-
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($myobj);
-        $this->response->body($json);
-    }
-
-    /**
-     * View method
-     *
-     * @param string|null $id Ficha id.
-     * @return \Cake\Http\Response|null
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function view($id = null)
-    {
-        $this->autoRender = false;
-        $ficha = $this->Ficha->get($id);
         
-        $enfermedades = array();
-
-        $fichaEnfermedad = TableRegistry::getTableLocator()->get('FichaEnfermedad');
-        $iteradorEnfermedades = $fichaEnfermedad->find()->where(['ficha' => $id])->all();
-        $i = 0;
-        foreach($iteradorEnfermedades as $enfermedad){
-            $enfermedades[$i++] = $enfermedad['enfermedad'];
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($paginador);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
         }
-
-        $ficha['enfermedad'] = (object) $enfermedades;
-
-        $fecha = FrozenTime::parse($ficha->fechaCreacion);
-        $ficha->fechaCreacion = $fecha;
-        $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('dd/MM/YYYY');
-
-
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($ficha);
-        $this->response->body($json);
     }
-
-    public function viewPaciente($id = null)
-    {
-        $this->autoRender = false;
-        $ficha = $this->Ficha->get($id);
-        
-        $enfermedades = array();
-
-        $fichaEnfermedad = TableRegistry::getTableLocator()->get('FichaEnfermedad');
-        $iteradorEnfermedades = $fichaEnfermedad->find()->select([
-            'enfermedad'
-        ])->where(['ficha' => $id])->all();
-        foreach($iteradorEnfermedades as $enfermedad){
-            array_push($enfermedades, $enfermedad);
-        }
-
-        $ficha['enfermedad'] = $enfermedades;
-
-        $fecha = FrozenTime::parse($ficha->fechaCreacion);
-        $ficha->fechaCreacion = $fecha;
-        $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('dd/MM/YYYY');
-
-
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($ficha);
-        $this->response->body($json);
-    }
-
 
     /*
-    Devuelve el numero de ficha de paciente
+    Devuelve el numero de fichas del sistema
+    Solo acesible por el administrador
     */
-    public function getFichaPaciente($id = null)
+    public function numeroFichas()
     {
-        $this->autoRender = false;
-        $iteradorFicha = $this->Ficha->find()->where(['paciente' => $id])->all();
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $conditions = array();
+            $fichas = $this->Ficha->find('all', array('conditions' => $conditions));
+
+            $i = 0;
+            foreach($fichas as $ficha){
+                $i++;
+            }
+
+            $myobj = array();
+            $myobj['numero'] = $i;
+
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($myobj);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
+        }
+    }
+
+    /*
+    Devuelve el la ifnormación de las fichas asignadas a un médico paginadas
+    Solo acesible por el administrador y el médico
+    */
+    public function fichasMedico()
+    {
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $data = $this->request->getData();
+            $this->paginate['page'] = $data['page']+1;
+            $this->paginate['limit'] = $data['limit'];
+
+            if(isset($data['tipo'])){
+                $this->paginate['order'] = [$data['tipo'] => 'desc'];
+            }
+
+            $usuarios2 = TableRegistry::getTableLocator()->get('User');
+            $iteradorUsuarios = $usuarios2->find()->where(['username' => $data['medico']])->all();
+            foreach($iteradorUsuarios as $user){
+                    $idUsuario = $user['id'];
+            }
+
+            if(!isset($data['filtro'])){
+                $conditions = array('medico' => $idUsuario);
+            }else{
+                if(isset($data['filtro']['fechaInicio'])){
+                    $fechaInicio =  array('fechaCreacion >' => $data['filtro']['fechaInicio']);
+                }else{
+                    $fechaInicio = "";
+                }
+                if(isset($data['filtro']['fechaFin'])){
+                    $fechaFin =  array('fechaCreacion <' => $data['filtro']['fechaFin']);
+                }else{
+                    $fechaFin = "";
+                }
+                if(isset($data['filtro']['id'])){
+                    $conditions = array('medico' => $idUsuario,'id' => $data['filtro']['id'],$fechaFin, $fechaFin);
+                }else{
+                    $conditions = array('medico' => $idUsuario,$fechaInicio, $fechaFin);
+                }  
+            } 
+
+            $fichas = $this->Ficha->find('all', array('conditions' => $conditions));
+            $paginador = $this->paginate($fichas);
+
+            foreach($paginador as $ficha){
+                
+                $usuarios = TableRegistry::getTableLocator()->get('User');
+                $iteradorUsuarios = $usuarios->find()->where(['id' => $ficha['paciente']])->all();
+                foreach($iteradorUsuarios as $usuario){
+                    $ficha['dniPaciente'] = $usuario['dni'];
+                    $ficha['nombrePaciente'] = $usuario['nombre']." ".$usuario['apellidos'];
+                }
+                $iteradorUsuarios2 = $usuarios->find()->where(['id' => $ficha['medico']])->all();
+                foreach($iteradorUsuarios2 as $usuario2){
+                    $ficha['dniMedico'] = $usuario2['dni'];
+                    $ficha['nombreMedico'] = $usuario2['nombre']." ".$usuario2['apellidos'];
+                    $ficha['colegiado'] = $usuario2['colegiado'];
+                }
+                $enfermedad = TableRegistry::getTableLocator()->get('FichaEnfermedad');
+                $iteradorEnfermedad = $enfermedad->find()->where(['ficha' => $ficha['id']])->all();
+
+                foreach($iteradorEnfermedad as $enfermedad){
+                    $ficha['enfermedad'] = $enfermedad['enfermedad'];
+                }
+                $fecha = FrozenTime::parse($ficha->fechaCreacion);
+                $ficha->fechaCreacion = $fecha;
+                $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('dd/MM/YYYY');
+            }
         
-        foreach($iteradorFicha as $ficha){
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($paginador);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
+        }
+    }
+
+    /*
+    Devuelve el número de fichas asignadas a un médico paginadas
+    Solo acesible por el administrador y el médico
+    */
+    public function numeroFichasMedico()
+    {
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $data = $this->request->getData();
+
+            if(isset($data['tipo'])){
+                $this->paginate['order'] = [$data['tipo'] => 'desc'];
+            }
+
+            $usuarios2 = TableRegistry::getTableLocator()->get('User');
+            $iteradorUsuarios = $usuarios2->find()->where(['username' => $data['medico']])->all();
+            foreach($iteradorUsuarios as $user){
+                    $idUsuario = $user['id'];
+            }
+
+
+            if(!isset($data['filtro'])){
+                $conditions = array('medico' => $idUsuario);
+            }else{
+                if(isset($data['filtro']['fechaInicio'])){
+                    $fechaInicio =  array('fechaCreacion >' => $data['filtro']['fechaInicio']);
+                }else{
+                    $fechaInicio = "";
+                }
+                if(isset($data['filtro']['fechaFin'])){
+                    $fechaFin =  array('fechaCreacion <' => $data['filtro']['fechaFin']);
+                }else{
+                    $fechaFin = "";
+                }
+                if(isset($data['filtro']['id'])){
+                    $conditions = array('medico' => $idUsuario,'id' => $data['filtro']['id'],$fechaFin, $fechaFin);
+                }else{
+                    $conditions = array('medico' => $idUsuario,$fechaInicio, $fechaFin);
+                }  
+            } 
+
+            $fichas = $this->Ficha->find('all', array('conditions' => $conditions));
+            $i = 0;
+            foreach($fichas as $ficha){
+                $i++;
+            }
+
+            $myobj = array();
+            $myobj['numero'] = $i;
+
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($myobj);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
+        }
+    }
+
+    /*
+    Devuelve la información de una ficha
+    Accesible por el médico y por el administrador
+    */
+    public function view($id = null)
+    {
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $ficha = $this->Ficha->get($id);
+            
             $enfermedades = array();
 
             $fichaEnfermedad = TableRegistry::getTableLocator()->get('FichaEnfermedad');
-            $iteradorEnfermedades = $fichaEnfermedad->find()->where(['ficha' => $ficha['id']])->all();
+            $iteradorEnfermedades = $fichaEnfermedad->find()->where(['ficha' => $id])->all();
             $i = 0;
             foreach($iteradorEnfermedades as $enfermedad){
                 $enfermedades[$i++] = $enfermedad['enfermedad'];
             }
-    
+
             $ficha['enfermedad'] = (object) $enfermedades;
-    
+
             $fecha = FrozenTime::parse($ficha->fechaCreacion);
             $ficha->fechaCreacion = $fecha;
             $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('dd/MM/YYYY');
-            $fichaAEnviar = array($ficha);
-        }
 
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($fichaAEnviar);
-        $this->response->body($json);
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($ficha);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
+        }
+    }
+
+    /*
+    Devuelve la información de una ficha
+    Accesible por el paciente
+    */
+    public function viewPaciente($id = null)
+    {
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $ficha = $this->Ficha->get($id);
+            
+            $enfermedades = array();
+
+            $fichaEnfermedad = TableRegistry::getTableLocator()->get('FichaEnfermedad');
+            $iteradorEnfermedades = $fichaEnfermedad->find()->select([
+                'enfermedad'
+            ])->where(['ficha' => $id])->all();
+            foreach($iteradorEnfermedades as $enfermedad){
+                array_push($enfermedades, $enfermedad);
+            }
+
+            $ficha['enfermedad'] = $enfermedades;
+
+            $fecha = FrozenTime::parse($ficha->fechaCreacion);
+            $ficha->fechaCreacion = $fecha;
+            $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('dd/MM/YYYY');
+
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($ficha);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
+        }
     }
 
 
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
-     */
+    /*
+    Devuelve la información de la ficha de un paciente
+    Accesible por el médico y por el administrador
+    */
+    public function getFichaPaciente($id = null)
+    {
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $iteradorFicha = $this->Ficha->find()->where(['paciente' => $id])->all();
+            
+            foreach($iteradorFicha as $ficha){
+                $enfermedades = array();
+
+                $fichaEnfermedad = TableRegistry::getTableLocator()->get('FichaEnfermedad');
+                $iteradorEnfermedades = $fichaEnfermedad->find()->where(['ficha' => $ficha['id']])->all();
+                $i = 0;
+                foreach($iteradorEnfermedades as $enfermedad){
+                    $enfermedades[$i++] = $enfermedad['enfermedad'];
+                }
+        
+                $ficha['enfermedad'] = (object) $enfermedades;
+        
+                $fecha = FrozenTime::parse($ficha->fechaCreacion);
+                $ficha->fechaCreacion = $fecha;
+                $ficha->fechaCreacion = $ficha->fechaCreacion->i18nFormat('dd/MM/YYYY');
+                $fichaAEnviar = array($ficha);
+            }
+
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($fichaAEnviar);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
+        }
+    }
+
+
+    /*
+    Añade una nueva ficha al sistema
+    */
     public function add($idUsuario)
     {
         $data['paciente'] = $idUsuario;
@@ -392,72 +484,60 @@ class FichaController extends AppController
         $this->Ficha->save($ficha);
     }
 
-    /**
-     * Edit method
-     *
-     * @param string|null $id Ficha id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $ficha = $this->Ficha->get($id, [
-            'contain' => ['Enfermedad'],
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $ficha = $this->Ficha->patchEntity($ficha, $this->request->getData());
-            if ($this->Ficha->save($ficha)) {
-                $this->Flash->success(__('The ficha has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The ficha could not be saved. Please, try again.'));
-        }
-        $enfermedad = $this->Ficha->Enfermedad->find('list', ['limit' => 200]);
-        $this->set(compact('ficha', 'enfermedad'));
-    }
-
     /*
     permite asignar un medico a un paciente
+    solo accesible por el administrador
     */
     public function cambiarMedico()
     {
-        $this->autoRender = false;
-        $data = $this->request->getData();
-        $ficha = $this->Ficha->get($data['id']);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $ficha = $this->Ficha->patchEntity($ficha, $this->request->getData());
-            if ($this->Ficha->save($ficha)) {
-                $this->response->statusCode(200);
-                $this->response->type('json');
-                $json = json_encode($ficha);
-                $this->response->body($json);
-            }else{
-                $this->response->statusCode(500);
-                $this->response->type('json');
-                $json = json_encode($ficha->errors());
-                $this->response->body($json);
-            }  
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $data = $this->request->getData();
+            $ficha = $this->Ficha->get($data['id']);
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $ficha = $this->Ficha->patchEntity($ficha, $this->request->getData());
+                if ($this->Ficha->save($ficha)) {
+                    $this->response->statusCode(200);
+                    $this->response->type('json');
+                    $json = json_encode($ficha);
+                    $this->response->body($json);
+                }else{
+                    $this->response->statusCode(500);
+                    $this->response->type('json');
+                    $json = json_encode($ficha->errors());
+                    $this->response->body($json);
+                }  
+            }
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
         }
     }
 
-    /**
-     * Delete method
-     *
-     * @param string|null $id Ficha id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
+    /*
+    Permite eliminar una ficha
+    Solo accesible por el administrador
+    */
     public function delete($id = null)
     { 
-        $this->autoRender = false;
-        $ficha = $this->Ficha->get($id);
-        $this->Ficha->delete($ficha);
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $ficha = $this->Ficha->get($id);
+            $this->Ficha->delete($ficha);
 
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($ficha);
-        $this->response->body($json);
-
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($ficha);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
+        }
     }
 }

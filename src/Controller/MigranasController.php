@@ -67,9 +67,9 @@ class MigranasController extends AppController
             $rol = $iterador['rol'];
         }
 
-        if(($action == "analisisDeSentimientos" || $action == "delete") && $rol == "administrador"){
+        if(($action == "analisisDeSentimientos" || $action == "delete" || $action == "todosMigranasFichas") && $rol == "administrador"){
             return true;    
-        }else if(($action == "analisisDeSentimientos") && $rol == "medico"){
+        }else if(($action == "analisisDeSentimientos" || $action == "todosMigranasFichas") && $rol == "medico"){
             return true;
         }else if(($action == "getCubierto" || $action == "add") && $rol == "paciente"){
             return true;
@@ -166,7 +166,7 @@ class MigranasController extends AppController
 
     /*
     Devuelve la información de todas los informes de migrañas de una ficha
-    Solo accesible por el administrador
+    Solo accesible por el administrador y el médico
     */
     public function todosMigranasFichas()
     {

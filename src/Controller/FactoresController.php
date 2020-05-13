@@ -5,6 +5,8 @@ use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
 use Cake\Event\Event;
 use Cake\I18n\FrozenTime;
+use Cake\Utility\Security;
+use Firebase\JWT\JWT;
 
 /**
  * Factores Controller
@@ -23,103 +25,67 @@ class FactoresController extends AppController
     }
 
     public function beforeFilter(Event $event) {
-        
         $this->eventManager()->off($this->Csrf);   
     }
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null
-     */
-    public function index()
-    {
-        $factores = $this->paginate($this->Factores);
 
-        $this->set(compact('factores'));
+    /*
+    Función que controla el token del header de autroización y controla el acceso a las funciones restringidas del controlador
+    */
+    public function checkToken(){
+        $this->autoRender = false;
+        $token = $this->request->header('Authorization');
+        $action = $this->getRequest()->getParam('action');
+        $token = str_replace("Bearer ", "",$token);
+        $id = JWT::decode(
+            $token,
+            Security::getSalt(),
+            array('HS256')
+        );
+        $array['id'] = $id;
+
+        $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+        $iteradorCuentas = $cuenta->find()->where(['user' => $array['id']->sub])->all();
+
+        foreach($iteradorCuentas as $iterador){
+            $rol = $iterador['rol'];
+        }
+
+        if(($action == "add") && $rol == "paciente"){
+            return true;    
+        }else{
+            return false;
+        }
     }
 
-    /**
-     * View method
-     *
-     * @param string|null $id Factore id.
-     * @return \Cake\Http\Response|null
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function view($id = null)
-    {
-        $factore = $this->Factores->get($id, [
-            'contain' => [],
-        ]);
-
-        $this->set('factore', $factore);
-    }
-
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
-     */
+    /*
+    Método que añade un factor a un informe de migrañas
+    Solo accesible por el paciente
+    */
     public function add()
     {
-        $this->autoRender = false;
-        $data = $this->request->getData();
-        $factor = $this->Factores->newEntity();
-        $factor = $this->Factores->patchEntity($factor, $data);
-        if($this->Factores->save($factor)){
-            $this->response->statusCode(200);
-            $this->response->type('json');
-            $json = json_encode($factor);
-            $this->response->body($json);
-        }else{
-            header('Access-Control-Allow-Origin: *');
-            $this->response->statusCode(500);
-            header('Content-Type: application/json');
-            $this->set('problema', 'Error al crear la consulta');    
-            $this->set('_serialize', ['problema']); 
-        } 
-    }
-
-    /**
-     * Edit method
-     *
-     * @param string|null $id Factore id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $factore = $this->Factores->get($id, [
-            'contain' => [],
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $factore = $this->Factores->patchEntity($factore, $this->request->getData());
-            if ($this->Factores->save($factore)) {
-                $this->Flash->success(__('The factore has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $data = $this->request->getData();
+            $factor = $this->Factores->newEntity();
+            $factor = $this->Factores->patchEntity($factor, $data);
+            if($this->Factores->save($factor)){
+                $this->response->statusCode(200);
+                $this->response->type('json');
+                $json = json_encode($factor);
+                $this->response->body($json);
+            }else{
+                header('Access-Control-Allow-Origin: *');
+                $this->response->statusCode(500);
+                header('Content-Type: application/json');
+                $this->set('problema', 'Error al crear la consulta');    
+                $this->set('_serialize', ['problema']); 
             }
-            $this->Flash->error(__('The factore could not be saved. Please, try again.'));
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
         }
-        $this->set(compact('factore'));
-    }
-
-    /**
-     * Delete method
-     *
-     * @param string|null $id Factore id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function delete($id = null)
-    {
-        $this->request->allowMethod(['post', 'delete']);
-        $factore = $this->Factores->get($id);
-        if ($this->Factores->delete($factore)) {
-            $this->Flash->success(__('The factore has been deleted.'));
-        } else {
-            $this->Flash->error(__('The factore could not be deleted. Please, try again.'));
-        }
-
-        return $this->redirect(['action' => 'index']);
     }
 }

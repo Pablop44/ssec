@@ -27,32 +27,7 @@ class CuentaController extends AppController
     }
 
     public function beforeFilter(Event $event) {
-        
-            $this->eventManager()->off($this->Csrf);
-        
-    }
-
-    public function index()
-    {
-        $cuenta = $this->paginate($this->Cuenta);
-
-        $this->set(compact('cuenta'));
-    }
-
-    /**
-     * View method
-     *
-     * @param string|null $id Cuentum id.
-     * @return \Cake\Http\Response|null
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function view($id = null)
-    {
-        $cuentum = $this->Cuenta->get($id, [
-            'contain' => [],
-        ]);
-
-        $this->set('cuentum', $cuentum);
+        $this->eventManager()->off($this->Csrf);
     }
 
     /**
@@ -80,11 +55,9 @@ class CuentaController extends AppController
             'contain' => [],
         ]);
         $cuentum['estado'] = $valorCuenta;
-            $cuentum = $this->Cuenta->patchEntity($cuentum, $this->request->getData());
-            $this->Cuenta->save($cuentum);
+        $cuentum = $this->Cuenta->patchEntity($cuentum, $this->request->getData());
+        $this->Cuenta->save($cuentum);
     }
-        
-    
 
     public function edit2($id = null)
     {
@@ -92,8 +65,8 @@ class CuentaController extends AppController
             'contain' => [],
         ]);
         $cuentum['estado'] = "activada";
-            $cuentum = $this->Cuenta->patchEntity($cuentum, $this->request->getData());
-            $this->Cuenta->save($cuentum);
+        $cuentum = $this->Cuenta->patchEntity($cuentum, $this->request->getData());
+        $this->Cuenta->save($cuentum);
     }
 
     public function edit3($id = null)
@@ -102,8 +75,8 @@ class CuentaController extends AppController
             'contain' => [],
         ]);
         $cuentum['estado'] = "autorizada";
-            $cuentum = $this->Cuenta->patchEntity($cuentum, $this->request->getData());
-            $this->Cuenta->save($cuentum);
+        $cuentum = $this->Cuenta->patchEntity($cuentum, $this->request->getData());
+        $this->Cuenta->save($cuentum);
     }
 
 
