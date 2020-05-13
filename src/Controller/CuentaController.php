@@ -13,16 +13,9 @@ use Cake\Event\Event;
  */
 class CuentaController extends AppController
 {
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null
-     */
     public function initialize()
     {
         parent::initialize();
-        $this->Auth->allow(['delete', 
-        'view', 'edit', 'desactivar']);
         $this->loadComponent('Csrf');
     }
 
@@ -30,11 +23,9 @@ class CuentaController extends AppController
         $this->eventManager()->off($this->Csrf);
     }
 
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
-     */
+    /*
+    Añadir una cuenta al sistema
+    */
     public function add($datos)
     {
         $cuentum = $this->Cuenta->newEntity();
@@ -42,13 +33,9 @@ class CuentaController extends AppController
         $this->Cuenta->save($cuentum);
     }
 
-    /**
-     * Edit method
-     *
-     * @param string|null $id Cuentum id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
+    /*
+    Editar una cuenta con un estado
+    */
     public function edit($id = null, $valorCuenta = null)
     {
         $cuentum = $this->Cuenta->get($id, [
@@ -59,6 +46,9 @@ class CuentaController extends AppController
         $this->Cuenta->save($cuentum);
     }
 
+    /*
+    Editar una cuenta con un estado desactivado
+    */
     public function edit2($id = null)
     {
         $cuentum = $this->Cuenta->get($id, [
@@ -69,6 +59,9 @@ class CuentaController extends AppController
         $this->Cuenta->save($cuentum);
     }
 
+    /*
+    Editar una cuenta con un autorizado
+    */
     public function edit3($id = null)
     {
         $cuentum = $this->Cuenta->get($id, [
@@ -79,7 +72,9 @@ class CuentaController extends AppController
         $this->Cuenta->save($cuentum);
     }
 
-
+    /*
+    Editar una cuenta con un desactivado
+    */
     public function desactivar($user = null)
     {
         $this->autoRender = false;
@@ -103,13 +98,9 @@ class CuentaController extends AppController
     }
 
 
-    /**
-     * Delete method
-     *
-     * @param string|null $id Cuentum id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
+    /*
+    Eliminar una cuenta
+    */
     public function delete($id = null)
     {
         $cuentum = $this->Cuenta->get($id);

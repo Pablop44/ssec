@@ -7,6 +7,7 @@ use Cake\Event\Event;
 use Cake\I18n\FrozenTime;
 use Cake\Utility\Security;
 use Google\Cloud\Language\LanguageClient;
+use Firebase\JWT\JWT;
 
 /**
  * Asma Controller
@@ -17,12 +18,6 @@ use Google\Cloud\Language\LanguageClient;
  */
 class AsmaController extends AppController
 {
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null
-     */
-
     public $paginate = [
         'page' => 1,
         'limit' => 10,
@@ -39,7 +34,6 @@ class AsmaController extends AppController
         ]
     ];
 
-    
     public function initialize()
     {
         parent::initialize();
@@ -47,12 +41,45 @@ class AsmaController extends AppController
     }
 
     public function beforeFilter(Event $event) {
-        
-        $this->eventManager()->off($this->Csrf); 
-          
+        $this->eventManager()->off($this->Csrf);  
     }
 
+    /*
+    Función que controla el token del header de autroización y controla el acceso a las funciones restringidas del controlador
+    */
+    public function checkToken(){
+        $this->autoRender = false;
+        $token = $this->request->header('Authorization');
+        $action = $this->getRequest()->getParam('action');
+        $token = str_replace("Bearer ", "",$token);
+        $id = JWT::decode(
+            $token,
+            Security::getSalt(),
+            array('HS256')
+        );
+        $array['id'] = $id;
+
+        $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+        $iteradorCuentas = $cuenta->find()->where(['user' => $array['id']->sub])->all();
+
+        foreach($iteradorCuentas as $iterador){
+            $rol = $iterador['rol'];
+        }
+
+        if(($action == "analisisDeSentimientos" || $action == "todosAsmaFichas" || $action == "delete") && $rol == "administrador"){
+            return true;    
+        }else if(($action == "analisisDeSentimientos" || $action == "todosAsmaFichas") && $rol == "medico"){
+            return true;
+        }else if(($action == "getCubierto" || $action == "add") && $rol == "paciente"){
+            return true;
+        }else{
+            return false;
+        }
+    }
     
+    /*
+    Devuelve la información de los informes de asma de una ficha
+    */
     public function asmaFichas()
     {
         $this->autoRender = false;
@@ -82,65 +109,85 @@ class AsmaController extends AppController
         $this->response->body($json);
     }
 
-
+    /*
+    Función que realiza una llamada a la API de Análisis de sentimientos de Google y devuelve el resultado
+    */
     public function analisisDeSentimientos($id = null)
     {
-        $this->autoRender = false;
-        $language = new LanguageClient([
-            'projectId' => 'ssec-277009',
-            'keyFilePath' => '/Users/pablopazosdominguez/Desktop/google-cloud-sdk/key.json'
-        ]);
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $language = new LanguageClient([
+                'projectId' => 'ssec-277009',
+                'keyFilePath' => '/Users/pablopazosdominguez/Desktop/google-cloud-sdk/key.json'
+            ]);
 
-        $asma = $this->Asma->get($id);
-        $asma = $this->desencriptarInforme($asma);
+            $asma = $this->Asma->get($id);
+            $asma = $this->desencriptarInforme($asma);
 
-        $text = $asma->estadoGeneral;
+            $text = $asma->estadoGeneral;
 
-        $annotation = $language->analyzeSentiment($text);
-        $sentiment = $annotation->sentiment();
+            $annotation = $language->analyzeSentiment($text);
+            $sentiment = $annotation->sentiment();
 
-        $array = array();
-        $array['sentimiento'] = $sentiment['score'];
-       
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($array);
-        $this->response->body($json);
+            $array = array();
+            $array['sentimiento'] = $sentiment['score'];
+        
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($array);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
+        }
     }
 
-
+    /*
+    Devuelve la información de todas los informes de asma de una ficha
+    Solo accesible por el administrador y el médico
+    */
     public function todosAsmaFichas()
     {
-        $this->autoRender = false;
-        $data = $this->request->getData();
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $data = $this->request->getData();
+            $asma = $this->Asma->find()->where(['ficha' => $data['id']])->all();
 
-        $asma = $this->Asma->find()->where(['ficha' => $data['id']])->all();
+            foreach($asma as $asmaFicha){
 
-        foreach($asma as $asmaFicha){
+                $fecha = FrozenTime::parse($asmaFicha['fecha']);
+                $asmaFicha->fecha = $fecha;
+                
+                $asmaFicha->fecha =  $asmaFicha->fecha->i18nFormat('dd/MM/YYYY HH:mm');
 
-            $fecha = FrozenTime::parse($asmaFicha['fecha']);
-            $asmaFicha->fecha = $fecha;
-            
-            $asmaFicha->fecha =  $asmaFicha->fecha->i18nFormat('dd/MM/YYYY HH:mm');
+                $asmaFicha = $this->desencriptarInforme($asmaFicha);
 
-            $asmaFicha = $this->desencriptarInforme($asmaFicha);
-
+            }
+        
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($asma);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
         }
-       
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($asma);
-        $this->response->body($json);
     }
 
+    /*
+    Número de informes de asma de una ficha
+    */
     public function numeroInformesAsma()
     {
-
         $this->autoRender = false;
         $data = $this->request->getData();
-
         $conditions = array('ficha' => $data['id']);
-
         $asma = $this->Asma->find('all', array('conditions' => $conditions));
 
         $i = 0;
@@ -151,24 +198,18 @@ class AsmaController extends AppController
 
         $myobj = array();
         $myobj['numero'] = $i;
-       
+    
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($myobj);
         $this->response->body($json);
-
     }
 
-    /**
-     * View method
-     *
-     * @param string|null $id Asma id.
-     * @return \Cake\Http\Response|null
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
+    /*
+    Información de un informe de asma
+    */
     public function view($id = null)
     {
-    
         $this->autoRender = false;
         $asma = $this->Asma->get($id);
 
@@ -183,99 +224,103 @@ class AsmaController extends AppController
         $this->response->type('json');
         $json = json_encode($asma);
         $this->response->body($json);
-
     }
 
-    /**
-     * Edit method
-     *
-     * @param string|null $id Asma id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $asma = $this->Asma->get($id, [
-            'contain' => [],
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $asma = $this->Asma->patchEntity($asma, $this->request->getData());
-            if ($this->Asma->save($asma)) {
-                $this->Flash->success(__('The asma has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The asma could not be saved. Please, try again.'));
-        }
-        $this->set(compact('asma'));
-    }
-
-    /**
-     * Delete method
-     *
-     * @param string|null $id Asma id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
+     /*
+    Elimina un informe de asma
+    Solo accesible por el administrador
+    */
     public function delete($id = null)
     {
-        $this->autoRender = false;
-        $informe = $this->Asma->get($id);
-        $this->Asma->delete($informe);
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $informe = $this->Asma->get($id);
+            $this->Asma->delete($informe);
 
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($id);
-        $this->response->body($json);
-    }
-
-
-    public function getCubierto($id = null)
-    {
-    
-        $this->autoRender = false;
-        $cubierto['cubierto'] = false;
-
-        $fecha = FrozenTime::now();
-        
-        $fecha =  $fecha->i18nFormat('YYYY-MM-dd');
-
-        $informes = $this->Asma->find()->where(['fecha LIKE' => '%'.$fecha.'%'])->where(['ficha' => $id])->all();
-        if(sizeof($informes) > 0){
-            $cubierto['cubierto'] = true;
-        }
-       
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($cubierto);
-        $this->response->body($json);
-
-    }
-
-
-    public function add()
-    {
-        $this->autoRender = false;
-        $fecha = FrozenTime::now();
-        $fecha =  $fecha->i18nFormat('YYYY-MM-dd HH:MM:ss');
-        $data = $this->request->getData();
-        $data['fecha'] = $fecha;
-        $asma = $this->Asma->newEntity();
-        $asma = $this->Asma->patchEntity($asma, $data);
-        if($this->Asma->save($asma)){
             $this->response->statusCode(200);
             $this->response->type('json');
-            $json = json_encode($data);
+            $json = json_encode($id);
             $this->response->body($json);
         }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
+        }
+    }
+
+    /*  
+    Comprueba si se ha cubierto el informe en el dia actual
+    Solo accesible por el paciente
+    */
+    public function getCubierto($id = null)
+    {
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $cubierto['cubierto'] = false;
+
+            $fecha = FrozenTime::now();
+            
+            $fecha =  $fecha->i18nFormat('YYYY-MM-dd');
+
+            $informes = $this->Asma->find()->where(['fecha LIKE' => '%'.$fecha.'%'])->where(['ficha' => $id])->all();
+            if(sizeof($informes) > 0){
+                $cubierto['cubierto'] = true;
+            }
+        
             $this->response->statusCode(200);
             $this->response->type('json');
-            $json = json_encode($data);
+            $json = json_encode($cubierto);
             $this->response->body($json);
-        } 
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
+        }
     }
 
 
+    /*
+    Comprueba si se ha cubierto el informe en el dia actual
+    Solo accesible por el paciente
+    */
+    public function add()
+    {
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $fecha = FrozenTime::now();
+            $fecha =  $fecha->i18nFormat('YYYY-MM-dd HH:MM:ss');
+            $data = $this->request->getData();
+            $data['fecha'] = $fecha;
+            $asma = $this->Asma->newEntity();
+            $asma = $this->Asma->patchEntity($asma, $data);
+            if($this->Asma->save($asma)){
+                $this->response->statusCode(200);
+                $this->response->type('json');
+                $json = json_encode($data);
+                $this->response->body($json);
+            }else{
+                $this->response->statusCode(200);
+                $this->response->type('json');
+                $json = json_encode($data);
+                $this->response->body($json);
+            } 
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
+        }
+    }
+
+    /*
+    Desencripta la informacion de un momento
+    */
     public function desencriptarInforme($asma){
         $asma['calidadSueno'] = Security::decrypt(base64_decode($asma['calidadSueno']), Security::salt());
         $asma['dificultadRespirar'] = Security::decrypt(base64_decode($asma['dificultadRespirar']), Security::salt());
@@ -287,7 +332,6 @@ class AsmaController extends AppController
         $asma['espirometria'] = Security::decrypt(base64_decode($asma['espirometria']), Security::salt());
         $asma['factoresCrisis'] = Security::decrypt(base64_decode($asma['factoresCrisis']), Security::salt());
         $asma['estadoGeneral'] = Security::decrypt(base64_decode($asma['estadoGeneral']), Security::salt());
-
         return $asma;
     }
 }

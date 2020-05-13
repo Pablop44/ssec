@@ -34,7 +34,6 @@ class DiabetesController extends AppController
         ]
     ];
 
-    
     public function initialize()
     {
         parent::initialize();
@@ -45,9 +44,6 @@ class DiabetesController extends AppController
         $this->eventManager()->off($this->Csrf);   
     }
 
-    /*
-    Función que controla el token del header de autroización y controla el acceso a las funciones restringidas del controlador
-    */
     public function checkToken(){
         $this->autoRender = false;
         $token = $this->request->header('Authorization');
@@ -69,7 +65,7 @@ class DiabetesController extends AppController
 
         if(($action == "analisisDeSentimientos" || $action == "todosDiabetesFichas" || $action == "delete") && $rol == "administrador"){
             return true;    
-        }else if(($action == "analisisDeSentimientos") && $rol == "medico"){
+        }else if(($action == "analisisDeSentimientos" || $action == "todosDiabetesFichas") && $rol == "medico"){
             return true;
         }else if(($action == "getCubierto" || $action == "add") && $rol == "paciente"){
             return true;
