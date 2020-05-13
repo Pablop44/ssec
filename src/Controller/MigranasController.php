@@ -7,6 +7,7 @@ use Cake\Event\Event;
 use Cake\I18n\FrozenTime;
 use Cake\Utility\Security;
 use Google\Cloud\Language\LanguageClient;
+use Firebase\JWT\JWT;
 
 /**
  * Migranas Controller
@@ -17,11 +18,6 @@ use Google\Cloud\Language\LanguageClient;
  */
 class MigranasController extends AppController
 {
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null
-     */
 
     public $paginate = [
         'page' => 1,
@@ -38,7 +34,6 @@ class MigranasController extends AppController
             'estadoGeneral'
         ]
     ];
-
     
     public function initialize()
     {
@@ -46,47 +41,84 @@ class MigranasController extends AppController
         $this->loadComponent('Csrf');
     }
 
-    public function beforeFilter(Event $event) {
-        
+    public function beforeFilter(Event $event) { 
         $this->eventManager()->off($this->Csrf);   
     }
 
-    /**
-     * View method
-     *
-     * @param string|null $id Migrana id.
-     * @return \Cake\Http\Response|null
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-
-    public function analisisDeSentimientos($id = null)
-    {
+    /*
+    Función que controla el token del header de autroización y controla el acceso a las funciones restringidas del controlador
+    */
+    public function checkToken(){
         $this->autoRender = false;
-        $language = new LanguageClient([
-            'projectId' => 'ssec-277009',
-            'keyFilePath' => '/Users/pablopazosdominguez/Desktop/google-cloud-sdk/key.json'
-        ]);
+        $token = $this->request->header('Authorization');
+        $action = $this->getRequest()->getParam('action');
+        $token = str_replace("Bearer ", "",$token);
+        $id = JWT::decode(
+            $token,
+            Security::getSalt(),
+            array('HS256')
+        );
+        $array['id'] = $id;
 
-        $migranas = $this->Migranas->get($id);
-        $migranas = $this->desencriptarInforme($migranas);
+        $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+        $iteradorCuentas = $cuenta->find()->where(['user' => $array['id']->sub])->all();
 
-        $text = $migranas->estadoGeneral;
+        foreach($iteradorCuentas as $iterador){
+            $rol = $iterador['rol'];
+        }
 
-        $annotation = $language->analyzeSentiment($text);
-        $sentiment = $annotation->sentiment();
-
-        $array = array();
-        $array['sentimiento'] = $sentiment['score'];
-       
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($array);
-        $this->response->body($json);
+        if(($action == "analisisDeSentimientos" || $action == "delete") && $rol == "administrador"){
+            return true;    
+        }else if(($action == "analisisDeSentimientos") && $rol == "medico"){
+            return true;
+        }else if(($action == "getCubierto" || $action == "add") && $rol == "paciente"){
+            return true;
+        }else{
+            return false;
+        }
     }
 
+    /*
+    Función que realiza una llamada a la API de Análisis de sentimientos de Google y devuelve el resultado
+    */
+    public function analisisDeSentimientos($id = null)
+    {
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $language = new LanguageClient([
+                'projectId' => 'ssec-277009',
+                'keyFilePath' => '/Users/pablopazosdominguez/Desktop/google-cloud-sdk/key.json'
+            ]);
+
+            $migranas = $this->Migranas->get($id);
+            $migranas = $this->desencriptarInforme($migranas);
+
+            $text = $migranas->estadoGeneral;
+
+            $annotation = $language->analyzeSentiment($text);
+            $sentiment = $annotation->sentiment();
+
+            $array = array();
+            $array['sentimiento'] = $sentiment['score'];
+        
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($array);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
+        }
+    }
+
+    /*
+    Devuelve la información de los informes de migrañas de una ficha
+    */
     public function migranasFichas()
     {
-
         $this->autoRender = false;
         $data = $this->request->getData();
         $this->paginate['page'] = $data['page']+1;
@@ -126,72 +158,74 @@ class MigranasController extends AppController
             $migranas = $this->desencriptarInforme($migranas);
             
         }
-       
         $this->response->statusCode(200);
         $this->response->type('json');
         $json = json_encode($paginador);
         $this->response->body($json);
-
     }
 
-
+    /*
+    Devuelve la información de todas los informes de migrañas de una ficha
+    Solo accesible por el administrador
+    */
     public function todosMigranasFichas()
     {
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $data = $this->request->getData();
+            $migranasInformes = $this->Migranas->find()->where(['ficha' => $data['id']])->all();
+            foreach($migranasInformes as $migranas){
 
-        $this->autoRender = false;
-        $data = $this->request->getData();
+                $fecha = FrozenTime::parse($migranas['fecha']);
+                $migranas->fecha = $fecha;
+                
+                $migranas->fecha =  $migranas->fecha->i18nFormat('dd/MM/YYYY HH:mm');
+                
+                $sintomas = TableRegistry::getTableLocator()->get('Sintomas');
+                $sintomasIterador = $sintomas->find()->where(['migranas' => $migranas['id']])->all();
 
-        $migranasInformes = $this->Migranas->find()->where(['ficha' => $data['id']])->all();
+                foreach($sintomasIterador as $sintomas){
+                    unset($sintomas['migranas']);
+                    $sintomas = $this->desencriptarSintomas($sintomas);
+                }
 
-        foreach($migranasInformes as $migranas){
+                $migranas['sintomas'] = $sintomasIterador;
 
-            $fecha = FrozenTime::parse($migranas['fecha']);
-            $migranas->fecha = $fecha;
-            
-            $migranas->fecha =  $migranas->fecha->i18nFormat('dd/MM/YYYY HH:mm');
-            
-            $sintomas = TableRegistry::getTableLocator()->get('Sintomas');
-            $sintomasIterador = $sintomas->find()->where(['migranas' => $migranas['id']])->all();
+                $factores = TableRegistry::getTableLocator()->get('Factores');
+                $factoresIterador = $factores->find()->where(['migranas' => $migranas['id']])->all();
 
-            foreach($sintomasIterador as $sintomas){
-                unset($sintomas['migranas']);
-                $sintomas = $this->desencriptarSintomas($sintomas);
+                foreach($factoresIterador as $factores){
+                    unset($factores['migranas']);
+                    $factores = $this->desencriptarFactores($factores);
+                }
+
+                $migranas['factores'] = $factoresIterador;
+                $migranas = $this->desencriptarInforme($migranas);
             }
-
-            $migranas['sintomas'] = $sintomasIterador;
-
-            $factores = TableRegistry::getTableLocator()->get('Factores');
-            $factoresIterador = $factores->find()->where(['migranas' => $migranas['id']])->all();
-
-            foreach($factoresIterador as $factores){
-                unset($factores['migranas']);
-                $factores = $this->desencriptarFactores($factores);
-            }
-
-            $migranas['factores'] = $factoresIterador;
-            $migranas = $this->desencriptarInforme($migranas);
-            
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($migranasInformes);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
         }
-       
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($migranasInformes);
-        $this->response->body($json);
-
     }
 
+    /*
+    Número de informes de migrañas de una ficha
+    */
     public function numeroInformesMigranas()
     {
-
         $this->autoRender = false;
         $data = $this->request->getData();
-
         $conditions = array('ficha' => $data['id']);
-
         $migranas = $this->Migranas->find('all', array('conditions' => $conditions));
 
         $i = 0;
-
         foreach($migranas as $migranas){
             $i++;
         }
@@ -203,14 +237,15 @@ class MigranasController extends AppController
         $this->response->type('json');
         $json = json_encode($myobj);
         $this->response->body($json);
-
     }
     
+    /*
+    Información de un informe de migranas
+    */
     public function view($id = null){
 
         $this->autoRender = false;
         $migranas = $this->Migranas->get($id);
-    
 
         $fecha = FrozenTime::parse($migranas['fecha']);
         $migranas->fecha = $fecha;
@@ -244,100 +279,106 @@ class MigranasController extends AppController
         $this->response->body($json);
     }
 
-    /**
-     * Edit method
-     *
-     * @param string|null $id Migrana id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $migrana = $this->Migranas->get($id, [
-            'contain' => [],
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $migrana = $this->Migranas->patchEntity($migrana, $this->request->getData());
-            if ($this->Migranas->save($migrana)) {
-                $this->Flash->success(__('The migrana has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The migrana could not be saved. Please, try again.'));
-        }
-        $this->set(compact('migrana'));
-    }
-
-    /**
-     * Delete method
-     *
-     * @param string|null $id Migrana id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
+    /*
+    Elimina un informe de migrañas
+    Solo accesible por el administrador
+    */
     public function delete($id = null)
     {
-        $this->autoRender = false;
-        $informe = $this->Migranas->get($id);
-        if($this->Migranas->delete($informe)){
-            $this->response->statusCode(200);
-            $this->response->type('json');
-            $json = json_encode($id);
-            $this->response->body($json);
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $informe = $this->Migranas->get($id);
+            if($this->Migranas->delete($informe)){
+                $this->response->statusCode(200);
+                $this->response->type('json');
+                $json = json_encode($id);
+                $this->response->body($json);
+            }else{
+                $this->response->statusCode(500);
+                $this->response->type('json');
+                $json = json_encode($id);
+                $this->response->body($json);
+            }
         }else{
-            $this->response->statusCode(500);
+            $this->response->statusCode(403);
             $this->response->type('json');
-            $json = json_encode($id);
+            $json = json_encode("error");
             $this->response->body($json);
         }
     }
 
+    /*
+    Comprueba si se ha cubierto el informe en el dia actual
+    Solo accesible por el paciente
+    */
     public function getCubierto($id = null)
     {
-    
-        $this->autoRender = false;
-        $cubierto['cubierto'] = false;
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $cubierto['cubierto'] = false;
 
-        $fecha = FrozenTime::now();
+            $fecha = FrozenTime::now();
+            $fecha =  $fecha->i18nFormat('YYYY-MM-dd');
+
+            $informes = $this->Migranas->find()->where(['fecha LIKE' => '%'.$fecha.'%'])->where(['ficha' => $id])->all();
+            if(sizeof($informes) > 0){
+                $cubierto['cubierto'] = true;
+            }
         
-        $fecha =  $fecha->i18nFormat('YYYY-MM-dd');
-
-        $informes = $this->Migranas->find()->where(['fecha LIKE' => '%'.$fecha.'%'])->where(['ficha' => $id])->all();
-        if(sizeof($informes) > 0){
-            $cubierto['cubierto'] = true;
-        }
-       
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($cubierto);
-        $this->response->body($json);
-    }
-
-    public function add()
-    {
-        $this->autoRender = false;
-        $fecha = FrozenTime::now();
-        $fecha =  $fecha->i18nFormat('YYYY-MM-dd HH:MM:ss');
-        $data = $this->request->getData();
-        $data['fecha'] = $fecha;
-        $migranas = $this->Migranas->newEntity();
-        $migranas = $this->Migranas->patchEntity($migranas, $data);
-        $result = $this->Migranas->save($migranas);
-        if($result){
-            $migranas['id'] = $result->id;
             $this->response->statusCode(200);
             $this->response->type('json');
-            $json = json_encode($migranas);
+            $json = json_encode($cubierto);
             $this->response->body($json);
         }else{
-            header('Access-Control-Allow-Origin: *');
-            $this->response->statusCode(500);
-            header('Content-Type: application/json');
-            $this->set('problema', 'Error al crear la consulta');    
-            $this->set('_serialize', ['problema']); 
-        } 
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
+        }
     }
 
+     /*
+    Añade un nuevo informe a la ficha
+    Solo accesible por el paciente
+    */
+    public function add()
+    {
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $fecha = FrozenTime::now();
+            $fecha =  $fecha->i18nFormat('YYYY-MM-dd HH:MM:ss');
+            $data = $this->request->getData();
+            $data['fecha'] = $fecha;
+            $migranas = $this->Migranas->newEntity();
+            $migranas = $this->Migranas->patchEntity($migranas, $data);
+            $result = $this->Migranas->save($migranas);
+            if($result){
+                $migranas['id'] = $result->id;
+                $this->response->statusCode(200);
+                $this->response->type('json');
+                $json = json_encode($migranas);
+                $this->response->body($json);
+            }else{
+                header('Access-Control-Allow-Origin: *');
+                $this->response->statusCode(500);
+                header('Content-Type: application/json');
+                $this->set('problema', 'Error al crear la consulta');    
+                $this->set('_serialize', ['problema']); 
+            }
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
+        }
+    }
+
+    /*
+    Desencripta la informacion de un informe
+    */
     public function desencriptarInforme($migranas){
         $migranas['frecuencia'] = Security::decrypt(base64_decode($migranas['frecuencia']), Security::salt());
         $migranas['duracion'] = Security::decrypt(base64_decode($migranas['duracion']), Security::salt());
@@ -352,15 +393,19 @@ class MigranasController extends AppController
         return $migranas;
     }
 
+    /*
+    Desencripta la informacion de los sintomas
+    */
     public function desencriptarSintomas($sintomas){
         $sintomas['sintomas'] = Security::decrypt(base64_decode($sintomas['sintomas']), Security::salt());
-
         return $sintomas;
     }
 
+    /*
+    Desencripta la informacion de los factores
+    */
     public function desencriptarFactores($factores){
         $factores['factores'] = Security::decrypt(base64_decode($factores['factores']), Security::salt());
-
         return $factores;
     }
 }

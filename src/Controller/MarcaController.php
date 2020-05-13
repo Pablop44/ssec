@@ -2,8 +2,10 @@
 namespace App\Controller;
 
 use Cake\Event\Event;
-
 use App\Controller\AppController;
+use Cake\Utility\Security;
+use Firebase\JWT\JWT;
+use Cake\ORM\TableRegistry;
 
 /**
  * Marca Controller
@@ -14,11 +16,7 @@ use App\Controller\AppController;
  */
 class MarcaController extends AppController
 {
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null
-     */
+
     public function initialize()
     {
         parent::initialize();
@@ -26,97 +24,83 @@ class MarcaController extends AppController
     }
 
     public function beforeFilter(Event $event) {
-        
             $this->eventManager()->off($this->Csrf);
-        
     }
 
+     /*
+    Función que controla el token del header de autroización y controla el acceso a las funciones restringidas del controlador
+    */
+    public function checkToken(){
+        $this->autoRender = false;
+        $token = $this->request->header('Authorization');
+        $action = $this->getRequest()->getParam('action');
+        $token = str_replace("Bearer ", "",$token);
+        $id = JWT::decode(
+            $token,
+            Security::getSalt(),
+            array('HS256')
+        );
+        $array['id'] = $id;
+
+        $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+        $iteradorCuentas = $cuenta->find()->where(['user' => $array['id']->sub])->all();
+
+        foreach($iteradorCuentas as $iterador){
+            $rol = $iterador['rol'];
+        }
+
+        if(($action == "todasMarcas" || $action == "add") && $rol == "administrador"){
+            return true;    
+        }else if(($action == "todasMarcas") && $rol == "medico"){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+     /*
+    Devuelve todas las marcas del sistema
+    */
     public function todasMarcas()
     {
-        $this->autoRender = false;
-        $marca = $this->Marca->find()->all();
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $marca = $this->Marca->find()->all();
 
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($marca);
-        $this->response->body($json);
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($marca);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
+        }
     }
 
-    /**
-     * View method
-     *
-     * @param string|null $id Marca id.
-     * @return \Cake\Http\Response|null
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function view($id = null)
-    {
-        $marca = $this->Marca->get($id, [
-            'contain' => [],
-        ]);
-
-        $this->set('marca', $marca);
-    }
-
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
-     */
+    /*
+    Añade una marca al sistema
+    */
     public function add()
     {
-        
-        $this->autoRender = false;
-        $marca = $this->Marca->newEntity();
-        $marca = $this->Marca->patchEntity($marca, $this->request->getData());
-        $this->Marca->save($marca);
-
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($marca);
-        $this->response->body($json);
-    }
-    /**
-     * Edit method
-     *
-     * @param string|null $id Marca id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $marca = $this->Marca->get($id, [
-            'contain' => [],
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $marca = $this->Marca->newEntity();
             $marca = $this->Marca->patchEntity($marca, $this->request->getData());
-            if ($this->Marca->save($marca)) {
-                $this->Flash->success(__('The marca has been saved.'));
+            $this->Marca->save($marca);
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The marca could not be saved. Please, try again.'));
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($marca);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
         }
-        $this->set(compact('marca'));
-    }
-
-    /**
-     * Delete method
-     *
-     * @param string|null $id Marca id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function delete($id = null)
-    {
-        $this->request->allowMethod(['post', 'delete']);
-        $marca = $this->Marca->get($id);
-        if ($this->Marca->delete($marca)) {
-            $this->Flash->success(__('The marca has been deleted.'));
-        } else {
-            $this->Flash->error(__('The marca could not be deleted. Please, try again.'));
-        }
-
-        return $this->redirect(['action' => 'index']);
     }
 }

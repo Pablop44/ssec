@@ -41,7 +41,7 @@ class NotaController extends AppController
         $this->eventManager()->off($this->Csrf);
     }
 
-     /*
+    /*
     Función que controla el token del header de autroización y controla el acceso a las funciones restringidas del controlador
     */
     public function checkToken(){
