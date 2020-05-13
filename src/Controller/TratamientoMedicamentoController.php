@@ -5,6 +5,8 @@ use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
 use Cake\Event\Event;
 use Cake\I18n\FrozenTime;
+use Firebase\JWT\JWT;
+use Cake\Utility\Security;
 
 /**
  * TratamientoMedicamento Controller
@@ -16,6 +18,9 @@ use Cake\I18n\FrozenTime;
 class TratamientoMedicamentoController extends AppController
 {
 
+     /*
+    Función que inicializa el controlador
+    */
     public function initialize()
     {
         parent::initialize();
@@ -23,87 +28,66 @@ class TratamientoMedicamentoController extends AppController
     }
 
     public function beforeFilter(Event $event) {
-        
-            $this->eventManager()->off($this->Csrf);   
+        $this->eventManager()->off($this->Csrf);   
     }
 
+    /*
+    Función que controla el token del header de autroización y controla el acceso a las funciones restringidas del controlador
+    */
+    public function checkToken(){
+        $this->autoRender = false;
+        $token = $this->request->header('Authorization');
+        $action = $this->getRequest()->getParam('action');
+        $token = str_replace("Bearer ", "",$token);
+        $id = JWT::decode(
+            $token,
+            Security::getSalt(),
+            array('HS256')
+        );
+        $array['id'] = $id;
 
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null
-     */
-    public function index()
-    {
-        $tratamientoMedicamento = $this->paginate($this->TratamientoMedicamento);
+        $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+        $iteradorCuentas = $cuenta->find()->where(['user' => $array['id']->sub])->all();
 
-        $this->set(compact('tratamientoMedicamento'));
+        foreach($iteradorCuentas as $iterador){
+            $rol = $iterador['rol'];
+        }
+
+        if(($action == "add") && $rol == "administrador"){
+            return true;    
+        }else if(($action == "add") && $rol == "medico"){
+            return true;
+        }else{
+            return false;
+        }
     }
 
-    /**
-     * View method
-     *
-     * @param string|null $id Tratamiento Medicamento id.
-     * @return \Cake\Http\Response|null
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function view($id = null)
-    {
-        $tratamientoMedicamento = $this->TratamientoMedicamento->get($id, [
-            'contain' => [],
-        ]);
-
-        $this->set('tratamientoMedicamento', $tratamientoMedicamento);
-    }
-
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
+    /*
+    función que asigna un medicamento a un tratamiento
      */
     public function add()
     {
-        $this->autoRender = false;
-        $tratamientoMedicamento = $this->TratamientoMedicamento->newEntity();
-        $tratamientoMedicamento = $this->TratamientoMedicamento->patchEntity($tratamientoMedicamento, $this->request->getData());
-        $this->TratamientoMedicamento->save($tratamientoMedicamento);
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($tratamientoMedicamento);
-        $this->response->body($json);
-    }
-
-    /**
-     * Edit method
-     *
-     * @param string|null $id Tratamiento Medicamento id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $tratamientoMedicamento = $this->TratamientoMedicamento->get($id, [
-            'contain' => [],
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $tratamientoMedicamento = $this->TratamientoMedicamento->newEntity();
             $tratamientoMedicamento = $this->TratamientoMedicamento->patchEntity($tratamientoMedicamento, $this->request->getData());
-            if ($this->TratamientoMedicamento->save($tratamientoMedicamento)) {
-                $this->Flash->success(__('The tratamiento medicamento has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The tratamiento medicamento could not be saved. Please, try again.'));
+            $this->TratamientoMedicamento->save($tratamientoMedicamento);
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($tratamientoMedicamento);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
         }
-        $this->set(compact('tratamientoMedicamento'));
     }
 
-    /**
-     * Delete method
-     *
-     * @param string|null $id Tratamiento Medicamento id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
+    /*
+    funcion que desasigna un medicamento a un tratamiento
+    */
     public function delete()
     {
         $this->autoRender = false;

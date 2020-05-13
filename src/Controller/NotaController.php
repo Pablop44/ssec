@@ -7,6 +7,7 @@ use Cake\I18n\FrozenTime;
 use Cake\Event\Event;
 use Cake\I18n\Time;
 use Cake\Utility\Security;
+use Firebase\JWT\JWT;
 
 /**
  * Nota Controller
@@ -29,12 +30,6 @@ class NotaController extends AppController
         ]
     ];
     
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null
-     */
-
     public function initialize()
     {
         parent::initialize();
@@ -46,10 +41,40 @@ class NotaController extends AppController
         $this->eventManager()->off($this->Csrf);
     }
 
+     /*
+    Función que controla el token del header de autroización y controla el acceso a las funciones restringidas del controlador
+    */
+    public function checkToken(){
+        $this->autoRender = false;
+        $token = $this->request->header('Authorization');
+        $action = $this->getRequest()->getParam('action');
+        $token = str_replace("Bearer ", "",$token);
+        $id = JWT::decode(
+            $token,
+            Security::getSalt(),
+            array('HS256')
+        );
+        $array['id'] = $id;
+
+        $cuenta = TableRegistry::getTableLocator()->get('Cuenta');
+        $iteradorCuentas = $cuenta->find()->where(['user' => $array['id']->sub])->all();
+
+        foreach($iteradorCuentas as $iterador){
+            $rol = $iterador['rol'];
+        }
+
+        if(($action == "add" || $action == "editarNota" || $action == "delete") && $rol == "administrador"){
+            return true;    
+        }else if(($action == "add" || $action == "editarNota") && $rol == "medico"){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
 
     public function notasFicha()
     {
-
         $this->autoRender = false;
         $data = $this->request->getData();
 
@@ -101,7 +126,6 @@ class NotaController extends AppController
 
     public function numeroNotas()
     {
-
         $this->autoRender = false;
         $data = $this->request->getData();
 
@@ -141,89 +165,90 @@ class NotaController extends AppController
         $this->response->body($json);
     }
 
-    /**
-     * View method
-     *
-     * @param string|null $id Notum id.
-     * @return \Cake\Http\Response|null
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function view($id = null)
-    {
-        $notum = $this->Nota->get($id, [
-            'contain' => [],
-        ]);
-
-        $this->set('notum', $notum);
-    }
-
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
-     */
+    /*
+    función que crea una nueva nota
+    */
     public function add()
     {
-        $this->autoRender = false;
-        $notum = $this->Nota->newEntity();
-        $notum = $this->Nota->patchEntity($notum, $this->request->getData());
-        $this->Nota->save($notum);
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $notum = $this->Nota->newEntity();
+            $notum = $this->Nota->patchEntity($notum, $this->request->getData());
+            $this->Nota->save($notum);
             $this->response->statusCode(200);
             $this->response->type('json');
             $json = json_encode($notum);
             $this->response->body($json);
-    }
-
-    /**
-     * Edit method
-     *
-     * @param string|null $id Notum id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function editarNota()
-    {
-        $this->autoRender = false;
-        $data = $this->request->getData();
-        
-        $nota = $this->Nota->get($data['id']);
-        $nota = $this->desencriptarNota($nota);
-
-        $x = array();
-        $x['datos'] = $data['datos'];
-      
-        $nota2 = $this->Nota->patchEntity($nota, $x);
-        $this->Nota->save($nota2);
-        $this->response->statusCode(200);
-        $this->response->type('json');
-        $json = json_encode($nota2);
-        $this->response->body($json);
-    }
-
-    /**
-     * Delete method
-     *
-     * @param string|null $id Notum id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function delete($id = null)
-    {
-        $this->autoRender = false;
-        $notum = $this->Nota->get($id);
-        if($this->Nota->delete($notum)){
-            $this->response->statusCode(200);
-            $this->response->type('json');
-            $json = json_encode($id);
-            $this->response->body($json);
         }else{
-            $this->response->statusCode(500);
+            $this->response->statusCode(403);
             $this->response->type('json');
-            $json = json_encode($id);
+            $json = json_encode("error");
             $this->response->body($json);
         }
     }
 
+    /*
+    Función que edita la información de una nota
+    */
+    public function editarNota()
+    {
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $data = $this->request->getData();
+            
+            $nota = $this->Nota->get($data['id']);
+            $nota = $this->desencriptarNota($nota);
+
+            $x = array();
+            $x['datos'] = $data['datos'];
+        
+            $nota2 = $this->Nota->patchEntity($nota, $x);
+            $this->Nota->save($nota2);
+            $this->response->statusCode(200);
+            $this->response->type('json');
+            $json = json_encode($nota2);
+            $this->response->body($json);
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
+        }
+    }
+
+    /*
+    Función que elimina una nota
+    */
+    public function delete($id = null)
+    {
+        $check = $this->checkToken();
+        if($check){
+            $this->autoRender = false;
+            $notum = $this->Nota->get($id);
+            if($this->Nota->delete($notum)){
+                $this->response->statusCode(200);
+                $this->response->type('json');
+                $json = json_encode($id);
+                $this->response->body($json);
+            }else{
+                $this->response->statusCode(500);
+                $this->response->type('json');
+                $json = json_encode($id);
+                $this->response->body($json);
+            }
+        }else{
+            $this->response->statusCode(403);
+            $this->response->type('json');
+            $json = json_encode("error");
+            $this->response->body($json);
+        }
+    }
+
+    /*
+    Función que desencipta la información de una nota
+    */
     public function desencriptarNota($nota){
         $nota['datos'] = Security::decrypt(base64_decode($nota['datos']), Security::salt());
         return $nota;
