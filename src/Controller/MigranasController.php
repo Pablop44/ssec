@@ -8,6 +8,7 @@ use Cake\I18n\FrozenTime;
 use Cake\Utility\Security;
 use Google\Cloud\Language\LanguageClient;
 use Firebase\JWT\JWT;
+use Cake\Core\Configure;
 
 /**
  * Migranas Controller
@@ -87,8 +88,7 @@ class MigranasController extends AppController
         if($check){
             $this->autoRender = false;
             $language = new LanguageClient([
-                'projectId' => 'ssec-277009',
-                'keyFilePath' => '/Users/pablopazosdominguez/Desktop/google-cloud-sdk/key.json'
+                'keyFilePath' => Configure::read('keyFilePath')
             ]);
 
             $migranas = $this->Migranas->get($id);

@@ -154,6 +154,7 @@ TransportFactory::setConfig(Configure::consume('EmailTransport'));
 Email::setConfig(Configure::consume('Email'));
 Log::setConfig(Configure::consume('Log'));
 Security::setSalt(Configure::consume('Security.salt'));
+Configure::write('keyFilePath','/Users/pablopazosdominguez/Desktop/google-cloud-sdk/key.json');
 
 /*
  * The default crypto extension in 3.0 is OpenSSL.

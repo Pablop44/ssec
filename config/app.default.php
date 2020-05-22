@@ -251,10 +251,14 @@ return [
             'persistent' => false,
             'host' => 'localhost',
             /*
-             * CakePHP will use the default DB port based on the driver selected
-             * MySQL on MAMP uses port 8889, MAMP users will want to uncomment
-             * the following line and set the port accordingly
-             */
+            
+            
+            SE DEBE MODIFICAR LA CONFIGURACIÓN CON LOS PARAMETROS CORRESPONDIENTES A LA BD
+            
+            
+            
+            */
+            //'port' => 'non_standard_port_number',
             'unix_socket' => '/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock',
             'username' => 'root',
             'password' => '',
