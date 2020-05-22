@@ -98,10 +98,10 @@ DROP TABLE IF EXISTS `mydb`.`consulta` ;
 CREATE TABLE IF NOT EXISTS `mydb`.`consulta` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `lugar` VARCHAR(50) NULL,
-  `motivo` VARCHAR(255) NOT NULL,
+  `motivo` VARCHAR(1024) NOT NULL,
   `fecha` DATETIME NOT NULL,
-  `diagnostico` VARCHAR(255),
-  `observaciones` VARCHAR(255),
+  `diagnostico` VARCHAR(1024),
+  `observaciones` VARCHAR(1024),
   `medico` INT NOT NULL,
   `paciente` INT NOT NULL,
   `ficha` INT NOT NULL,
@@ -146,7 +146,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`diabetes` (
   `horarioAlto` VARCHAR(255) NOT NULL,
   `actividadFisica` VARCHAR(255) NOT NULL,
   `problemaDieta` VARCHAR(255) NOT NULL,
-  `estadoGeneral` VARCHAR(255) NOT NULL,
+  `estadoGeneral` VARCHAR(1024) NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fkFicha_idx` (`ficha` ASC),
   CONSTRAINT `fkFichaDiabetes`
@@ -192,7 +192,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`asma` (
   `usoMedicacion` VARCHAR(255) NOT NULL,
   `espirometria` VARCHAR(255) NOT NULL,
   `factoresCrisis` VARCHAR(255) NOT NULL,
-  `estadoGeneral` VARCHAR(255) NOT NULL,
+  `estadoGeneral` VARCHAR(1024) NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fkFicha_idx` (`ficha` ASC),
   CONSTRAINT `fkFichaAsma`
@@ -220,7 +220,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`migranas` (
   `intensidad` VARCHAR(255) NOT NULL,
   `limitaciones` VARCHAR(255) NOT NULL,
   `despiertoNoche` VARCHAR(255) NOT NULL,
-  `estadoGeneral` VARCHAR(255) NOT NULL,
+  `estadoGeneral` VARCHAR(1024) NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fkFicha_idx` (`ficha` ASC),
   CONSTRAINT `fkFichaMigranas`
@@ -281,7 +281,7 @@ DROP TABLE IF EXISTS `mydb`.`tratamiento` ;
 
 CREATE TABLE IF NOT EXISTS `mydb`.`tratamiento` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `posologia` VARCHAR(255) NOT NULL,
+  `posologia` VARCHAR(1024) NOT NULL,
   `fechaInicio` DATE NOT NULL,
   `fechaFin` DATE NOT NULL,
   `horario` TIME NOT NULL,
@@ -390,7 +390,7 @@ DROP TABLE IF EXISTS `mydb`.`nota` ;
 CREATE TABLE IF NOT EXISTS `mydb`.`nota` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `fecha` DATETIME NOT NULL,
-  `datos` VARCHAR(255) NOT NULL,
+  `datos` VARCHAR(1024) NOT NULL,
   `ficha` INT NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fkFicha_idx` (`ficha` ASC),
