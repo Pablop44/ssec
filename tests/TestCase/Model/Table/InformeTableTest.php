@@ -34,8 +34,6 @@ class InformeTableTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $config = TableRegistry::getTableLocator()->exists('Informe') ? [] : ['className' => InformeTable::class];
-        $this->Informe = TableRegistry::getTableLocator()->get('Informe', $config);
     }
 
     /**
