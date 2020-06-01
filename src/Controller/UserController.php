@@ -69,7 +69,7 @@ class UserController extends AppController
         if(($action == "getMedicos" || $action == "getAdministradores" || $action == "getPacientes" || $action == "getNumeroAdministradores" ||
         $action == "getNumeroMedicos" ||  $action == "getNumeroPacientes" ||  $action == "getNumeroPacientes" ||  $action == "todosMedicos" ||
         $action == "autorizar" || $action == "userActivados" || $action == "delete" || $action == "longitudUserActivados" || $action == "editCuentaEstado") && $rol == "administrador"){
-            return true;    
+            return true;
         }else{
             return false;
         }
@@ -116,7 +116,7 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode("error");
             $this->response->body($json);
-        } 
+        }
     }
 
     /*
@@ -195,7 +195,7 @@ class UserController extends AppController
                     $user['estado'] = $cuenta['estado'];
                 }
             }
-            
+
             $this->response->statusCode(200);
             $this->response->type('json');
             $json = json_encode($paginador);
@@ -220,7 +220,7 @@ class UserController extends AppController
             if(isset($data['tipo'])){
                 $this->paginate['order'] = [$data['tipo'] => 'desc'];
             }
-    
+
             $usuario = $this->User->find('all')->join([
                 'table' => 'cuenta',
                 'alias' => 'c',
@@ -229,14 +229,14 @@ class UserController extends AppController
                 'c.rol' => 'administrador']
             ]);
             $i = 0;
-    
+
             foreach($usuario as $user){
                 $i++;
             }
-    
+
             $myObj = array();
             $myObj['numero'] = $i;
-            
+
             $this->response->statusCode(200);
             $this->response->type('json');
             $json = json_encode($myObj);
@@ -278,7 +278,7 @@ class UserController extends AppController
 
             $myObj = array();
             $myObj['numero'] = $i;
-            
+
             $this->response->statusCode(200);
             $this->response->type('json');
             $json = json_encode($myObj);
@@ -320,7 +320,7 @@ class UserController extends AppController
 
             $myObj = array();
             $myObj['numero'] = $i;
-            
+
             $this->response->statusCode(200);
             $this->response->type('json');
             $json = json_encode($myObj);
@@ -366,7 +366,7 @@ class UserController extends AppController
                 $user['rol'] = $cuenta['rol'];
                 $user['estado'] = $cuenta['estado'];
             }
-        
+
         $ficha = TableRegistry::getTableLocator()->get('Ficha');
         if($user['rol'] == "medico"){
             $iteradorFicha = $ficha->find()->where(['medico' => $user->id])->all();
@@ -460,11 +460,11 @@ class UserController extends AppController
     {
         $this->autoRender = false;
         $data = $this->request->getData();
-        
+
         $user = $this->User->get($data['id'], [
             'contain' => [],
         ]);
-    
+
         $user2 = $this->User->patchEntity($user, $data);
         if ($this->User->save($user2)) {
             $this->response->statusCode(200);
@@ -476,7 +476,7 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($user2->errors());
             $this->response->body($json);
-        }     
+        }
     }
 
     /*
@@ -487,7 +487,7 @@ class UserController extends AppController
     {
         $this->autoRender = false;
         $data['active'] = true;
-        
+
         $user = $this->User->get($id, [
             'contain' => [],
         ]);
@@ -503,7 +503,7 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($user2->errors());
             $this->response->body($json);
-        }     
+        }
     }
 
      /*
@@ -514,11 +514,11 @@ class UserController extends AppController
     {
         $this->autoRender = false;
         $data['active'] = false;
-        
+
         $user = $this->User->get($id, [
             'contain' => [],
         ]);
-    
+
         $user2 = $this->User->patchEntity($user, $data);
         if ($this->User->save($user2)) {
             $this->response->statusCode(200);
@@ -530,7 +530,7 @@ class UserController extends AppController
             $this->response->type('json');
             $json = json_encode($user2->errors());
             $this->response->body($json);
-        }     
+        }
     }
 
     /*
@@ -564,7 +564,7 @@ class UserController extends AppController
     Función que permite hacer login a un administrador o médico
     */
     public function login()
-    {   
+    {
         $this->autoRender = false;
         $data = $this->request->getData();
         $userRaw = $this->User->find('all', array(
@@ -580,8 +580,8 @@ class UserController extends AppController
             $this->response->statusCode(403);
             header('Access-Control-Allow-Origin: *');
             header('Content-Type: application/json');
-            $this->set('problema', 'El usuario aun no esta registrado');    
-            $this->set('_serialize', ['problema']); 
+            $this->set('problema', 'El usuario aun no esta registrado');
+            $this->set('_serialize', ['problema']);
         }else{
             foreach($userRaw as $user){
                 $user = $user;
@@ -600,14 +600,14 @@ class UserController extends AppController
                 header('Access-Control-Allow-Origin: *');
                 $this->response->statusCode(403);
                 header('Content-Type: application/json');
-                $this->set('problema', 'Aun no has activado tu cuenta en el e-mail');    
-                $this->set('_serialize', ['problema']); 
+                $this->set('problema', 'Aun no has activado tu cuenta en el e-mail');
+                $this->set('_serialize', ['problema']);
             }else if($estadoCuenta == "activada"){
                 header('Access-Control-Allow-Origin: *');
                 $this->response->statusCode(403);
                 header('Content-Type: application/json');
-                $this->set('problema', 'El administrador aun no te ha isAuthorized');    
-                $this->set('_serialize', ['problema']); 
+                $this->set('problema', 'El administrador aun no te ha isAuthorized');
+                $this->set('_serialize', ['problema']);
             }else{
                 if(!(new DefaultPasswordHasher)->check($data['password'], $user['password'])) {
                     $this->response->statusCode(403);
@@ -632,11 +632,11 @@ class UserController extends AppController
                         header('Access-Control-Allow-Origin: *');
                         $this->response->statusCode(403);
                         header('Content-Type: application/json');
-                        $this->set('problema', 'Las credenciales son incorrectas');    
-                        $this->set('_serialize', ['problema']); 
+                        $this->set('problema', 'Las credenciales son incorrectas');
+                        $this->set('_serialize', ['problema']);
                     }
-                } 
-            }    
+                }
+            }
         }
     }
 
@@ -644,7 +644,7 @@ class UserController extends AppController
     Función que permite hacer login a un paciente
     */
     public function loginPaciente()
-    {   
+    {
         $this->autoRender = false;
         $data = $this->request->getData();
         $userRaw = $this->User->find('all', array(
@@ -663,8 +663,8 @@ class UserController extends AppController
             $this->response->statusCode(403);
             header('Access-Control-Allow-Origin: *');
             header('Content-Type: application/json');
-            $this->set('problema', 'El usuario aun no esta registrado');    
-            $this->set('_serialize', ['problema']); 
+            $this->set('problema', 'El usuario aun no esta registrado');
+            $this->set('_serialize', ['problema']);
         }else{
             foreach($userRaw as $user){
                 $user = $user;
@@ -689,31 +689,31 @@ class UserController extends AppController
                 header('Access-Control-Allow-Origin: *');
                 $this->response->statusCode(403);
                 header('Content-Type: application/json');
-                $this->set('problema', 'Las credenciales son incorrectas');    
-                $this->set('_serialize', ['problema']); 
+                $this->set('problema', 'Las credenciales son incorrectas');
+                $this->set('_serialize', ['problema']);
             }else{
                 $user['ficha'] = $idFicha;
             }
-    
+
             if($estadoCuenta == "desactivada"){
                 header('Access-Control-Allow-Origin: *');
                 $this->response->statusCode(403);
                 header('Content-Type: application/json');
-                $this->set('problema', 'Aun no has activado tu cuenta en el e-mail');    
-                $this->set('_serialize', ['problema']); 
+                $this->set('problema', 'Aun no has activado tu cuenta en el e-mail');
+                $this->set('_serialize', ['problema']);
             }else if($estadoCuenta == "activada"){
                 header('Access-Control-Allow-Origin: *');
                 $this->response->statusCode(403);
                 header('Content-Type: application/json');
-                $this->set('problema', 'El administrador aun no te ha isAuthorized');    
-                $this->set('_serialize', ['problema']); 
+                $this->set('problema', 'El administrador aun no te ha isAuthorized');
+                $this->set('_serialize', ['problema']);
             }else{
                 if(!(new DefaultPasswordHasher)->check($data['password'], $user['password'])) {
                     header('Access-Control-Allow-Origin: *');
                     $this->response->statusCode(403);
                     header('Content-Type: application/json');
-                    $this->set('problema', 'Las credenciales son incorrectas');    
-                    $this->set('_serialize', ['problema']); 
+                    $this->set('problema', 'Las credenciales son incorrectas');
+                    $this->set('_serialize', ['problema']);
                 }
                 else if($estadoCuenta == "autorizada" && $rol == "paciente" ){
                     $this->activarUser($user['id']);
@@ -735,10 +735,10 @@ class UserController extends AppController
                     header('Access-Control-Allow-Origin: *');
                     $this->response->statusCode(403);
                     header('Content-Type: application/json');
-                    $this->set('problema', 'Las credenciales son incorrectas');    
-                    $this->set('_serialize', ['problema']); 
+                    $this->set('problema', 'Las credenciales son incorrectas');
+                    $this->set('_serialize', ['problema']);
                 }
-            }    
+            }
         }
     }
 
@@ -751,7 +751,7 @@ class UserController extends AppController
         $this->autoRender = false;
         $user = $this->User->newEntity($this->request->data);
 
-        if ($this->User->save($user)){  
+        if ($this->User->save($user)){
 
             $iterador = $this->User->find()->where(['username' => $user['username']])->all();
             foreach($iterador as $usuario){
@@ -776,8 +776,8 @@ class UserController extends AppController
                 $email->send('<h3> Hola, se ha creado una nueva cuenta asociada al usuario '.$user['username'].'</h3> <br>
                  <a href="http://localhost:4200/activatedUser/'.$idUsuario.'">Haz click aquí para activarla</a> <br>
                  Para poder usarla el administrador tendrá que aprobar la solicitud después de haber activado la cuenta <br> <br>
-                 <h4> SSEC </h4>');  
-                 
+                 <h4> SSEC </h4>');
+
                 $datosCuenta = array();
                 $datosCuenta['rol'] = "medico";
                 $datosCuenta['estado'] = "desactivada";
@@ -788,17 +788,17 @@ class UserController extends AppController
 
                 $this->response->statusCode(200);
                 $this->response->type('json');
-                $this->set('respuesta', $user);   
+                $this->set('respuesta', $user);
                 $this->set('_serialize', ['respuesta']);
 
         }else{
 
             $this->response->statusCode(500);
             $this->response->type('json');
-            $this->set('respuesta', 'Error al crear el usuario');   
+            $this->set('respuesta', 'Error al crear el usuario');
             $this->set('_serialize', ['respuesta']);
 
-        }  
+        }
     }
 
     /*
@@ -806,23 +806,23 @@ class UserController extends AppController
     */
     public function registerPaciente()
     {
-        $this->request->allowMethod(['post']);   
+        $this->request->allowMethod(['post']);
         $this->autoRender = false;
         $data = $this->request->getData();
         $data['id'] = null;
-        
+
         $user = $this->User->newEntity();
         $user = $this->User->patchEntity($user, $data);
 
         $error = array();
         $error['error'] = "no se puedo crear el usuario";
 
-        if ($this->User->save($user)){  
+        if ($this->User->save($user)){
 
             $iterador = $this->User->find()->where(['username' => $user['username']])->all();
             foreach($iterador as $usuario){
-                $idUsuario = $usuario['id']; 
-                $emailUsuario =  $usuario['email'];               
+                $idUsuario = $usuario['id'];
+                $emailUsuario =  $usuario['email'];
             }
 
             TransportFactory::setConfig('mailtrap', [
@@ -842,8 +842,8 @@ class UserController extends AppController
                 $email->send('<h3> Hola, se ha creado una nueva cuenta asociada al usuario '.$user['username'].'</h3> <br>
                 <a href="http://localhost:4200/activatedUser/'.$idUsuario.'">Haz click aquí para activarla</a> <br>
                  Para poder usarla el administrador tendrá que aprobar la solicitud después de haber activado la cuenta <br> <br>
-                 <h4> SSEC </h4>');  
-                 
+                 <h4> SSEC </h4>');
+
                 $datosCuenta = array();
                 $datosCuenta['rol'] = "paciente";
                 $datosCuenta['estado'] = "desactivada";
@@ -866,7 +866,7 @@ class UserController extends AppController
                 $this->response->type('json');
                 $json = json_encode($user->errors());
                 $this->response->body($json);
-        } 
+        }
     }
 
     /*
@@ -886,8 +886,8 @@ class UserController extends AppController
         header('Access-Control-Allow-Origin: *');
         header($_SERVER['SERVER_PROTOCOL'].' 200 Ok');
         header('Content-Type: application/json; charset=utf-8');
-        $this->set('UsuarioCreado', $idCuenta);   
-        $this->set('_serialize', ['UsuarioCreado']); 
+        $this->set('UsuarioCreado', $idCuenta);
+        $this->set('_serialize', ['UsuarioCreado']);
     }
 
     /*
@@ -910,7 +910,7 @@ class UserController extends AppController
                 foreach($iteradorCuentas as $cuenta){
                     if($cuenta['estado'] == "activada"){
                         $usuario['rol'] = $cuenta['rol'];
-                        $usuarioFinal[$i++] = $usuario;  
+                        $usuarioFinal[$i++] = $usuario;
                     }
                 }
             }
@@ -946,7 +946,7 @@ class UserController extends AppController
                 $iteradorCuentas = $cuenta->find()->where(['user' => $usuario['id']])->all();
                 foreach($iteradorCuentas as $cuenta){
                     if($cuenta['estado'] == "activada"){
-                        $usuarioFinal[$i++] = $usuario;  
+                        $usuarioFinal[$i++] = $usuario;
                     }
                 }
             }
@@ -984,7 +984,7 @@ class UserController extends AppController
 
             $cuentaController = (new CuentaController());
             $cuentaController->edit($idCuenta, $data['valorCuenta'] );
-    
+
             $this->response->statusCode(200);
             $this->response->type('json');
             $json = json_encode($data);

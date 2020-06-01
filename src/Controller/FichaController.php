@@ -111,24 +111,6 @@ class FichaController extends AppController
                 }else{
                     $conditions = array($fechaInicio, $fechaFin);
                 }  
-
-                $condicionesPaciente = array();
-                if(isset($data['filtro']['nombrePaciente'])){
-                    $nombre = array("u.nombre LIKE" => "%".$data['filtro']['nombrePaciente']."%");
-                }else{
-                    $nombre = "";
-                }  
-                if(isset($data['filtro']['apellidosPaciente'])){
-                    $apellidos = array("u.apellidos LIKE" => "%".$data['filtro']['apellidosPaciente']."%");
-                }else{
-                    $apellidos = "";
-                }  
-                if(isset($data['filtro']['dniPaciente'])){
-                    $dniPaciente = array("u.dni LIKE" => "%".$data['filtro']['dniPaciente']."%");
-                }else{
-                    $dniPaciente = "";
-                } 
-                $condicionesPaciente = array($nombre, $apellidos, $dniPaciente);
             } 
 
             $fichas = $this->Ficha->find('all', array('conditions' => $conditions));
